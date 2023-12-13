@@ -5,10 +5,7 @@
 class Functions {
     // ======== Functions ========
     # ==== PHP ====
-    public static function test(): void {
-        echo "Hello World!";
-    }
-    public static function pathUntilIndex(): void {
+    public static function pathUntilIndex(): string{
         // ======== Declaring Variables ========
         $currentPath = $_SERVER['PHP_SELF'];
 
@@ -17,9 +14,12 @@ class Functions {
         if (str_contains($currentPath, 'index.php')) {
             $strPath = './';
         } else {
-            $goDownsUntilIndex = substr_count($currentPath, '/') - 2;
-            $strPath = str_repeat('../', $goDownsUntilIndex);
+            # Get the amount of slashes in the path
+            $intSlashCount = substr_count($currentPath, '/');
+            # Create the path
+            $strPath = str_repeat('../', $intSlashCount-1);
         }
+        return($strPath);
     }
 
     # ==== HTML ====
@@ -36,8 +36,12 @@ class Functions {
                     <title>Pizzaria Sopranos</title>
                     
                     <!-- CSS Imports -->
-                    <link rel='stylesheet' href='".self::pathUntilIndex()."/files/css/bootstrap.min.css'>
-                    <link rel='stylesheet' href='".self::pathUntilIndex()."/files/css/style.css'>
+                    <link rel='stylesheet' href='".self::pathUntilIndex()."files/css/bootstrap.min.css'>
+                    <link rel='stylesheet' href='".self::pathUntilIndex()."files/css/style.css'>
+                    
+                    <!-- JS Imports -->
+                    <script src='".self::pathUntilIndex()."files/js/jquery-3.7.1.min.js'></script>
+                    <script src='".self::pathUntilIndex()."files/js/bootstrap.bundle.min.js'></script> 
                 </head>
                 <body>
         ");
@@ -45,9 +49,6 @@ class Functions {
 
     public static function htmlFooter(): void {
         echo("
-                    <!-- JS Imports -->
-                    <script src='".self::pathUntilIndex()."/files/js/jquery-3.7.1.min.js'></script>
-                    <script src='".self::pathUntilIndex()."/files/js/bootstrap.bundle.min.js'></script>
                 </body>
             </html>
         ");

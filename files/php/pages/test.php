@@ -7,5 +7,11 @@ require_once($_SERVER["DOCUMENT_ROOT"].'/files/php/functions.php');
 
 // ============ Start of Program ============
 Functions::htmlHeader();
-echo "<h1>Hello World!</h1>";
+echo ("
+<div>
+    <label for='nameEmailInput'>Email: </label>
+    <input type='text' id='idEmailInput' name='nameEmailInput'>
+</div>
+");
+
 Functions::htmlFooter();

@@ -1,0 +1,25 @@
+.htmlHeader{
+    width: 100%;
+    height: auto;
+}
+
+.login{
+    font-size: 30px;
+    font-weight: 100;
+}
+
+.headerDivs{
+    width: 50%;
+    height: auto;
+    float: left;
+}
+
+.headerDivs p {
+    text-decoration: none;
+    float: right;
+    margin-right: 5%;
+}
+
+img{
+    float: left;
+}

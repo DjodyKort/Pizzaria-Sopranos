@@ -18,10 +18,10 @@ echo("
         <button class='children' >Locations</button>
     </div>
     <div class='inputPostcode'>
-        <input class='children' type='text' placeholdeer='vul postcode in'>
+        <input class='children' type='text' placeholder='vul postcode in'>
     </div>
     <div class='submit'>
-        <input  type='submit' placeholdeer='vul postcode in'>
+        <input  type='submit' placeholder='vul postcode in'>
     </div>
 </div>
 

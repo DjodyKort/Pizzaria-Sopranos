@@ -7,3 +7,4 @@ require_once('files/php/functions.php');
 
 // ============ Start of Program ============
 Functions::test();
+echo "je stinkt";

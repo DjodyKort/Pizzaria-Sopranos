@@ -8,7 +8,7 @@ class Functions {
     public static function test(): void {
         echo "Hello World!";
     }
-    public static function pathUntilIndex(): void {
+    public static function pathUntilIndex(): string {
         // ======== Declaring Variables ========
         $currentPath = $_SERVER['PHP_SELF'];
 
@@ -20,6 +20,7 @@ class Functions {
             $goDownsUntilIndex = substr_count($currentPath, '/') - 2;
             $strPath = str_repeat('../', $goDownsUntilIndex);
         }
+        return($strPath);
     }
 
     # ==== HTML ====
@@ -40,6 +41,15 @@ class Functions {
                     <link rel='stylesheet' href='".self::pathUntilIndex()."/files/css/style.css'>
                 </head>
                 <body>
+                    <div class='htmlHeader'>
+                        <div class='headerDivs'>
+                            <img src='./images/logo.jpg' class='image'>
+                        </div>
+                        <div class='headerDivs'>
+                            <p class='login'><a href='./files/php/pages/signUp.php'>Login</a></p>
+                            <p class='sign up'><a href='./files/php/pages/registreer.php'>Registreer</a></p>
+                        </div>
+                    </div>
         ");
     }
 

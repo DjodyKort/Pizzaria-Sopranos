@@ -17,7 +17,7 @@ class Functions {
             # Get the amount of slashes in the path
             $intSlashCount = substr_count($currentPath, '/');
             # Create the path
-            $strPath = str_repeat('../', $intSlashCount-1);
+            $strPath = str_repeat('../', $intSlashCount-2);
         }
         return($strPath);
     }

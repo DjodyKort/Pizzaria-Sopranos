@@ -1,15 +1,15 @@
 <?php
 // ============ Imports ============
 # Internally
-require_once($_SERVER["DOCUMENT_ROOT"].'/files/php/functions.php');
-require_once($_SERVER["DOCUMENT_ROOT"].'/files/php/classes.php');
+require_once('../functions.php');
+require_once('../classes.php');
 
 // ============ Declaring Variables ============
 
 // ============ Start of Program ============
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     # Send form to API
-    $boolSuccess = Functions::sendFormToAPI(Functions::pathToURL(Functions::pathUntilIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
+    $boolSuccess = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
 
     # Check if it's done
     if ($boolSuccess){

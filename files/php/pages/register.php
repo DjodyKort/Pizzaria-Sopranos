@@ -7,61 +7,58 @@ require_once('../classes.php');
 // ============ Declaring Variables ============
 
 // ============ Start of Program ============
-Functions::htmlHeader();
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // ======== Declaring Variables ========
+    # ==== Bools ====
+    $boolTrue = True;
 
+    // ======== Start of POST Request ========
+    # Checking if all the fields are filled in
+    if (empty($_POST['nameNameInput']) || empty($_POST['nameEmailInput']) || empty($_POST['namePasswordInput']) || empty($_POST['namePasswordRepeatInput'])) {
+        echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+        $boolTrue = False;
+    }
+    # Checking if the passwords are the same
+    if (!Functions::isEqual($_POST['namePasswordInput'], $_POST['namePasswordRepeatInput'])) {
+        echo("De wachtwoorden zijn niet hetzelfde!");
+        $boolTrue = False;
+    }
 
-echo("
-<div class='box'>
-<form method='post'>
-
-    <label for='name'>enter your name</label><br>
-    <input type='text' name='name' placeholder='bernt'><br>");
-
-if($_SESSION['error'] != ""){
-    echo $_SESSION['error'];
-    unset($_SESSION['error']);
-}
-
-echo("
-    <label for='email'>enter your email</label><br>
-    <input type='email' name='email' placeholder='pizza@pizza.com'><br>
-
-    <label for='password'>enter your password</label><br>
-    <input type='password' name='password'><br>");
-
-if($_SESSION['error'] != ""){
-    echo $_SESSION['error'];
-}
-
-echo("
-    <label for='confirmPassword'>confirm password</label><br>
-    <input type='password' name='confirmPassword'><br>
-
-    <input type='submit' name='submit'>
-</form>
-</div>
-");
-
-if(!empty($_POST)){
-    
-    if(isset($_POST['submit'])){
-        $email = $_POST['email'];
-        $query = "SELECT * FROM users WHERE `email` = ?";
-        $array = PizzariaSopranosDB::pdoSqlReturnArray($query, [$email]);
-        if( !array_key_exists("email", $array)){
-            if($_POST['password'] != $_POST['confirmPassword']){
-                //echo "passwords are not the same";
-            }else{
-                $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                $query = "INSERT INTO users (name , email , password) VALUES (? , ? , ?)";
-                PizzariaSopranosDB::pdoSqlReturnLastID($query, [$_POST['name'], $_POST['email'], $password ]);
-                header('Location: ./login.php');
-            }
-        }else{
-            //echo  "email already registered";
+    if ($boolTrue) {
+        # Send form to API
+        $boolSuccess = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
+        # Check if it's done
+        if ($boolSuccess){
+            echo("Het account is aangemaakt!");
+        }
+        else {
+            echo("Er is iets fout gegaan, probeer het later opnieuw!");
         }
     }
 }
 
+Functions::htmlHeader();
+echo("
+<div class='box'>
+    <form method='post'>
+        <label for='nameNameInput'>Naam: </label><br/>
+            <input type='text' id='idNameInput' name='nameNameInput'><br/>
+            <br/>
+            
+            <label for='nameEmailInput'>Email: </label><br/>
+            <input type='email' id='idEmailInput' name='nameEmailInput'><br/>
+            <br/>
+            
+            <label for='namePasswordInput'>Wachtwoord: </label><br/>
+            <input type='password' id='idPasswordInput' name='namePasswordInput'><br/>
+            <br/>
+            
+            <label for='namePasswordRepeatInput'>Wachtwoord herhalen: </label><br/>
+            <input type='password' id='idPasswordRepeatInput' name='namePasswordRepeatInput'><br/>
+            <br/>
+            
+            <input class='btn-primary btn' type='submit' value='Verzenden'>
+    </form>
+</div>
+");
 Functions::htmlFooter();
-?>

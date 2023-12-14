@@ -1,8 +1,8 @@
 <?php
 // ============ Imports ============
 # Internally
-require_once($_SERVER["DOCUMENT_ROOT"].'/files/php/functions.php');
-require_once($_SERVER["DOCUMENT_ROOT"].'/files/php/classes.php');
+require_once('../functions.php');
+require_once('../classes.php');
 
 // ============ Declaring Variables ============
 $uri = $_SERVER['REQUEST_URI'] ?? '';
@@ -23,9 +23,9 @@ if (!empty($uri) && !empty($method)) {
         case '/createUser':
             // ======== POST ========
             if ($method == 'POST') {
-                // ==== Declaring Variables ====
+                // ==== Checking access ====
                 # Access
-                $boolAccessGranted = Functions::checkAuthentication($headers['Authorization'], ConfigData::$userAPIAccessToken);
+                $boolAccessGranted = Functions::isEqual($headers['Authorization'], ConfigData::$userAPIAccessToken);
                 if (!$boolAccessGranted) {
                     Functions::setHTTPResponseCode(401);
                     Functions::returnJson([
@@ -34,7 +34,8 @@ if (!empty($uri) && !empty($method)) {
                     exit();
                 }
 
-                # POST Variables
+                // ==== Declaring Variables ====
+                # == Datetime ==
                 try {
                     $dateTimeNow = new DateTime('now', new DateTimeZone('Europe/Amsterdam'));
                     $dateTimeNow = $dateTimeNow->format('Y-m-d H:i:s');
@@ -48,9 +49,38 @@ if (!empty($uri) && !empty($method)) {
 
                 }
 
+                # == Strings ==
+                # POST Variables
+                $strName = $_POST['nameNameInput'] ?? '';
+                $strEmail = $_POST['nameEmailInput'] ?? '';
+                $strPassword = $_POST['namePasswordInput'] ?? '';
+                if (empty($strName) || empty($strEmail) || empty($strPassword)) {
+                    Functions::setHTTPResponseCode(400);
+                    Functions::returnJson([
+                        'error' => 'Invalid POST data'
+                    ]);
+                    exit();
+                }
+
+                // ==== Start of Program ====
+                # Hash the password
+                $strPassword = password_hash($strPassword, PASSWORD_DEFAULT);
+
+                # Insert the user
+                $query = "INSERT INTO users (name , email , password, dateUserCreated) VALUES (? , ? , ?, ?)";
+                try {
+                    PizzariaSopranosDB::pdoSqlReturnTrue($query, [$strName, $strEmail, $strPassword, $dateTimeNow]);
+                }
+                catch (Exception $e) {
+                    Functions::setHTTPResponseCode(500);
+                    Functions::returnJson([
+                        'error' => 'Something went wrong'
+                    ]);
+                    exit();
+                }
                 Functions::setHTTPResponseCode(200);
                 Functions::returnJson([
-                    'test' => 'test'
+                    'status' => 'success',
                 ]);
             }
             else {

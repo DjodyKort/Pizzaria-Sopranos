@@ -5,8 +5,6 @@
 require_once('../functions.php');
 require_once('../classes.php');
 
-
-
 // ============ Declaring Variables ============
 
 // ============ Start of Program ============

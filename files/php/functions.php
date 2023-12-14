@@ -1,16 +1,12 @@
 <?php
-// ============ Imports ============
-
 // ============ Functions ============
 class Functions {
     // ======== Functions ========
     # ==== API (HTML/JSON) ====
     public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): bool {
-        // ======== Imports ========
-        require_once($_SERVER["DOCUMENT_ROOT"].'/files/php/classes.php');
-
         // ======== Declaring Variables ========
         $curl = curl_init();
+        echo($strAPIURL); echo "<br/>";
 
         // ======== Start of Program ========
         curl_setopt_array($curl, array(
@@ -31,10 +27,11 @@ class Functions {
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
+        echo(curl_getinfo($curl, CURLINFO_HTTP_CODE));
 
         return curl_getinfo($curl, CURLINFO_HTTP_CODE) == 200;
     }
-    public static function checkAuthentication(string $strGivenKey, string $strCorrectKey): bool {
+    public static function isEqual(string $strGivenKey, string $strCorrectKey): bool {
         return $strGivenKey === $strCorrectKey;
     }
     public static function setHTTPResponseCode(int $intCode): void {
@@ -46,23 +43,22 @@ class Functions {
     }
 
     # ==== PHP ====
-    public static function pathToURL($file, $protocol='https://'): string {
+    public static function pathToURL($file, $protocol = 'https://'): string {
         // ======== Declaring Variables ========
-        $projectRoot = '/'.explode('/', $_SERVER['PHP_SELF'])[1];
-
+        # ==== Strings ====
+        $documentRoot = realpath(self::dynamicPathFromIndex(__FILE__));
         if (str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
+            // Getting the name of folder
+            $folderName = '/'.basename($documentRoot);
             $protocol = 'http://';
-            $projectRoot = $protocol . $_SERVER['HTTP_HOST'] . $projectRoot;
-        } else {
-            $projectRoot = $protocol . $_SERVER['HTTP_HOST'];
+        }
+        else {
+            $folderName = '';
         }
 
         // ======== Start of Program ========
         // Get the absolute path of the file
         $filePath = realpath($file);
-
-        // Get the document root
-        $documentRoot = realpath($_SERVER['DOCUMENT_ROOT']);
 
         // Get the relative path to the file
         $relativePath = str_replace($documentRoot, '', $filePath);
@@ -70,33 +66,39 @@ class Functions {
         // Replace any directory separators with URL separators
         $relativeUrl = str_replace(DIRECTORY_SEPARATOR, '/', $relativePath);
 
-        // Combine the base URL with the relative URL
-        $url = $projectRoot . $relativeUrl;
+        // Ensure that the relative URL does not start with '/'
+        $relativeUrl = ltrim($relativeUrl, '/');
 
+        // Combine the base URL with the relative URL
+        $url = "{$protocol}{$_SERVER['HTTP_HOST']}{$folderName}/{$relativeUrl}";
         return $url;
     }
-    public static function pathUntilIndex(): string{
+
+    public static function dynamicPathFromIndex(): string {
         // ======== Declaring Variables ========
+        # Strings
         $currentPath = $_SERVER['PHP_SELF'];
 
+        # Ints
+        $intSubFromPathDepth = str_contains($_SERVER['HTTP_HOST'], 'localhost') ? 2 : 1;
+
         // ======== Start of Function ========
-        # Check if index.php is in the path
-        if (str_contains($currentPath, 'index.php')) {
-            $strPath = './';
+        # Checking if the current path is not the index
+        $pathSegments = explode('/', $currentPath);
+        $filteredSegments = array_filter($pathSegments); // Remove empty segments
+
+        $intPathDepth = count($filteredSegments);
+
+        // If you want the path as a string, you can use implode
+        $strPath = str_repeat('../', $intPathDepth - $intSubFromPathDepth);
+
+        if ($strPath == '') {
+            // If the current path is the index, return './'
+            return './';
         }
-        else {
-            # Get the amount of slashes in the path
-            $intSlashCount = substr_count($currentPath, '/');
-            if (str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
-                # Create the path
-                $strPath = str_repeat('../', $intSlashCount-2);
-            } else {
-                # Create the path
-                $strPath = str_repeat('../', $intSlashCount-1);
-            }
-        }
-        return($strPath);
+        return $strPath;
     }
+
 
 
     # ==== HTML ====
@@ -114,18 +116,18 @@ class Functions {
                     <title>Pizzaria Sopranos</title>
                     
                     <!-- CSS Imports -->
-                    <link rel='stylesheet' href='".self::pathUntilIndex()."files/css/bootstrap.min.css'>
-                    <link rel='stylesheet' href='".self::pathUntilIndex()."files/css/style.css'>
+                    <link rel='stylesheet' href='".self::dynamicPathFromIndex()."files/css/bootstrap.min.css'>
+                    <link rel='stylesheet' href='".self::dynamicPathFromIndex()."files/css/style.css'>
                     
                     <!-- JS Imports -->
-                    <script src='".self::pathUntilIndex()."files/js/jquery-3.7.1.min.js'></script>
-                    <script src='".self::pathUntilIndex()."files/js/bootstrap.bundle.min.js'></script> 
+                    <script src='".self::dynamicPathFromIndex()."files/js/jquery-3.7.1.min.js'></script>
+                    <script src='".self::dynamicPathFromIndex()."files/js/bootstrap.bundle.min.js'></script> 
                 </head>
                 <body>
                 <div class='htmlHeader'>
                         <div class='headerDivs'>
-                        <a href=".self::pathUntilIndex().">
-                            <img src='".self::pathUntilIndex()."files/images/logo.jpg' class='image'>
+                        <a href=".self::dynamicPathFromIndex().">
+                            <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='image'>
                         </a>
                         </div>
                         ");
@@ -133,8 +135,8 @@ class Functions {
                         if(!isset($_SESSION['loggedIn'])){
                         echo("
                             <div class='headerDivs'>
-                                <p class='login'><a href='".self::pathUntilIndex()."files/php/pages/login.php'>Login</a></p>
-                                <p class='signUp'><a href='".self::pathUntilIndex()."files/php/pages/register.php'>Registreer</a></p>
+                                <p class='login'><a href='".self::dynamicPathFromIndex()."files/php/pages/login.php'>Login</a></p>
+                                <p class='signUp'><a href='".self::dynamicPathFromIndex()."files/php/pages/register.php'>Registreer</a></p>
                             </div>
                         ");
                         }else if ($_SESSION['loggedIn']){

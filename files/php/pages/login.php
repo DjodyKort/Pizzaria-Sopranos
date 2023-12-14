@@ -5,6 +5,8 @@
 require_once('../functions.php');
 require_once('../classes.php');
 
+
+
 // ============ Declaring Variables ============
 
 // ============ Start of Program ============
@@ -29,12 +31,14 @@ if(!empty($_POST)){
     if(isset($_POST['submit'])){
         $email = $_POST['email'];
 
-        $query = "SELECT * FROM user WHERE `email` = ?";
+        $query = "SELECT * FROM users WHERE `email` = ?";
 
         $array = PizzariaSopranosDB::pdoSqlReturnArray($query, [$email]);
         print_r($array[0]['password'] . "<br/>");
-        if (password_verify('1234', $array[0]['password'])) {
+        if (password_verify($_POST['password'], $array[0]['password'])) {
             echo "success";
+            $_SESSION['loggedIn'] = true;
+            $_SESSION['username'] = $array[0]['name'];
         } else {
             echo "Invalid email or password";
         }

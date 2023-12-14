@@ -98,10 +98,12 @@ class Functions {
         return($strPath);
     }
 
+
     # ==== HTML ====
     public static function htmlHeader(): void {
         // ======== Declaring Variables ========
-
+        session_start();
+        
         // ======== Start of Program ========
         echo("
         <!DOCTYPE html>
@@ -120,6 +122,30 @@ class Functions {
                     <script src='".self::pathUntilIndex()."files/js/bootstrap.bundle.min.js'></script> 
                 </head>
                 <body>
+                <div class='htmlHeader'>
+                        <div class='headerDivs'>
+                        <a href=".self::pathUntilIndex().">
+                            <img src='".self::pathUntilIndex()."files/images/logo.jpg' class='image'>
+                        </a>
+                        </div>
+                        ");
+
+                        if(!isset($_SESSION['loggedIn'])){
+                        echo("
+                            <div class='headerDivs'>
+                                <p class='login'><a href='".self::pathUntilIndex()."files/php/pages/login.php'>Login</a></p>
+                                <p class='signUp'><a href='".self::pathUntilIndex()."files/php/pages/register.php'>Registreer</a></p>
+                            </div>
+                        ");
+                        }else if ($_SESSION['loggedIn']){
+                            echo("
+                            <div class='headerDivs'>
+                                <p class='username'><a href=''>". $_SESSION['username'] ."</a></p>
+                            </div>
+                        ");
+                        }
+                        echo("
+                    </div>
         ");
     }
 

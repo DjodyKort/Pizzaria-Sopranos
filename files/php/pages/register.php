@@ -33,13 +33,21 @@ echo("
 
 if(!empty($_POST)){
     if(isset($_POST['submit'])){
-        if($_POST['password'] != $_POST['confirmPassword']){
-            exit;
+
+        $email = $_POST['email'];
+        $query = "SELECT * FROM user WHERE `email` = ?";
+        $array = PizzariaSopranosDB::pdoSqlReturnArray($query, [$email]);
+        if($array[0]['email'] != $email){
+            if($_POST['password'] != $_POST['confirmPassword']){
+                exit;
+            }else{
+                $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                $query = "INSERT INTO user (name , email , password) VALUES (? , ? , ?)";
+                PizzariaSopranosDB::pdoSqlReturnLastID($query, [$_POST['name'], $_POST['email'], $password ]);
+                header('Location: ./login.php');
+            }
         }else{
-            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $query = "INSERT INTO user (name , email , password) VALUES (? , ? , ?)";
-            PizzariaSopranosDB::pdoSqlReturnLastID($query, [$_POST['name'], $_POST['email'], $password ]);
-            header('Location: ./login.php');
+            $error = "error";
         }
     }
 }

@@ -3,7 +3,10 @@
 
 // ============ Classes ============
 class ConfigData {
-
+    // ======== Declaring Variables ========
+    # ==== Strings ====
+    # Authentication
+    public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
 }
 
 class PizzariaSopranosDB {

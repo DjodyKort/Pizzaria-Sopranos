@@ -171,11 +171,13 @@ class Functions {
                             </div>
                         ");
                         }else if ($_SESSION['loggedIn']){
+                            unset($_SESSION['loggedIn']);
                             echo("
                             <div class='headerDivs'>
-                                <p class='username'><a href=''>". $_SESSION['username'] ."</a></p>
+                                <p class='username'><a href='./index.php'>". $_SESSION['username'] ."</a></p>
                             </div>
                         ");
+                        
                         }
                         echo("
                     </div>

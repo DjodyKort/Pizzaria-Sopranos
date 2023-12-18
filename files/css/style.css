@@ -1,9 +1,9 @@
-.htmlHeader{
+.htmlHeader {
     width: 100%;
     height: auto;
 }
 
-.headerDivs{
+.headerDivs {
     width: 50%;
     height: auto;
     float: left;
@@ -16,20 +16,19 @@
     float: right;
     margin-right: 5%;
     margin-top: 5%;
-    
+
 }
 
-.box{
+.box {
     width: 500px;
     transform: translate(-50%, -50%);
     padding: 10px;
     position: absolute;
     top: 50%;
     left: 50%;
-    border: 5px solid;
 }
 
-.box div{
+.box div {
     margin: 5%;
 }
 
@@ -38,22 +37,22 @@
     flex-direction: column;
     align-items: center;
 }
-  
 
-.button button{
+
+.button button {
     width: 30%;
-    display:inline-block;
+    display: inline-block;
 }
 
-.inputPostcode input{
+.inputPostcode input {
     width: 100%;
 }
 
-.submit input{
+.submit input {
     width: 100%;
 }
 
-body{
+body {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -63,8 +62,8 @@ body{
     display: flex;
 }
 
-.MenuContainer{
-    width:50%;
+.MenuContainer {
+    width: 50%;
     display: grid;
     margin: 50px 5px 0 auto;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -73,12 +72,12 @@ body{
 }
 
 .invisible {
-    display: none ;
+    display: none;
 }
 
-.PizzaImg{
+.PizzaImg {
     max-width: 200px;
-    width:max-content;
+    width: max-content;
     border-radius: 5px;
 }
 
@@ -87,18 +86,18 @@ body{
     font-size: 1.2rem;
 }
 
-.MenuContainer > div {
+.MenuContainer>div {
     display: flex;
     margin: 0;
     justify-content: center;
-    align-items:center;
+    align-items: center;
     text-align: center;
     border: 1px solid black;
     border-radius: 6px;
     padding: 10px;
 }
 
-.CartContainer{
+.CartContainer {
     width: 30%;
     height: 80%;
     margin: 50px auto 0 5px;
@@ -107,7 +106,7 @@ body{
     align-items: center;
 }
 
-.CartView{
+.CartView {
     background-color: green;
     border-radius: 5px;
     display: grid;
@@ -115,7 +114,8 @@ body{
     text-align: center;
 
 }
-.CartOrdercontainer{
+
+.CartOrdercontainer {
     background-color: rgb(255, 255, 255);
     min-height: 200px;
     height: auto;
@@ -124,7 +124,7 @@ body{
     padding: 5px;
 }
 
-.CartConfirm{
+.CartConfirm {
     display: grid;
     justify-self: right;
     padding: 6px 10px;
@@ -134,10 +134,75 @@ body{
     border: 0px;
 }
 
-.OrderContainer{
+.OrderContainer {
     justify-self: space-between;
 }
 
-.CartOrder{
-    margin-top:20px;
+.CartOrder {
+    margin-top: 20px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #ff0000;
+    text-align: center;
+}
+
+h2 {
+    color: #333333;
+    text-align: center;
+}
+
+form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+    /* Added this line */
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #333333;
+}
+
+.enterZipText,
+input[type="radio"],
+input[type="submit"] {
+    width: 100%;
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+input[type="radio"]+label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    margin-right: 10px;
+}
+
+input[type="radio"]:checked+label {
+    background-color: #ff0000;
+}
+
+input[type="text"],
+input[type="submit"] {
+    display: block;
 }

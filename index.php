@@ -13,18 +13,25 @@ Functions::htmlHeader();
 
 echo("
 <div class='box'>
-    <div class='buttons'>
-        <button class='children' >Takeout</button>
-        <button class='children' >Delivery</button>
-        <button class='children' >Locations</button>
-    </div>
-    <form method='post'>
-        <div class='inputPostcode'>
-            <input class='children' type='text' placeholder='vul postcode in'>
+<h1>Welcome to Pizzaria Sopranos</h1>
+    <h2>Choose Takeout or Delivery</h2>
+    <form method='POST'>
+        <label for='order_type'>Order Type:</label>
+        <br>
+        <div class='labelDiv'>
+            <input type='radio' name='order_type' value='takeout' id='takeout' checked>
+            <label for='takeout'>Takeout</label>
+            <input type='radio' name='order_type' value='delivery' id='delivery'>
+            <label for='delivery'>Delivery</label>
         </div>
-        <div class='submit'>
-            <input  name='submit' type='submit' placeholder='vul postcode in'>
-        </div>
+        <br>
+        <br>
+        <label for='address_zipcode'>Address and Zip Code:</label>
+        <br>
+        <input type='text' class='enterZipText' id='address_zipcode' name='address_zipcode'>
+        <br>
+        <br>
+        <input type='submit' class='enterZipText' name='submit' value='Place Order'>
     </form>
 </div>
 ");

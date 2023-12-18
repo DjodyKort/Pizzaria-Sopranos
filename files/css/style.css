@@ -56,3 +56,92 @@ img{
 .submit input{
     width: 100%;
 }
+
+body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.MenuBody {
+    display: flex;
+}
+
+.MenuContainer{
+    width:50%;
+    display: grid;
+    margin: 50px 5px 0 auto;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-rows: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.invisible {
+    display: none ;
+}
+
+.PizzaImg{
+    max-width: 200px;
+    width:max-content;
+    border-radius: 5px;
+}
+
+.MenuText {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.MenuContainer > div {
+    display: flex;
+    margin: 0;
+    justify-content: center;
+    align-items:center;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.CartContainer{
+    width: 30%;
+    height: 80%;
+    margin: 50px auto 0 5px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.CartView{
+    background-color: green;
+    border-radius: 5px;
+    display: grid;
+    width: 100%;
+    text-align: center;
+
+}
+.CartOrdercontainer{
+    background-color: rgb(255, 255, 255);
+    min-height: 200px;
+    height: auto;
+    border-radius: 5px;
+    margin: 10px;
+    padding: 5px;
+}
+
+.CartConfirm{
+    display: grid;
+    justify-self: right;
+    padding: 6px 10px;
+    margin: 5px;
+    background-color: red;
+    border-radius: 5px;
+    border: 0px;
+}
+
+.OrderContainer{
+    justify-self: space-between;
+}
+
+.CartOrder{
+    margin-top:20px;
+}

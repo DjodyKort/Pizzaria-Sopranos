@@ -6,7 +6,6 @@ class Functions {
     public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): mixed {
         // ======== Declaring Variables ========
         $curl = curl_init();
-        echo($strAPIURL); echo "<br/>";
 
         // ======== Start of Program ========
         curl_setopt_array($curl, array(
@@ -135,53 +134,48 @@ class Functions {
     # ==== HTML ====
     public static function htmlHeader(): void {
         // ======== Declaring Variables ========
+        # Sessions
         session_start();
-        
+
         // ======== Start of Program ========
         echo("
         <!DOCTYPE html>
-            <html lang='en'>
-                <head>
-                    <meta charset='UTF-8'>
-                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                    <title>Pizzaria Sopranos</title>
-                    
-                    <!-- CSS Imports -->
-                    <link rel='stylesheet' href='".self::dynamicPathFromIndex()."files/css/bootstrap.min.css'>
-                    <link rel='stylesheet' href='".self::dynamicPathFromIndex()."files/css/style.css'>
-                    
-                    <!-- JS Imports -->
-                    <script src='".self::dynamicPathFromIndex()."files/js/jquery-3.7.1.min.js'></script>
-                    <script src='".self::dynamicPathFromIndex()."files/js/bootstrap.bundle.min.js'></script> 
-                </head>
-                <body>
-                <div class='htmlHeader'>
-                        <div class='headerDivs'>
-                        <a href=".self::dynamicPathFromIndex().">
-                            <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='float-start'>
-                        </a>
-                        </div>
-                        ");
-
-                        if(!isset($_SESSION['loggedIn'])){
-                        echo("
-                            <div class='headerDivs'>
-                                <p class='login'><a href='".self::dynamicPathFromIndex()."files/php/pages/login.php'>Login</a></p>
-                                <p class='signUp'><a href='".self::dynamicPathFromIndex()."files/php/pages/register.php'>Registreer</a></p>
-                            </div>
-                        ");
-                        }else if ($_SESSION['loggedIn']){
-                            unset($_SESSION['loggedIn']);
-                            echo("
-                            <div class='headerDivs'>
-                                <p class='username'><a href='./index.php'>". $_SESSION['username'] ."</a></p>
-                            </div>
-                        ");
-                        
-                        }
-                        echo("
+        <html lang='en'>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <title>Pizzaria Sopranos</title>
+                
+                <!-- CSS Imports -->
+                <link rel='stylesheet' href='".self::dynamicPathFromIndex()."files/css/bootstrap.min.css'>
+                <link rel='stylesheet' href='".self::dynamicPathFromIndex()."files/css/style.css'>
+                
+                <!-- JS Imports -->
+                <script src='".self::dynamicPathFromIndex()."files/js/jquery-3.7.1.min.js'></script>
+                <script src='".self::dynamicPathFromIndex()."files/js/bootstrap.bundle.min.js'></script> 
+            </head>
+            <body>
+            ".($_SESSION['headerMessage'] ?? '')."
+            <div class='htmlHeader'>
+                <div class='headerDivs'>
+                    <a href=".self::dynamicPathFromIndex().">
+                        <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='float-start'>
+                    </a>
+                </div> ");
+                if(!isset($_SESSION['loggedIn'])){ echo("
+                    <div class='headerDivs'>
+                        <p class='login'><a href='".self::dynamicPathFromIndex()."files/php/pages/login.php'>Login</a></p>
+                        <p class='signUp'><a href='".self::dynamicPathFromIndex()."files/php/pages/register.php'>Registreer</a></p>
+                    </div> ");
+                }
+                else if ($_SESSION['loggedIn']) { echo("  
+                    <div class='headerDivs'>
+                        <p class='username'><a href=''>". $_SESSION['username'] ."</a></p>
                     </div>
-        ");
+                ");
+                }echo("
+        </div>
+    ");
     }
 
     public static function htmlFooter(): void {

@@ -28,7 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $intStatusCode = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
         # Check if it's done
         if ($intStatusCode == 200){
-            echo("Het account is aangemaakt!");
+            // Making the header message
+            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>A simple success alert—check it out!</div>";
+
+            // Redirecting to the login page
             header("Location: ./login.php");
         }
         elseif ($intStatusCode == 409) {
@@ -66,6 +69,4 @@ echo("
 ");
 
 # Hiding the password
-Functions::hidePasswordByName('namePasswordInput');
-Functions::hidePasswordByName('namePasswordRepeatInput');
 Functions::htmlFooter();

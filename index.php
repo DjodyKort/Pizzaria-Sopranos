@@ -12,7 +12,6 @@ require_once('./files/php/classes.php');
 Functions::htmlHeader();
 
 echo("
-
 <div class='box'>
     <div class='buttons'>
         <button class='children' >Takeout</button>
@@ -28,7 +27,6 @@ echo("
         </div>
     </form>
 </div>
-
 ");
 
 if(isset($_POST['submit'])){

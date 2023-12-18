@@ -3,7 +3,7 @@
 class Functions {
     // ======== Functions ========
     # ==== API (HTML/JSON) ====
-    public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): bool {
+    public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): mixed {
         // ======== Declaring Variables ========
         $curl = curl_init();
         echo($strAPIURL); echo "<br/>";
@@ -27,9 +27,8 @@ class Functions {
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-        echo(curl_getinfo($curl, CURLINFO_HTTP_CODE));
 
-        return curl_getinfo($curl, CURLINFO_HTTP_CODE) == 200;
+        return curl_getinfo($curl, CURLINFO_HTTP_CODE);
     }
     public static function isEqual(string $strGivenKey, string $strCorrectKey): bool {
         return $strGivenKey === $strCorrectKey;
@@ -40,6 +39,40 @@ class Functions {
     public static function returnJson(array $arrData): void {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($arrData);
+    }
+
+    # ==== JS ====
+    static function hidePasswordByName($name): void {
+        echo("
+            <script>
+                // ======== Declaring Variables ========
+                let passwordTextField = document.getElementsByName('$name')[0];
+                
+                // ======== Functions ========
+                function showPassword() {
+                    if (passwordTextField.type === 'password') {
+                        passwordTextField.type = 'text';
+                        document.getElementsByName('$name')[0].type = 'text';
+                        document.getElementsByClassName('eye')[0].src = '".self::dynamicPathFromIndex()."files/images/eye-slash.svg';
+                    }
+                    else {
+                        passwordTextField.type = 'password';
+                        document.getElementsByClassName('eye')[0].src = '".self::dynamicPathFromIndex()."files/images/eye.svg';
+                    }
+                }
+                
+                // ======== Start of Function ========
+                // Hide password
+                passwordTextField.type = 'password';
+                
+                // Creating a test button
+                button = document.getElementsByName('$name')[0].insertAdjacentHTML('afterend', '<img width=\"37px\" src=\"".self::dynamicPathFromIndex()."files/images/eye.svg\" alt=\"Show Password\" class=\"eye\" onclick=\"showPassword()\">');
+                // Giving the button a cursor pointer
+                document.getElementsByClassName('eye')[0].style.cursor = 'pointer';
+                // A bit of margin to the right
+                document.getElementsByClassName('eye')[0].style.marginLeft = '14px';
+            </script>
+        ");
     }
 
     # ==== PHP ====
@@ -99,8 +132,6 @@ class Functions {
         return $strPath;
     }
 
-
-
     # ==== HTML ====
     public static function htmlHeader(): void {
         // ======== Declaring Variables ========
@@ -127,7 +158,7 @@ class Functions {
                 <div class='htmlHeader'>
                         <div class='headerDivs'>
                         <a href=".self::dynamicPathFromIndex().">
-                            <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='image'>
+                            <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='float-start'>
                         </a>
                         </div>
                         ");

@@ -23,13 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo("De wachtwoorden zijn niet hetzelfde!");
         $boolTrue = False;
     }
-
     if ($boolTrue) {
         # Send form to API
-        $boolSuccess = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
+        $intStatusCode = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
         # Check if it's done
-        if ($boolSuccess){
+        if ($intStatusCode == 200){
             echo("Het account is aangemaakt!");
+            header("Location: ./login.php");
+        }
+        elseif ($intStatusCode == 409) {
+            echo("Het account bestaat al!");
         }
         else {
             echo("Er is iets fout gegaan, probeer het later opnieuw!");
@@ -50,7 +53,7 @@ echo("
             <br/>
             
             <label for='namePasswordInput'>Wachtwoord: </label><br/>
-            <input type='password' id='idPasswordInput' name='namePasswordInput'><br/>
+            <input type='password'  class='inputPassword' id='idPasswordInput' name='namePasswordInput'><br/>
             <br/>
             
             <label for='namePasswordRepeatInput'>Wachtwoord herhalen: </label><br/>
@@ -61,4 +64,8 @@ echo("
     </form>
 </div>
 ");
+
+# Hiding the password
+Functions::hidePasswordByName('namePasswordInput');
+Functions::hidePasswordByName('namePasswordRepeatInput');
 Functions::htmlFooter();

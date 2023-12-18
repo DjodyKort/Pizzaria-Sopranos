@@ -52,7 +52,7 @@ if (!empty($uri) && !empty($method)) {
                 # == Strings ==
                 # POST Variables
                 $strName = $_POST['nameNameInput'] ?? '';
-                $strEmail = $_POST['nameEmailInput'] ?? '';
+                $strEmail = strtolower($_POST['nameEmailInput']) ?? '';
                 $strPassword = $_POST['namePasswordInput'] ?? '';
                 if (empty($strName) || empty($strEmail) || empty($strPassword)) {
                     Functions::setHTTPResponseCode(400);
@@ -65,6 +65,18 @@ if (!empty($uri) && !empty($method)) {
                 // ==== Start of Program ====
                 # Hash the password
                 $strPassword = password_hash($strPassword, PASSWORD_DEFAULT);
+
+                # Check if the user already exists
+                $query = "SELECT * FROM users WHERE email = ?";
+                $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($query, [$strEmail]);
+
+                if (count($arrResult) > 0) {
+                    Functions::setHTTPResponseCode(409);
+                    Functions::returnJson([
+                        'error' => 'User already exists'
+                    ]);
+                    exit();
+                }
 
                 # Insert the user
                 $query = "INSERT INTO users (name , email , password, dateUserCreated) VALUES (? , ? , ?, ?)";

@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 }
 
+# Body
 echo("
 <div class='box'>
     <form method='post'>

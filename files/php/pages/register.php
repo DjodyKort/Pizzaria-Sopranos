@@ -7,6 +7,10 @@ require_once('../classes.php');
 // ============ Declaring Variables ============
 
 // ============ Start of Program ============
+# Header
+Functions::htmlHeader();
+
+# POST Request
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // ======== Declaring Variables ========
     # ==== Bools ====
@@ -29,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         # Check if it's done
         if ($arrAPIReturn[0] == 200){
             // Making the header message
-            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>A simple success alert—check it out!</div>";
+            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Het account is aangemaakt!</div>";
 
             // Redirecting to the login page
             header("Location: ./login.php");
@@ -40,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-Functions::htmlHeader();
+# Body
 echo("
 <div class='box'>
     <form method='post'>
@@ -65,5 +69,5 @@ echo("
 </div>
 ");
 
-# Hiding the password
+# Footer
 Functions::htmlFooter();

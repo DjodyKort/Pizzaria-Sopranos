@@ -48,11 +48,24 @@ class Functions {
             $color = ConfigData::$statusCodes[$statusCode][1];
 
             # Echo the message
-            echo("<div class='alert alert-$color' role='alert'>$message</div>");
+            echo("
+                <div class='alert alert-$color' role='alert'>
+                    <div class='container-sm'>
+                        $message
+                        Er is iets fout gegaan, probeer het later opnieuw!
+                    </div>
+                </div>
+            ");
         }
         else {
             # Echo the message
-            echo("<div class='alert alert-danger' role='alert'>Er is iets fout gegaan, probeer het later opnieuw!</div>");
+            echo("
+                <div class='alert alert-danger' role='alert'>
+                    <div class='container-sm'>
+                        Er is iets fout gegaan, probeer het later opnieuw!
+                    </div>
+                </div>
+            ");
         }
     }
 
@@ -176,7 +189,7 @@ class Functions {
             </head>
             <body>
             <div class='container-sm'>
-                ".($headerMessage ?? '')."
+                $headerMessage
             </div>
             <div class='htmlHeader'>
                 <div class='headerDivs'>

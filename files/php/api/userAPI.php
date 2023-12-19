@@ -121,7 +121,7 @@ if (!empty($uri) && !empty($method)) {
                 }
                 catch (Exception $e) {
                     $dateTimeNow = '2023-01-01 00:00:00';
-                    Functions::setHTTPResponseCode(501);
+                    Functions::setHTTPResponseCode(419);
                     Functions::returnJson([
                         'error' => 'Invalid date'
                     ]);
@@ -149,7 +149,7 @@ if (!empty($uri) && !empty($method)) {
                 // ==== Start of Program ====
                 # Check if the user exists
                 if (count($arrResult) == 0) {
-                    Functions::setHTTPResponseCode(208);
+                    Functions::setHTTPResponseCode(401);
                     Functions::returnJson([
                         'error' => 'User not found'
                     ]);
@@ -158,7 +158,7 @@ if (!empty($uri) && !empty($method)) {
 
                 # Check if the password is correct
                 if (!password_verify($strPassword, $arrResult[0]['password'])) {
-                    Functions::setHTTPResponseCode(601);
+                    Functions::setHTTPResponseCode(420);
                     Functions::returnJson([
                         'error' => 'Invalid password'
                     ]);
@@ -176,6 +176,12 @@ if (!empty($uri) && !empty($method)) {
                         'userID' => $arrResult[0]['userID'],
                         'name' => $arrResult[0]['name']
                     ]
+                ]);
+            }
+            else {
+                Functions::setHTTPResponseCode(418);
+                Functions::returnJson([
+                    'error' => 'Invalid method'
                 ]);
             }
             break;
@@ -224,7 +230,7 @@ if (!empty($uri) && !empty($method)) {
             }
             break;
         default:
-            Functions::setHTTPResponseCode(404);
+            Functions::setHTTPResponseCode(418);
             Functions::returnJson([
                 'error' => 'Invalid endpoint'
             ]);

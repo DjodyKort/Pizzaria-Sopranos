@@ -8,43 +8,65 @@ require_once('../classes.php');
 // ============ Declaring Variables ============
 
 // ============ Start of Program ============
+# Header
 Functions::htmlHeader();
+
+# POST Request
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // ======== Declaring Variables ========
+    # ==== Bools ====
+    $boolTrue = True;
+
+    // ======== Start of POST Request ========
+    # Checking if all the fields are filled in
+    if (empty($_POST['nameEmailInput']) || empty($_POST['namePasswordInput'])) {
+        echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+        $boolTrue = False;
+    }
+
+    # Sending to API
+    if ($boolTrue) {
+        # Send form to API
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/loginUser', ConfigData::$userAPIAccessToken, $_POST);
+        # Check if it's done
+        if ($arrAPIReturn[0] == 200) {
+            // Putting the data in the session
+            $_SESSION['userID'] = $arrAPIReturn[1]['data']['userID'];
+            $_SESSION['name'] = $arrAPIReturn[1]['data']['name'];
+            $_SESSION['loggedIn'] = True;
+            if (empty($_SESSION['userID']) || empty($_SESSION['name'])) {
+                echo("Er is iets fout gegaan!");
+            }
+            else {
+                // Making the header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Ingelogd in het account!</div>";
+
+                // Redirecting to the login page
+                header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+            }
+        }
+        else {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+        }
+    }
+
+}
 
 echo("
 <div class='box'>
-<form method='post'>
-
-    <label for='email'>enter your email</label><br>
-    <input type='email' name='email' placeholder='pizza@pizza.com'><br>
-
-    <label for='password'>enter your password</label><br>
-    <input type='password' name='password'><br>
-
-    <input type='submit' name='submit'>
-</form>
+    <form method='post'>
+        <label for='nameEmailInput'>Email: </label><br/>
+        <input type='email' id='idEmailInput' name='nameEmailInput'><br/>
+        <br/>
+        
+        <label for='namePasswordInput'>Wachtwoord: </label><br/>
+        <input type='password'  class='inputPassword' id='idPasswordInput' name='namePasswordInput'><br/>
+        <br/>
+             
+        <input class='btn-primary btn' type='submit' value='Verzenden'>
+    </form>
 </div>
 ");
 
-if(!empty($_POST)){
-    if(isset($_POST['submit'])){
-        $email = $_POST['email'];
-
-        $query = "SELECT * FROM users WHERE `email` = ?";
-
-        $array = PizzariaSopranosDB::pdoSqlReturnArray($query, [$email]);
-        if(!empty($array)){
-            if (password_verify($_POST['password'], $array[0]['password'])) {
-                $_SESSION['loggedIn'] = true;
-                $_SESSION['username'] = $array[0]['name'];
-                header('Location: ../../../index.php');
-            } else {
-                echo "Invalid email or password";
-            }
-        }else{
-            echo "Invalid email or password";
-        }
-        
-    }
-}
-
+# Footer
 Functions::htmlFooter();

@@ -25,20 +25,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     if ($boolTrue) {
         # Send form to API
-        $intStatusCode = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);
         # Check if it's done
-        if ($intStatusCode == 200){
+        if ($arrAPIReturn[0] == 200){
             // Making the header message
             $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>A simple success alert—check it out!</div>";
 
             // Redirecting to the login page
             header("Location: ./login.php");
         }
-        elseif ($intStatusCode == 409) {
-            echo("Het account bestaat al!");
-        }
         else {
-            echo("Er is iets fout gegaan, probeer het later opnieuw!");
+            Functions::echoByStatusCode($arrAPIReturn[0]);
         }
     }
 }

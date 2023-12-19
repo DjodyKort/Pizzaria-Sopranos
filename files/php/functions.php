@@ -27,7 +27,7 @@ class Functions {
         $err = curl_error($curl);
         curl_close($curl);
 
-        return curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        return [curl_getinfo($curl, CURLINFO_HTTP_CODE), (json_decode($response, true) ?? [])];
     }
     public static function isEqual(string $strGivenKey, string $strCorrectKey): bool {
         return $strGivenKey === $strCorrectKey;
@@ -38,6 +38,24 @@ class Functions {
     public static function returnJson(array $arrData): void {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($arrData);
+    }
+    public static function echoByStatusCode(int $statusCode): void {
+        // ======== Start of Program ========
+        # Check if the status code is in the ConfigData array
+        if (array_key_exists($statusCode, ConfigData::$statusCodes)) {
+            // ==== Declaring Variables ====
+            $message = ConfigData::$statusCodes[$statusCode][0];
+            $color = ConfigData::$statusCodes[$statusCode][1];
+
+            // ==== Start of IF ====
+            # Echo the message
+            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>".  $message . "Er is iets fout gegaan, probeer het later opnieuw! </div>";
+        }
+        else {
+            // ==== Start of Else ====
+            # Echo the message
+            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>Er is iets fout gegaan, probeer het later opnieuw!</div>";
+        }
     }
 
     # ==== JS ====
@@ -137,6 +155,10 @@ class Functions {
         # Sessions
         session_start();
 
+        # Strings
+        $headerMessage = $_SESSION['headerMessage'] ?? '';
+        $_SESSION['headerMessage'] = '';
+
         // ======== Start of Program ========
         echo("
         <!DOCTYPE html>
@@ -154,26 +176,34 @@ class Functions {
                 <script src='".self::dynamicPathFromIndex()."files/js/jquery-3.7.1.min.js'></script>
                 <script src='".self::dynamicPathFromIndex()."files/js/bootstrap.bundle.min.js'></script> 
             </head>
-            <body>
-            ".($_SESSION['headerMessage'] ?? '')."
+            <body>");
+
+        if($headerMessage != ''){
+            echo("<div class='container-sm'>
+            $headerMessage
+            </div>");
+        }
+
+
+        echo("
             <div class='htmlHeader'>
                 <div class='headerDivs'>
                     <a href=".self::dynamicPathFromIndex().">
                         <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='float-start'>
                     </a>
                 </div> ");
-                if(!isset($_SESSION['loggedIn'])){ echo("
+        if(!isset($_SESSION['loggedIn'])){ echo("
                     <div class='headerDivs'>
                         <p class='login'><a href='".self::dynamicPathFromIndex()."files/php/pages/login.php'>Login</a></p>
                         <p class='signUp'><a href='".self::dynamicPathFromIndex()."files/php/pages/register.php'>Registreer</a></p>
                     </div> ");
-                }
-                else if ($_SESSION['loggedIn']) {echo("  
+        }
+        else if ($_SESSION['loggedIn']) {echo("  
                     <div class='headerDivs'>
-                        <p class='username'><a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php/personInformation'>". $_SESSION['username'] ."</a></p>
+                        <p class='username'><a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php/personInformation'>". $_SESSION['name'] ."</a></p>
                     </div>
                 ");
-                }echo("
+        }echo("
         </div>
     ");
     }

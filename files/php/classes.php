@@ -7,6 +7,35 @@ class ConfigData {
     # ==== Strings ====
     # Authentication
     public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
+
+    # ==== Arrays ====
+    # Database keys
+    public static array $dbKeys = [
+        'users' => [
+            'id' => 'userID',
+            'name' => 'name',
+            'email' => 'email',
+            'password' => 'password',
+            'created_at' => 'dateUserCreated',
+            'last_login' => 'dateUserLastLogin',
+        ],
+    ];
+    # Statuscodes
+    public static array $statusCodes = [
+        # UserAPI
+        401 => ['De login gegevens zijn niet correct!', 'danger'], // User not found
+        402 => ['Het account bestaat al!', 'warning'], // User already exists
+        403 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Database error
+
+        400 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid POST data
+        403 => ['De login gegevens zijn niet correct!', 'danger'], // API Access key invalid
+        405 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid method
+        418 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid endpoint
+
+        419 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid variable (most likely invalid date)
+
+        420 => ['De login gegevens zijn niet correct!', 'danger'], // USER LOGIN - Not authorized (invalid password or email)
+    ];
 }
 
 class PizzariaSopranosDB {

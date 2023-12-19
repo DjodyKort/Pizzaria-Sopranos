@@ -7,10 +7,16 @@ require_once('./files/php/classes.php');
 // ============ Declaring Variables ============
 
 // ============ Start of Program ============
-
-
+# Header
 Functions::htmlHeader();
 
+# POST Request
+if(isset($_POST['submit'])){
+    header('Location: ./files/php/pages/menu.php');
+    exit;
+}
+
+# Body
 echo("
 <div class='box'>
 <h1>Welcome to Pizzaria Sopranos</h1>
@@ -36,9 +42,5 @@ echo("
 </div>
 ");
 
-if(isset($_POST['submit'])){
-    header('Location: ./files/php/pages/menu.php');
-    exit;
-}
-
+# Footer
 Functions::htmlFooter();

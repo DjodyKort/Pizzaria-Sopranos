@@ -32,14 +32,18 @@ if(!empty($_POST)){
         $query = "SELECT * FROM users WHERE `email` = ?";
 
         $array = PizzariaSopranosDB::pdoSqlReturnArray($query, [$email]);
-        print_r($array[0]['password'] . "<br/>");
-        if (password_verify($_POST['password'], $array[0]['password'])) {
-            $_SESSION['loggedIn'] = true;
-            $_SESSION['username'] = $array[0]['name'];
-            header('Location: ../../../index.php');
-        } else {
+        if(!empty($array)){
+            if (password_verify($_POST['password'], $array[0]['password'])) {
+                $_SESSION['loggedIn'] = true;
+                $_SESSION['username'] = $array[0]['name'];
+                header('Location: ../../../index.php');
+            } else {
+                echo "Invalid email or password";
+            }
+        }else{
             echo "Invalid email or password";
         }
+        
     }
 }
 

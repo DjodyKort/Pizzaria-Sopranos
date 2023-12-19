@@ -220,3 +220,19 @@ input[type="text"],
 input[type="submit"] {
     display: block;
 }
+
+.selected a {
+    color: rgb(55, 255, 155);
+}
+
+.table,
+.th,
+.td {
+    border: 1px solid;
+
+}
+
+.table {
+    width: 80%;
+    margin-left: 10%;
+}

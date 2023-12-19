@@ -43,29 +43,18 @@ class Functions {
         // ======== Start of Program ========
         # Check if the status code is in the ConfigData array
         if (array_key_exists($statusCode, ConfigData::$statusCodes)) {
-            # Get the message and the color
+            // ==== Declaring Variables ====
             $message = ConfigData::$statusCodes[$statusCode][0];
             $color = ConfigData::$statusCodes[$statusCode][1];
 
+            // ==== Start of IF ====
             # Echo the message
-            echo("
-                <div class='alert alert-$color' role='alert'>
-                    <div class='container-sm'>
-                        $message
-                        Er is iets fout gegaan, probeer het later opnieuw!
-                    </div>
-                </div>
-            ");
+            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>".  $message . "Er is iets fout gegaan, probeer het later opnieuw! </div>";
         }
         else {
+            // ==== Start of Else ====
             # Echo the message
-            echo("
-                <div class='alert alert-danger' role='alert'>
-                    <div class='container-sm'>
-                        Er is iets fout gegaan, probeer het later opnieuw!
-                    </div>
-                </div>
-            ");
+            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>Er is iets fout gegaan, probeer het later opnieuw!</div>";
         }
     }
 
@@ -187,10 +176,16 @@ class Functions {
                 <script src='".self::dynamicPathFromIndex()."files/js/jquery-3.7.1.min.js'></script>
                 <script src='".self::dynamicPathFromIndex()."files/js/bootstrap.bundle.min.js'></script> 
             </head>
-            <body>
-            <div class='container-sm'>
-                $headerMessage
-            </div>
+            <body>");
+
+        if($headerMessage != ''){
+            echo("<div class='container-sm'>
+            $headerMessage
+            </div>");
+        }
+
+
+        echo("
             <div class='htmlHeader'>
                 <div class='headerDivs'>
                     <a href=".self::dynamicPathFromIndex().">

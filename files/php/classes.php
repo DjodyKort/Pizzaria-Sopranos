@@ -17,7 +17,10 @@ class ConfigData {
             'email' => 'email',
             'password' => 'password',
             'created_at' => 'dateUserCreated',
+            'phoneNumber' => 'phoneNumber',
+            'birthdate' => 'birthdate',
             'last_login' => 'dateUserLastLogin',
+            'billingAdress' => 'billingAdress',
         ],
     ];
     # Statuscodes

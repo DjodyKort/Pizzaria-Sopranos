@@ -6,6 +6,7 @@ class Functions {
     public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): mixed {
         // ======== Declaring Variables ========
         $curl = curl_init();
+        echo($strAPIURL);
 
         // ======== Start of Program ========
         curl_setopt_array($curl, array(
@@ -49,7 +50,7 @@ class Functions {
 
             // ==== Start of IF ====
             # Echo the message
-            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>".  $message . "Er is iets fout gegaan, probeer het later opnieuw! </div>";
+            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>$message</div>";
         }
         else {
             // ==== Start of Else ====
@@ -97,6 +98,8 @@ class Functions {
         // ======== Declaring Variables ========
         # ==== Strings ====
         $documentRoot = realpath(self::dynamicPathFromIndex(__FILE__));
+        echo(__FILE__); echo('<br/>');
+        echo($documentRoot); echo('<br/>');
         if (str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
             // Getting the name of folder
             $folderName = '/'.basename($documentRoot);
@@ -112,6 +115,7 @@ class Functions {
 
         // Get the relative path to the file
         $relativePath = str_replace($documentRoot, '', $filePath);
+        echo($relativePath); echo('<br/>');
 
         // Replace any directory separators with URL separators
         $relativeUrl = str_replace(DIRECTORY_SEPARATOR, '/', $relativePath);
@@ -120,6 +124,7 @@ class Functions {
         $relativeUrl = ltrim($relativeUrl, '/');
 
         // Combine the base URL with the relative URL
+        echo($folderName); echo('<br/>');
         $url = "{$protocol}{$_SERVER['HTTP_HOST']}{$folderName}/{$relativeUrl}";
         return $url;
     }
@@ -133,6 +138,8 @@ class Functions {
         $intSubFromPathDepth = str_contains($_SERVER['HTTP_HOST'], 'localhost') ? 2 : 1;
 
         // ======== Start of Function ========
+        # Check if there are any uri segments with regex
+
         # Checking if the current path is not the index
         $pathSegments = explode('/', $currentPath);
         $filteredSegments = array_filter($pathSegments); // Remove empty segments

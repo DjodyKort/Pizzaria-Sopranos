@@ -170,7 +170,7 @@ class Functions {
                 }
                 else if ($_SESSION['loggedIn']) {echo("  
                     <div class='headerDivs'>
-                        <p class='username'><a href='../../index.php'>". $_SESSION['username'] ."</a></p>
+                        <p class='username'><a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php/personInformation'>". $_SESSION['username'] ."</a></p>
                     </div>
                 ");
                 }echo("

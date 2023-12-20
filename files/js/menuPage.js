@@ -19,12 +19,12 @@ const PizzaPrices = [
   "€11,99",
 ];
 
+var i = 0;
+
 for (let i = 0; i < Pizzas.length; i++) {
   var menuItemId = "MenuItem" + i;
   createElement(menuItemId);
   function createElement(menuItemId) {
-
-
     const MenuContainer = document.getElementById("MenuContainer");
     const MenuItem = document.createElement("div");
     MenuItem.id = menuItemId;
@@ -51,7 +51,7 @@ for (let i = 0; i < Pizzas.length; i++) {
     MenuItem.appendChild(MenuInputs);
 
     const MenuInputText = document.createElement("input");
-    MenuInputText.id = "MenuItem" + i + "Input";
+    MenuInputText.id = menuItemId + "Input";
     MenuInputText.className = "MenuInputText";
     MenuInputText.type = "text";
     MenuInputText.value = "0";
@@ -71,26 +71,95 @@ for (let i = 0; i < Pizzas.length; i++) {
 function AddCart(e) {
   var ItemId = document.getElementById(e);
   if (e != null) {
-    var h1Element = ItemId.querySelector(".Pizza");
-    var h1Prijs = ItemId.querySelector(".Prijs");
-    var PizzaName = h1Element.textContent;
-    var PizzaPrice = parseFloat(
-      h1Prijs.textContent.replace("€", "").replace(/,/g, ".")
-    );
-    var PizzaAmount = document.getElementById(e + "Input");
-    var PizzaAmountText = parseFloat(PizzaAmount.value);
+    if (i == 999) {
+      i = 0;
+    } else {
+      i++;
+    }
 
-    var PizzaPriceTotal = 0;
-
-    PizzaPriceTotal = (PizzaPrice * PizzaAmountText).toFixed(2);
-
-    var PizzaPriceTotalString = String(PizzaPriceTotal).replace(".", ",");
-    console.log(PizzaPriceTotal);
-    document.getElementById("CartTextField").textContent = PizzaName;
-    document.getElementById("CartTextAmount").textContent = PizzaAmountText;
-    document.getElementById("CartPrice").textContent =
-      "€" + PizzaPriceTotalString;
+    CreateCartLine();
+    CalcTotal();
+    InsertToCart(e, ItemId);
   } else {
     console.log("error het werkt niet");
   }
+}
+
+function CartDelete(pp) {
+  var IdContainer = pp.replace("CartDelete", "OrderContainerId")
+  var snake = document.getElementById(IdContainer)
+    if (snake) {
+      snake.remove();
+    } else {
+        console.log("Error: Element not found" + IdContainer);
+    }
+}
+
+function InsertToCart(crafter, miner) {
+  var h1Element = miner.querySelector(".Pizza");
+  var h1Prijs = miner.querySelector(".Prijs");
+  var PizzaName = h1Element.textContent;
+  var PizzaPrice = parseFloat(
+    h1Prijs.textContent.replace("€", "").replace(/,/g, ".")
+  );
+  var PizzaAmount = document.getElementById(crafter + "Input");
+  var PizzaAmountText = parseFloat(PizzaAmount.value);
+
+  var PizzaPriceTotal = 0;
+
+  PizzaPriceTotal = (PizzaPrice * PizzaAmountText).toFixed(2);
+
+  var PizzaPriceTotalString = String(PizzaPriceTotal).replace(".", ",");
+  brazy2 = document.getElementById("CartTextField" + i).textContent = PizzaName;
+  brazy3 = document.getElementById("CartTextAmount" + i).textContent =
+    PizzaAmountText;
+  brazy4 = document.getElementById("CartPrice" + i).textContent =
+    "€" + PizzaPriceTotalString;
+}
+
+function CalcTotal() {
+  var TotalPizzaCount = document.querySelectorAll(".CalcPrice");
+  var Pricetotal = document.getElementById("Pricetotal");
+  var CalcPrice = TotalPizzaCount.textContent;
+  // console.log(TotalPizzaCount, CalcPrice);
+  TotalPizzaCount.forEach(() => {
+    CalcPrice;
+  });
+  // console.log(CalcPrice);
+  Pricetotal.textContent = CalcPrice;
+}
+
+function CreateCartLine() {
+  const brazy0 = document.getElementById("CartOrdercontainer");
+  const brazy1 = document.createElement("div");
+  var brazy2 = document.createElement("h1");
+  var brazy3 = document.createElement("h1");
+  var brazy4 = document.createElement("h1");
+  var brazy5 = document.createElement("button");
+
+  brazy1.className = "OrderContainer OrderContainerId" + i;
+  brazy2.className = "MenuText CartOrder OrderSelector";
+  brazy3.className = "MenuText CartOrder";
+  brazy4.className = "MenuText CartOrder CalcPrice";
+  brazy5.className = "CartDelete";
+
+  brazy1.id = "OrderContainerId" + i;
+  brazy2.id = "CartTextField" + i;
+  brazy3.id = "CartTextAmount" + i;
+  brazy4.id = "CartPrice" + i;
+  brazy5.id = "CartDelete" + i;
+
+
+  brazy5.textContent = "Delete";
+
+  brazy0.appendChild(brazy1);
+  brazy1.appendChild(brazy2);
+  brazy1.appendChild(brazy3);
+  brazy1.appendChild(brazy4);
+  brazy1.appendChild(brazy5);
+
+  brazy5.addEventListener("click", function () {
+    var wtf = document.querySelector('[id^="CartDelete"]').id;
+    CartDelete(wtf);
+  });
 }

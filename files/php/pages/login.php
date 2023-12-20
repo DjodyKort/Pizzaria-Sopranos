@@ -49,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             Functions::echoByStatusCode($arrAPIReturn[0]);
         }
     }
-
 }
 
 # Body

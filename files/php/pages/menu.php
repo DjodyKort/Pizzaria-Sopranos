@@ -10,10 +10,6 @@
 
 <body class="MenuBody">
     <section class="MenuContainer" id="MenuContainer">
-        
-
-
-
 
     </section>
 

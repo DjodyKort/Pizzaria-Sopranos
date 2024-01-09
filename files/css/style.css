@@ -1,12 +1,17 @@
+:root{
+    --red: rgba(255,0,0,1);
+    --green: rgb(84, 255, 84);
+}
+
 .htmlHeader {
   width: 100%;
   height: auto;
 }
 
-.headerDivs{
-    width: 50%;
-    height: auto;
-    float: left;
+.headerDivs {
+  width: 50%;
+  height: auto;
+  float: left;
 }
 
 .headerDivs p {
@@ -19,16 +24,16 @@
 }
 
 .box {
-    width: 500px;
-    transform: translate(-50%, -50%);
-    padding: 10px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
+  width: 500px;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
 }
 
-.box div{
-    margin: 5%;
+.box div {
+  margin: 5%;
 }
 
 .box form {
@@ -36,32 +41,38 @@
   flex-direction: column;
   align-items: center;
 }
-  
 
-.button button{
-    width: 30%;
-    display:inline-block;
+.button button {
+  width: 30%;
+  display: inline-block;
 }
 
-.inputPostcode input{
-    width: 100%;
+.inputPostcode input {
+  width: 100%;
 }
 
-.submit input{
-    width: 100%;
+.submit input {
+  width: 100%;
 }
 
-body{
-    margin: 0;
-    padding: 0;
-    height: 100%;
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
 }
 
 .MenuBody {
   display: flex;
+  background-color: var(--red);
 }
 
 .MenuContainer {
+  height: fit-content;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: rgb(255, 255, 255);
+  min-width: 220px;
   width: 50%;
   display: grid;
   margin: 50px 5px 0 auto;
@@ -81,37 +92,48 @@ body{
 }
 
 .MenuText {
-  margin: 0 0 10px 0;
+  margin: 0;
   font-size: 1.2rem;
 }
 
-.MenuContainer>div {
-    display: flex;
-    margin: 0;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    border: 1px solid black;
-    border-radius: 6px;
-    padding: 10px;
+.MenuContainer > div {
+  display: grid;
+  height: fit-content;
+  margin: 0;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 1px solid black;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+#MenuInputs {
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .MenuInputText {
-    margin-right: 10px;
+  margin-right: 10px;
   border-radius: 5px;
   border: 1px solid black;
   height: 25px;
+  width: 40px;
+  text-align: center;
 }
+
 .MenuButton {
   padding: 0;
-  width: 40px;
+  width: 60px;
   height: 30px;
-  background-color: white;
-  border: 1px solid black;
+  background-color: var(--green);
+  border: none;
+  box-shadow: 1px 1px 5px rgb(0, 0, 0);
   border-radius: 5px;
 }
 
 .CartContainer {
+  min-width: 280px;
   width: 30%;
   height: 80%;
   margin: 50px auto 0 5px;
@@ -120,21 +142,21 @@ body{
   align-items: center;
 }
 
-.CartView{
-    background-color: green;
-    border-radius: 5px;
-    display: grid;
-    width: 100%;
-    text-align: center;
-
+.CartView {
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 5px;
+  display: grid;
+  width: 100%;
+  text-align: center;
 }
-.CartOrdercontainer{
-    background-color: rgb(255, 255, 255);
-    min-height: 200px;
-    height: auto;
-    border-radius: 5px;
-    margin: 10px;
-    padding: 5px;
+
+.CartOrdercontainer {
+  background-color: rgb(255, 255, 255);
+  min-height: 200px;
+  height: auto;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 5px;
 }
 
 .CartConfirm {
@@ -142,97 +164,126 @@ body{
   justify-self: right;
   padding: 6px 10px;
   margin: 5px;
-  background-color: red;
+  background-color: var(--green);
   border-radius: 5px;
   border: 0px;
 }
 
 .OrderContainer {
+  border: 1px solid rgb(0, 0, 0);
   justify-content: space-between;
   display: flex;
+  border-radius: 6px;
+  margin: 5px;
+  padding: 5px;
 }
 
-.CartOrder {
-    margin-top: 20px;
+.CartDelete {
+  background-color: var(--green);
+  border-radius: 6px;
+  border: 0;
+  height: 25px;
+  width: auto;
 }
 
-body {
-    font-family: Arial, sans-serif;
+@media screen and (max-width: 768px) {
+  .MenuBody {
+    display: flex;
+    flex-direction: column;
+  }
+  .MenuContainer {
+    margin: 0 auto;
+    min-width: 150px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    width: calc(100% - 20px);
+    background-color: var(--red);
+  }
+
+  .MenuContainer > div {
+    height: 200px;
+  }
+  .MenuText {
+    font-size: 1rem;
+  }
+  .PizzaImg {
+    height: auto;
+    width: 150px;
+  }
+  .CartContainer {
+    margin: 10px auto;
+  }
 }
 
 h1 {
-    color: #ff0000;
-    text-align: center;
+  color: black;
+  text-align: center;
 }
 
 h2 {
-    color: #333333;
-    text-align: center;
+  color: #333333;
+  text-align: center;
 }
 
 form {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 0 auto;
-    text-align: center;
-    /* Added this line */
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  /* Added this line */
 }
 
 label {
-    display: block;
-    margin-bottom: 10px;
-    color: #333333;
+  display: block;
+  margin-bottom: 10px;
+  color: #333333;
 }
 
 .enterZipText,
-input[type="radio"],
-input[type="submit"] {
-    width: 100%;
-    padding: 5px;
-    margin: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 3px;
+input[type="radio"] {
+  width: 100%;
+  padding: 5px;
+  margin: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
 }
 
 input[type="radio"] {
-    display: none;
+  display: none;
 }
 
-input[type="radio"]+label {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    margin-right: 10px;
+input[type="radio"] + label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  margin-right: 10px;
 }
 
-input[type="radio"]:checked+label {
-    background-color: #ff0000;
+input[type="radio"]:checked + label {
+  background-color: var(--red);
 }
 
-input[type="text"],
-input[type="submit"] {
-    display: block;
+.enterZipText {
+  display: block;
 }
 
 .selected a {
-    color: rgb(55, 255, 155);
+  color: rgb(55, 255, 155);
 }
 
 .table,
 .th,
 .td {
-    border: 1px solid;
-
+  border: 1px solid;
 }
 
 .table {
-    width: 80%;
-    margin-left: 10%;
+  width: 80%;
+  margin-left: 10%;
 }

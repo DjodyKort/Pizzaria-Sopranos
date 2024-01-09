@@ -19,7 +19,7 @@ if(isset($_POST['submit'])){
 # Body
 echo("
 <div class='box'>
-<h1>Welcome to Pizzaria Sopranos</h1>
+    <h1>Welcome to Pizzaria Sopranos</h1>
     <h2>Choose Takeout or Delivery</h2>
     <form method='POST'>
         <label for='order_type'>Order Type:</label>
@@ -40,6 +40,19 @@ echo("
         <input type='submit' class='enterZipText' name='submit' value='Place Order'>
     </form>
 </div>
+
+<style>
+    /* Responsive Styles */
+    @media only screen and (max-width: 600px) {
+        .box {
+            width: 90%;
+            margin: 0 auto;
+        }
+        .enterZipText {
+            width: 100%;
+        }
+    }
+</style>
 ");
 
 # Footer

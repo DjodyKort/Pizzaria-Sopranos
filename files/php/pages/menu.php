@@ -11,22 +11,14 @@
 <body class="MenuBody">
     <section class="MenuContainer" id="MenuContainer">
         
-
-
-
-
     </section>
 
     <section class="CartContainer">
         <div class="CartView">
-            <div class="CartOrdercontainer">
+            <div class="CartOrdercontainer" id="CartOrdercontainer">
                 <h1 class="MenuText CartText">Uw winkelwagen</h1>
-                <div class="OrderContainer">
-                    <h1 class="MenuText CartOrder" id="CartTextField"></h1>
-                    <h1 class="MenuText CartOrder" id="CartTextAmount"></h1>
-                    <h1 class="MenuText CartOrder" id="CartPrice"></h1>
-                </div>
             </div>
+            <h1 class="Pricetotal" id="Pricetotal">€0</h1>
             <button type="submit" class="CartConfirm">Bestellen</button>
         </div>
     </section>

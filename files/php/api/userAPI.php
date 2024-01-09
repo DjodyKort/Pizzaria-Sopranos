@@ -139,7 +139,8 @@ if (!empty($uri) && !empty($method)) {
                 Functions::returnJson([
                     'status' => 'success',
                 ]);
-            } else {
+            }
+            else {
                 Functions::setHTTPResponseCode(418);
                 Functions::returnJson([
                     'error' => 'Invalid method'
@@ -246,6 +247,15 @@ if (!empty($uri) && !empty($method)) {
                     exit();
                 }
 
+                # Returning the requested user data
+                Functions::setHTTPResponseCode(200);
+                Functions::returnJson([
+                    'test' => [
+                        $_POST
+                    ]
+                ]);
+
+
                 // ==== Declaring Variables ====
                 # == SQL ==
                 $query = "SELECT ".implode(', ', $_POST)." FROM users WHERE userID = ?";
@@ -266,6 +276,12 @@ if (!empty($uri) && !empty($method)) {
                 # Returning the requested user data
                 Functions::setHTTPResponseCode(200);
                 Functions::returnJson($arrResult);
+            }
+            else {
+                Functions::setHTTPResponseCode(418);
+                Functions::returnJson([
+                    'error' => 'Invalid method'
+                ]);
             }
             break;
         default:

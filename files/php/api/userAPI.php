@@ -20,6 +20,53 @@ $headers = getallheaders();
 // ============ Start of Program ============
 if (!empty($uri) && !empty($method)) {
     switch ($uri) {
+        case '/updateUser':
+            // ======== POST ========
+            if ($method == 'POST') {
+                // ==== Checking access ====
+                # Access
+                $boolAccessGranted = Functions::isEqual($headers['Authorization'], ConfigData::$userAPIAccessToken);
+                if (!$boolAccessGranted) {
+                    Functions::setHTTPResponseCode(403);
+                    Functions::returnJson([
+                        'error' => 'Invalid access token'
+                    ]);
+                    exit();
+                }
+
+                # == Strings ==
+                # POST Variables
+                $strName = $_POST['nameNameInput'];
+                $strEmail = strtolower($_POST['nameEmailInput']);
+                $strBillingAddress = $_POST['billingAddress'];
+                $intPhoneNumber = $_POST['phoneNumber'];
+                $intID = $_POST['id'];
+
+
+                // ==== Start of Program ====
+
+                # Update the user
+                $query = "UPDATE users SET name = ?, email = ?, billingAddress = ?, phoneNumber = ? WHERE userID = $intID";
+                try {
+                    PizzariaSopranosDB::pdoSqlReturnTrue($query, [$strName, $strEmail, $strBillingAddress, $intPhoneNumber]);
+                } catch (Exception $e) {
+                    Functions::setHTTPResponseCode(403);
+                    Functions::returnJson([
+                        'error' => 'Something went wrong'
+                    ]);
+                    exit();
+                }
+                Functions::setHTTPResponseCode(200);
+                Functions::returnJson([
+                    'status' => 'success',
+                ]);
+            } else {
+                Functions::setHTTPResponseCode(418);
+                Functions::returnJson([
+                    'error' => 'Invalid method'
+                ]);
+            }
+            break;
         case '/createUser':
             // ======== POST ========
             if ($method == 'POST') {
@@ -130,16 +177,8 @@ if (!empty($uri) && !empty($method)) {
 
                 # == Strings ==
                 # POST Variables
-                $strEmail = strtolower($_POST['nameEmailInput']) ?? '';
-                $strPassword = $_POST['namePasswordInput'] ?? '';
-
-                if (empty($strEmail) || empty($strPassword)) {
-                    Functions::setHTTPResponseCode(400);
-                    Functions::returnJson([
-                        'error' => 'Invalid POST data'
-                    ]);
-                    exit();
-                }
+                $strEmail = strtolower($_POST['nameEmailInput']);
+                $strPassword = $_POST['namePasswordInput'];
 
                 # SQL Variables
                 $queryCheckUser = "SELECT * FROM users WHERE email = ?";

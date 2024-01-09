@@ -10,7 +10,52 @@ require_once('../classes.php');
 
 Functions::htmlHeader();
 
+# POST Request
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // ======== Declaring Variables ========
+    # ==== Bools ====
+    $boolTrue = True;
 
+    // ======== Start of POST Request ========
+    # Checking if all the fields are filled in
+    if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['billingAddress']) || empty($_POST['birthDate']) || empty($_POST['phoneNumber'])) {
+        echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+        $boolTrue = False;
+    }
+
+    # Sending to API
+    if ($boolTrue && isset($_POST['submitUpdate'])) {
+        # Send form to API
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/updateUser', ConfigData::$userAPIAccessToken, $_POST);
+        # Check if it's done
+        if ($arrAPIReturn[0] == 200) {
+            // Putting the data in the session
+            $_SESSION['name'] = $arrAPIReturn[1]['data']['name'];
+            $_SESSION['loggedIn'] = True;
+            
+            if (empty($_SESSION['name'])) {
+                echo("Er is iets fout gegaan!");
+            }
+            else {
+                // Making the header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Updated Account</div>";
+
+                // Redirecting to the login page
+                header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+            }
+        }
+        else {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+        }
+    }
+
+}
+
+if(isset($_POST['logout'])){
+    unset($_SESSION['loggedIn']);
+    session_destroy();
+    header('Location: ../../../../index.php');
+}
 
 $url = parse_url($_SERVER['REQUEST_URI']);
 
@@ -30,7 +75,7 @@ echo("
         <tr>
                 <form method='post'>
                     <td>
-                        <input type='submit' name='submit' value='uitloggen' />
+                        <input type='submit' name='logout' value='uitloggen' />
                     </td>
                 </form>
                 </tr>
@@ -38,10 +83,7 @@ echo("
 
 ");
 
-if(isset($_POST['submit'])){
-    unset($_SESSION['loggedIn']);
-    header('Location: ../../../../index.php');
-}
+
 
 
 switch (true) {
@@ -62,30 +104,33 @@ switch (true) {
         break;
     case strpos($url['path'], "/personInformation") !== false:
         echo("
+        <form method='post'>
+        <input type='hidden' value='".$_SESSION['userID']." name='userID''>
             <table class='table'>
                 <tr class='tr'>
                     <td class='td'>Name</td>
-                    <td class='td'><input type='text' /></td>
+                    <td class='td'><input type='text' name='name'/></td>
                 </tr>
                 <tr class='tr'>
                     <td class='td'>Email</td>
-                    <td class='td'><input type='email' /></td>
+                    <td class='td'><input type='email' name='email'/></td>
                 </tr>
                 <tr class='tr'>
                     <td class='td'>billing Address</td>
-                    <td class='td'><input type='text' /></td>
+                    <td class='td'><input type='text' name='billingAddress'/></td>
                 </tr>
                 <tr class='tr'>
                     <td class='td'>Birth Date</td>
-                    <td class='td'><input type='date' /></td>
+                    <td class='td'><input type='date' name='birthDate'/></td>
                 </tr>
                 <tr class='tr'>
                     <td class='td'>PhoneNumber</td>
-                    <td class='td'><input type='phonenumber' /></td>
+                    <td class='td'><input type='phonenumber' name='phoneNumber'/></td>
                 </tr>
                 
             </table>
-        
+            <input type='submit' name='submitUpdate'>
+        </form>
         ");
         break;
     case strpos($url['path'], "/pastOrders") !== false:

@@ -12,10 +12,7 @@ $arrUserNeededData = [
         'phoneNumber' => ConfigData::$dbKeys['users']['phoneNumber'],
     ]
 ];
-$userData = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/loginUser', ConfigData::$userAPIAccessToken, $_POST);
-echo($userData[0]);
-var_dump($userData[1]);
-
+//$userData = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/loginUser', ConfigData::$userAPIAccessToken, $_POST);
 // ============ Start of Program ============
 Functions::htmlHeader();
 
@@ -109,7 +106,6 @@ switch (true) {
         break;
     case strpos($url['path'], "/personInformation") !== false:
         echo("
-        <form method='post'>
         <input type='hidden' value='".$_SESSION['userID']." name='userID''>
             <table class='table'>
                 <tr class='tr'>
@@ -135,7 +131,6 @@ switch (true) {
                 
             </table>
             <input type='submit' name='submitUpdate'>
-        </form>
         ");
         break;
     case strpos($url['path'], "/pastOrders") !== false:

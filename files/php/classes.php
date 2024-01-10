@@ -18,11 +18,37 @@ class ConfigData {
             'password' => 'password',
             'created_at' => 'dateUserCreated',
             'phoneNumber' => 'phoneNumber',
-            'birthdate' => 'birthdate',
+            'birthDate' => 'birthDate',
             'last_login' => 'dateUserLastLogin',
-            'billingAdress' => 'billingAdress',
+        ],
+        'addresses' => [
+            'id' => 'addressID',
+            'userID' => 'userID',
+            'streetName' => 'streetName',
+            'houseNumber' => 'houseNumber',
+            'houseNumberAddition' => 'houseNumberAddition',
+            'postalCode' => 'postalCode',
+            'city' => 'city',
+        ],
+        'billingAddresses' => [
+            'id' => 'billingAddressID',
+            'userID' => 'userID',
+            'streetName' => 'streetName',
+            'houseNumber' => 'houseNumber',
+            'houseNumberAddition' => 'houseNumberAddition',
+            'postalCode' => 'postalCode',
+            'city' => 'city',
         ],
     ];
+
+    # User setting links
+    public static array $userSettingLinks = [
+        'account' => 'Account',
+        'addresses' => 'Adressen',
+        'orders' => 'Orders',
+        'logout' => 'Uitloggen',
+    ];
+
     # Statuscodes
     public static array $statusCodes = [
         # UserAPI
@@ -38,6 +64,8 @@ class ConfigData {
         419 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid variable (most likely invalid date)
 
         420 => ['De login gegevens zijn niet correct!', 'danger'], // USER LOGIN - Not authorized (invalid password or email)
+
+        421 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Any error really
     ];
 }
 

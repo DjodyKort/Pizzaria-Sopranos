@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 // ============ Imports ============
 require_once('../functions.php');
 require_once('../classes.php');
@@ -27,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo("De wachtwoorden zijn niet hetzelfde!");
         $boolTrue = False;
     }
+
     if ($boolTrue) {
         # Send form to API
         $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/createUser', ConfigData::$userAPIAccessToken, $_POST);

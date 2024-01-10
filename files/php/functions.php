@@ -6,7 +6,6 @@ class Functions {
     public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): mixed {
         // ======== Declaring Variables ========
         $curl = curl_init();
-        echo($strAPIURL);
 
         // ======== Start of Program ========
         curl_setopt_array($curl, array(
@@ -98,8 +97,6 @@ class Functions {
         // ======== Declaring Variables ========
         # ==== Strings ====
         $documentRoot = realpath(self::dynamicPathFromIndex(__FILE__));
-        echo(__FILE__); echo('<br/>');
-        echo($documentRoot); echo('<br/>');
         if (str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
             // Getting the name of folder
             $folderName = '/'.basename($documentRoot);
@@ -115,7 +112,6 @@ class Functions {
 
         // Get the relative path to the file
         $relativePath = str_replace($documentRoot, '', $filePath);
-        echo($relativePath); echo('<br/>');
 
         // Replace any directory separators with URL separators
         $relativeUrl = str_replace(DIRECTORY_SEPARATOR, '/', $relativePath);
@@ -124,7 +120,6 @@ class Functions {
         $relativeUrl = ltrim($relativeUrl, '/');
 
         // Combine the base URL with the relative URL
-        echo($folderName); echo('<br/>');
         $url = "{$protocol}{$_SERVER['HTTP_HOST']}{$folderName}/{$relativeUrl}";
         return $url;
     }
@@ -138,8 +133,6 @@ class Functions {
         $intSubFromPathDepth = str_contains($_SERVER['HTTP_HOST'], 'localhost') ? 2 : 1;
 
         // ======== Start of Function ========
-        # Check if there are any uri segments with regex
-
         # Checking if the current path is not the index
         $pathSegments = explode('/', $currentPath);
         $filteredSegments = array_filter($pathSegments); // Remove empty segments
@@ -157,6 +150,7 @@ class Functions {
     }
 
     # ==== HTML ====
+    # Global header
     public static function htmlHeader(): void {
         // ======== Declaring Variables ========
         # Sessions
@@ -167,6 +161,15 @@ class Functions {
         $_SESSION['headerMessage'] = '';
 
         // ======== Start of Program ========
+        # Check if user is logged in or not
+        if (!isset($_SESSION['loggedIn']) or !$_SESSION['loggedIn']) {
+            # Check if on index
+            if (!self::dynamicPathFromIndex() == './') {
+                header("Location: ".self::dynamicPathFromIndex()."index.php");
+            }
+        }
+
+        # Body
         echo("
         <!DOCTYPE html>
         <html lang='en'>
@@ -215,10 +218,35 @@ class Functions {
     ");
     }
 
+    # Global footer
     public static function htmlFooter(): void {
         echo("
                 </body>
             </html>
+        ");
+    }
+
+    # == Accounts page ==
+    # Account navbar
+    public static function htmlAccountNavbar(): void {
+        // ======== Declaring Variables ========
+        # Strings
+        $currentPage = $_GET['page'] ?? '';
+
+        // ======== Start of Program ========
+        echo("
+            <table class='table-responsive'>
+                <tr> ");
+                    foreach (ConfigData::$userSettingLinks as $key => $value) {
+                        if ($key == $currentPage) {
+                            echo("<td class='pe-3 selected'><a href='?page=$key'>$value</a></td>");
+                        }
+                        else {
+                            echo("<td class='pe-3' ><a href='?page=$key'>$value</a></td>");
+                        }
+                    } echo("
+                </tr>
+            </table>
         ");
     }
 }

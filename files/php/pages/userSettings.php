@@ -12,10 +12,13 @@ $currentPage = $_GET['page'] ?? '';
 Functions::htmlHeader();
 
 # Checking if the logout button is pressed
-if ($_GET['page'] == 'logout') {
-    session_destroy();
-    header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+if(isset($_GET['page'])){
+    if ($_GET['page'] == 'logout') {
+        session_destroy();
+        header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+    }
 }
+
 
 # Account Navbar
 Functions::htmlAccountNavbar();

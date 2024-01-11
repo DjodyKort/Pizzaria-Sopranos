@@ -151,14 +151,16 @@ class Functions {
 
     # ==== HTML ====
     # Global header
-    public static function htmlHeader(): void {
+    public static function htmlHeader($logoHeight): void {
         // ======== Declaring Variables ========
         # Sessions
         session_start();
 
         # Strings
-        $headerMessage = $_SESSION['headerMessage'] ?? '';
         $_SESSION['headerMessage'] = '';
+
+        # HTML
+        $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
 
         // ======== Start of Program ========
         # Check if user is logged in or not
@@ -186,36 +188,15 @@ class Functions {
                 <script src='".self::dynamicPathFromIndex()."files/js/jquery-3.7.1.min.js'></script>
                 <script src='".self::dynamicPathFromIndex()."files/js/bootstrap.bundle.min.js'></script> 
             </head>
-            <body>");
-
-        if($headerMessage != ''){
-            echo("<div class='container-sm'>
+            <body>
+            <!-- Header Message -->
             $headerMessage
-            </div>");
-        }
+            
+            <!-- Navbar -->
+            <nav class='
 
-
-        echo("<div class='htmlHeader'>
-                <div class='headerDivs'>
-                    <a href=".self::dynamicPathFromIndex().">
-                        <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='float-start img-fluid' style='width: calc(90% - 75px);'>
-                    </a>
-                </div> ")
-            ;
-        if(!isset($_SESSION['loggedIn'])){ echo("
-                    <div class='headerDivs'>
-                        <p class='login'><a href='".self::dynamicPathFromIndex()."files/php/pages/login.php'>Login</a></p>
-                        <p class='signUp'><a href='".self::dynamicPathFromIndex()."files/php/pages/register.php'>Registreer</a></p>
-                    </div> ");
-        }
-        else if ($_SESSION['loggedIn']) {echo("  
-                    <div class='headerDivs'>
-                        <p class='username'><a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php/personInformation'>". $_SESSION['name'] ."</a></p>
-                    </div>
-                ");
-        }echo("
-        </div>
-    ");
+            </nav>
+        ");
     }
 
     # Global footer

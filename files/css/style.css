@@ -1,0 +1,77 @@
+/* ============ Imports ============ */
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+
+/* ============ Global styling ============ */
+body {
+    /* ==== Styling ==== */
+    font-family: 'Lato', sans-serif;
+
+}
+
+/* ============ Index styling ============ */
+/* ==== PC ==== */
+@media (min-width: 750px) {
+    .buttonIndex {
+        width: 200px;  /* adjust as needed */
+        height: 100px; /* adjust as needed */
+    }
+}
+/* ==== Global ==== */
+.buttonIndexSubmit {
+    /* ==== Styling ==== */
+    text-align: center;
+
+    /* ==== Coloring ==== */
+    background-color: #DA4856;
+
+    /* ==== Spacing ==== */
+    padding: 6px;
+}
+.buttonIndexSubmit p {
+    /* ==== Coloring ==== */
+    color: #231F20;
+
+    /* ==== Styling ==== */
+    font-size: 20px;
+    font-weight: bolder;
+
+}
+.buttonIndexSubmit:hover {
+    background-color: #DA4856;
+    box-shadow: 0px 10px 10px rgb(190, 53, 67);
+    color: #fff;
+    transform: translateY(-5px);
+}
+
+.buttonIndex {
+    /* ==== Styling ==== */
+    border: black 1px solid;
+    text-align: center;
+
+    /* ==== Coloring ==== */
+    background-color: #DA4856;
+
+    /* ==== Spacing ==== */
+    padding: 12px;
+}
+.buttonIndex:hover {
+    /* ==== Styling ==== */
+    border: black 1px solid;
+
+    /* ==== Coloring ==== */
+    background-color: #DA4856;
+
+}
+
+.buttonIndexActive {
+    background-color: #4CAF50;
+    color: white;
+}
+.buttonIndexActive:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.divTextIndexFields {
+
+}

@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         else {
             Functions::echoByStatusCode($arrAPIReturn[0]);
-            // header("Location: ./login.php");
+            header("Location: ./login.php");
         }
     }
 }

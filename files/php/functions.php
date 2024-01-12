@@ -157,11 +157,11 @@ class Functions {
         session_start();
 
         # ==== Strings ====
-        $_SESSION['headerMessage'] = '';
 
         # ==== HTML ====
         # Non changing HTML
         $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
+        $_SESSION['headerMessage'] = '';
 
         # Dynamic HTML
         if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {

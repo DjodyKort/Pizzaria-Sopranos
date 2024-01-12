@@ -67,11 +67,11 @@ switch ($currentPage) {
 
         if ($userData[0] != 200) {
             Functions::echoByStatusCode($userData[0]);
+            var_dump($userData);
         }
         else {
             echo("
                 <div class='container'>
-                <form>
                     <label for='nameName'>Naam: </label><br/>
                     <input type='text' id='idName' name='nameName' value='".$_SESSION['name']."'><br/>
                     <br/>
@@ -85,7 +85,6 @@ switch ($currentPage) {
                     <input type='tel' id='idPhoneNumber' name='namePhoneNumber' value='".$userData[1]['data']['users'][0]['phoneNumber']."'><br/>
                     <br/>
                     <input type='submit' value='Verzenden'>
-                </form>
                 <div>
             ");
         }

@@ -1,6 +1,6 @@
-:root{
-    --red: rgba(255,0,0,1);
-    --green: rgb(84, 255, 84);
+:root {
+  --red: rgba(255, 0, 0, 1);
+  --green: rgb(84, 255, 84);
 }
 
 .htmlHeader {
@@ -96,7 +96,7 @@ body {
   font-size: 1.2rem;
 }
 
-.MenuContainer > div {
+.MenuContainer>div {
   display: grid;
   height: fit-content;
   margin: 0;
@@ -191,6 +191,7 @@ body {
     display: flex;
     flex-direction: column;
   }
+
   .MenuContainer {
     margin: 0 auto;
     min-width: 150px;
@@ -199,16 +200,19 @@ body {
     background-color: var(--red);
   }
 
-  .MenuContainer > div {
+  .MenuContainer>div {
     height: 200px;
   }
+
   .MenuText {
     font-size: 1rem;
   }
+
   .PizzaImg {
     height: auto;
     width: 150px;
   }
+
   .CartContainer {
     margin: 10px auto;
   }
@@ -254,7 +258,7 @@ input[type="radio"] {
   display: none;
 }
 
-input[type="radio"] + label {
+input[type="radio"]+label {
   display: inline-block;
   padding: 10px 20px;
   background-color: #4caf50;
@@ -265,7 +269,7 @@ input[type="radio"] + label {
   margin-right: 10px;
 }
 
-input[type="radio"]:checked + label {
+input[type="radio"]:checked+label {
   background-color: var(--red);
 }
 

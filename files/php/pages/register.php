@@ -53,7 +53,7 @@ echo("
             <div class='container-fluid mt-4 pl-5'>
                 <form method='post'>
                     <div class='row'>
-                        <div class='col-lg-6 col-md-12 col-sm-12'>
+                        <div class='col-lg-8 col-md-12 col-sm-12'>
                             <label for='nameNameInput'>Naam </label><br/>
                             <input class='w-100 mb-3' type='text' id='idNameInput' name='nameNameInput'><br/>
                             

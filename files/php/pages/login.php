@@ -60,7 +60,7 @@ echo("
             <div class='container-fluid mt-4 pl-5'>
                 <form method='post'>
                     <div class='row'>
-                        <div class='col-12'>              
+                        <div class='col-lg-8 col-md-12 col-sm-12'>              
                             <label for='nameEmailInput'>E-mailadres </label><br/>
                             <input class='w-100 mb-3' type='email' id='idEmailInput' name='nameEmailInput'>
                             
@@ -69,7 +69,7 @@ echo("
                         </div>
                     </div>
                     <div class='row mt-4 mb-4'>
-                        <div class='col-12 justify-content-center'>
+                        <div class='col-11 justify-content-center'>
                             <button type='submit' class='buttonIndexSubmit d-flex justify-content-center align-items-center btn w-100'>
                                 <p style='margin: auto;'>Inloggen</p>
                             </button>

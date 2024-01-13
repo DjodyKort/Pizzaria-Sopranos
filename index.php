@@ -13,7 +13,7 @@ Functions::htmlHeader(380);
 # POST Request
 
 # Body
-echo("
+echo ("
 <div class='container'>
     <div class='row justify-content-center'>
         <div class='col-6 border border-dark rounded'>
@@ -24,7 +24,7 @@ echo("
                         <!-- First column with delivery button -->
                         <div class='col-md-5 col-5 d-flex'>
                             <button name='nameButtonLevering' type='button' class='buttonIndex'>
-                                <img src='".Functions::dynamicPathFromIndex()."files/images/scooter.png' alt='Levering' width='50' height='50'><br/>
+                                <img src='" . Functions::dynamicPathFromIndex() . "files/images/scooter.png' alt='Levering' width='50' height='50'><br/>
                                 <p>Levering</p>
                             </button>
                         </div>
@@ -32,7 +32,7 @@ echo("
                         <!-- Second column with takout button -->
                         <div class='col-md-5 col-5 d-flex justify-content-end'>
                             <button name='nameButtonTakeout' type='button' class='buttonIndex'>
-                                <img src='".Functions::dynamicPathFromIndex()."files/images/pizza-box.png' alt='Takeout' width='50' height='50'><br/>
+                                <img src='" . Functions::dynamicPathFromIndex() . "files/images/pizza-box.png' alt='Takeout' width='50' height='50'><br/>
                                 <p>Takeout</p>
                             </button>
                         </div>
@@ -47,10 +47,14 @@ echo("
                     <!-- Submit button -->
                     <div class='row justify-content-center mt-5 mb-4'>
                         <div class='col-10 d-flex justify-content-center'>
+                        
                             <button type='submit' class='buttonIndexSubmit d-flex justify-content-center align-items-center btn w-100'>
+                            <a href='" . Functions::dynamicPathFromIndex() . "files/php/pages/menu2.php'>
                                 <p style='margin: auto;'>Locatie gebruiken</p>
-                                <img src='".Functions::dynamicPathFromIndex()."files/images/location-arrow.svg' alt='Locatie' height='40'>
+                                <img src='" . Functions::dynamicPathFromIndex() . "files/images/location-arrow.svg' alt='Locatie' height='40'>
+                                </a>
                             </button>
+                        
                         </div>
                     </div>
                 </form>
@@ -61,7 +65,7 @@ echo("
 ");
 
 # Scripts
-echo("
+echo ("
 <script>
 $(document).ready(function(){
     // ==== Declaring Variables ====
@@ -71,10 +75,10 @@ $(document).ready(function(){
     
     // Dynamic Strings
     const strLeveringParagraph = 'Bestellen';
-    const strLeveringImgSource = '".Functions::dynamicPathFromIndex()."files/images/arrow-right.svg';
+    const strLeveringImgSource = '" . Functions::dynamicPathFromIndex() . "files/images/arrow-right.svg';
     
     const strTakeoutParagraph = 'Locatie gebruiken';
-    const strTakeoutImgSource = '".Functions::dynamicPathFromIndex()."files/images/location-arrow.svg';
+    const strTakeoutImgSource = '" . Functions::dynamicPathFromIndex() . "files/images/location-arrow.svg';
     
     // ==== Event Listeners ====
     buttonIndex.click(function(){

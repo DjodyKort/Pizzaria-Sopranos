@@ -160,10 +160,13 @@ class Functions {
 
         # ==== HTML ====
         # Non changing HTML
-        $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
-        $_SESSION['headerMessage'] = '';
 
         # Dynamic HTML
+        if (isset($_SESSION['headerMessage'])) {
+            $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
+            $_SESSION['headerMessage'] = '';
+        }
+
         if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
             $accountButtons = "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
         }

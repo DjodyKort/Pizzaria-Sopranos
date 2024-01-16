@@ -160,6 +160,7 @@ class Functions {
 
         # ==== HTML ====
         # Non changing HTML
+        $headerMessage = '';
 
         # Dynamic HTML
         if (isset($_SESSION['headerMessage'])) {

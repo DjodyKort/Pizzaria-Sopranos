@@ -8,51 +8,113 @@ require_once('./files/php/classes.php');
 
 // ============ Start of Program ============
 # Header
-Functions::htmlHeader();
+Functions::htmlHeader(380);
 
 # POST Request
-if(isset($_POST['submit'])){
-    header('Location: ./files/php/pages/menu.php');
-    exit;
-}
 
 # Body
 echo("
-<div class='box'>
-    <h1>Welcome to Pizzaria Sopranos</h1>
-    <h2>Choose Takeout or Delivery</h2>
-    <form method='POST'>
-        <label for='order_type'>Order Type:</label>
-        <br>
-        <div class='labelDiv'>
-            <input type='radio' name='order_type' value='takeout' id='takeout' checked>
-            <label for='takeout'>Takeout</label>
-            <input type='radio' name='order_type' value='delivery' id='delivery'>
-            <label for='delivery'>Delivery</label>
+<div class='container'>
+    <div class='row justify-content-center'>
+        <div class='col-6 border border-dark rounded'>
+            <div class='container-fluid mt-4'>
+                <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/menu2.php'>
+                    <!-- Buttons -->
+                    <div class='row justify-content-center mb-5'>
+                        <!-- First column with delivery button -->
+                        <div class='col-md-5 col-5 d-flex'>
+                            <button name='nameButtonLevering' type='button' class='buttonIndex'>
+                                <img src='".Functions::dynamicPathFromIndex()."files/images/scooter.png' alt='Levering' width='50' height='50'><br/>
+                                <p>Levering</p>
+                            </button>
+                        </div>
+                        
+                        <!-- Second column with takout button -->
+                        <div class='col-md-5 col-5 d-flex justify-content-end'>
+                            <button name='nameButtonTakeout' type='button' class='buttonIndex'>
+                                <img src='".Functions::dynamicPathFromIndex()."files/images/pizza-box.png' alt='Takeout' width='50' height='50'><br/>
+                                <p>Takeout</p>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Text field(s) -->
+                    <div class='divIndexTextFields row justify-content-center'>
+                        <!-- text field -->
+                        <div class='divTextIndexField1 col-lg-10 col-md-10 col-sm-12 d-flex'>
+                            <input type='text' class='form-control' placeholder='Zoek naar postcode' aria-label='Postcode' aria-describedby='button-addon2'>
+                        </div>
+                    </div>
+                    <!-- Submit button -->
+                    <div class='row justify-content-center mt-5 mb-4'>
+                        <div class='col-10 d-flex justify-content-center'>
+                            <button type='submit' class='buttonIndexSubmit d-flex justify-content-center align-items-center btn w-100'>
+                                <p style='margin: auto;'>Locatie gebruiken</p>
+                                <img src='".Functions::dynamicPathFromIndex()."files/images/location-arrow.svg' alt='Locatie' height='40'>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>   
         </div>
-        <br>
-        <br>
-        <label for='address_zipcode'>Address and Zip Code:</label>
-        <br>
-        <input type='text' class='enterZipText' id='address_zipcode' name='address_zipcode'>
-        <br>
-        <br>
-        <input type='submit' class='enterZipText' name='submit' value='Place Order'>
-    </form>
+    </div>
 </div>
+");
 
-<style>
-    /* Responsive Styles */
-    @media only screen and (max-width: 600px) {
-        .box {
-            width: 90%;
-            margin: 0 auto;
+# Scripts
+echo("
+<script>
+$(document).ready(function(){
+    // ==== Declaring Variables ====
+    // HTML Elements
+    const buttonIndex = $('.buttonIndex');
+    const buttonIndexSubmit = $('.buttonIndexSubmit');
+    const divTextIndexFields = $('.divIndexTextFields');
+    const divTextIndexField1 = $('.divTextIndexField1');
+    
+    // Dynamic Strings
+    const strLeveringParagraph = 'Bestellen';
+    const strLeveringImgSource = '".Functions::dynamicPathFromIndex()."files/images/arrow-right.svg';
+    
+    const strTakeoutParagraph = 'Locatie gebruiken';
+    const strTakeoutImgSource = '".Functions::dynamicPathFromIndex(). "files/images/location-arrow.svg';
+    
+    // ==== Event Listeners ====
+    buttonIndex.click(function(){
+        $('.buttonIndex').removeClass('buttonIndexActive');
+        $(this).addClass('buttonIndexActive');
+        
+        // Change text and image of submit button
+        if($(this).attr('name') === 'nameButtonLevering'){
+            // Changing p
+            buttonIndexSubmit.children('p').text(strLeveringParagraph);
+            // Changing img
+            buttonIndexSubmit.children('img').attr('src', strLeveringImgSource);
+            
+            // Changing the col-10 to col-8
+            divTextIndexField1.removeClass('col-lg-10 col-md-10 col-sm-12');
+            divTextIndexField1.addClass('col-lg-8 col-md-8 col-sm-12');
+            // Adding an extra input field for the house number
+            divTextIndexFields.append('<div style=\'padding: 0;\' class=\'inputIndexHouseNumber col-lg-2 col-md-2 col-sm-12\'><input type=\'text\' class=\'form-control\' placeholder=\'Nr.\' aria-label=\'Nr.\' aria-describedby=\'button-addon2\'></div>');
+
         }
-        .enterZipText {
-            width: 100%;
+        else if($(this).attr('name') === 'nameButtonTakeout'){
+            // Removing the extra input field for the house number
+            divTextIndexFields.children('.inputIndexHouseNumber').remove();
+            // Changing the col-8 to col-10
+            divTextIndexField1.removeClass('col-lg-8 col-md-8 col-sm-12');
+            divTextIndexField1.addClass('col-lg-10 col-md-10 col-sm-12');
+            
+            // Changing p
+            buttonIndexSubmit.children('p').text(strTakeoutParagraph);
+            // Changing img
+            buttonIndexSubmit.children('img').attr('src', strTakeoutImgSource);
         }
-    }
-</style>
+    });
+    
+    // ==== Start of Program ====
+    buttonIndex.last().click();
+});
+</script>
 ");
 
 # Footer

@@ -1,293 +1,77 @@
-:root {
-  --red: rgba(255, 0, 0, 1);
-  --green: rgb(84, 255, 84);
-}
+/* ============ Imports ============ */
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
 
-.htmlHeader {
-  width: 100%;
-  height: auto;
-}
-
-.headerDivs {
-  width: 50%;
-  height: auto;
-  float: left;
-}
-
-.headerDivs p {
-  font-size: 30px;
-  font-weight: 100;
-  text-decoration: none;
-  float: right;
-  margin-right: 5%;
-  margin-top: 5%;
-}
-
-.box {
-  width: 500px;
-  transform: translate(-50%, -50%);
-  padding: 10px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-}
-
-.box div {
-  margin: 5%;
-}
-
-.box form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.button button {
-  width: 30%;
-  display: inline-block;
-}
-
-.inputPostcode input {
-  width: 100%;
-}
-
-.submit input {
-  width: 100%;
-}
-
+/* ============ Global styling ============ */
 body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: Arial, sans-serif;
+    /* ==== Styling ==== */
+    font-family: 'Lato', sans-serif;
+
 }
 
-.MenuBody {
-  display: flex;
-  background-color: var(--red);
+/* ============ Index styling ============ */
+/* ==== PC ==== */
+@media (min-width: 750px) {
+    .buttonIndex {
+        width: 200px;  /* adjust as needed */
+        height: 100px; /* adjust as needed */
+    }
+}
+/* ==== Global ==== */
+.buttonIndexSubmit {
+    /* ==== Styling ==== */
+    text-align: center;
+
+    /* ==== Coloring ==== */
+    background-color: #DA4856;
+
+    /* ==== Spacing ==== */
+    padding: 6px;
+}
+.buttonIndexSubmit p {
+    /* ==== Coloring ==== */
+    color: #231F20;
+
+    /* ==== Styling ==== */
+    font-size: 20px;
+    font-weight: bolder;
+
+}
+.buttonIndexSubmit:hover {
+    background-color: #DA4856;
+    box-shadow: 0px 10px 10px rgb(190, 53, 67);
+    color: #fff;
+    transform: translateY(-5px);
 }
 
-.MenuContainer {
-  height: fit-content;
-  padding: 10px;
-  border-radius: 6px;
-  background-color: rgb(255, 255, 255);
-  min-width: 220px;
-  width: 50%;
-  display: grid;
-  margin: 50px 5px 0 auto;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  grid-template-rows: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px;
+.buttonIndex {
+    /* ==== Styling ==== */
+    border: black 1px solid;
+    text-align: center;
+
+    /* ==== Coloring ==== */
+    background-color: #DA4856;
+
+    /* ==== Spacing ==== */
+    padding: 12px;
+}
+.buttonIndex:hover {
+    /* ==== Styling ==== */
+    border: black 1px solid;
+
+    /* ==== Coloring ==== */
+    background-color: #DA4856;
+
 }
 
-.invisible {
-  display: none;
+.buttonIndexActive {
+    background-color: #4CAF50;
+    color: white;
+}
+.buttonIndexActive:hover {
+    background-color: #4CAF50;
+    color: white;
 }
 
-.PizzaImg {
-  max-width: 200px;
-  width: max-content;
-  border-radius: 5px;
-}
+.divTextIndexFields {
 
-.MenuText {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.MenuContainer>div {
-  display: grid;
-  height: fit-content;
-  margin: 0;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  border: 1px solid black;
-  border-radius: 6px;
-  padding: 10px;
-}
-
-#MenuInputs {
-  display: flex;
-  justify-content: space-evenly;
-}
-
-.MenuInputText {
-  margin-right: 10px;
-  border-radius: 5px;
-  border: 1px solid black;
-  height: 25px;
-  width: 40px;
-  text-align: center;
-}
-
-.MenuButton {
-  padding: 0;
-  width: 60px;
-  height: 30px;
-  background-color: var(--green);
-  border: none;
-  box-shadow: 1px 1px 5px rgb(0, 0, 0);
-  border-radius: 5px;
-}
-
-.CartContainer {
-  min-width: 280px;
-  width: 30%;
-  height: 80%;
-  margin: 50px auto 0 5px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-}
-
-.CartView {
-  background-color: rgba(255, 255, 255, 0.75);
-  border-radius: 5px;
-  display: grid;
-  width: 100%;
-  text-align: center;
-}
-
-.CartOrdercontainer {
-  background-color: rgb(255, 255, 255);
-  min-height: 200px;
-  height: auto;
-  border-radius: 5px;
-  margin: 10px;
-  padding: 5px;
-}
-
-.CartConfirm {
-  display: grid;
-  justify-self: right;
-  padding: 6px 10px;
-  margin: 5px;
-  background-color: var(--green);
-  border-radius: 5px;
-  border: 0px;
-}
-
-.OrderContainer {
-  border: 1px solid rgb(0, 0, 0);
-  justify-content: space-between;
-  display: flex;
-  border-radius: 6px;
-  margin: 5px;
-  padding: 5px;
-}
-
-.CartDelete {
-  background-color: var(--green);
-  border-radius: 6px;
-  border: 0;
-  height: 25px;
-  width: auto;
-}
-
-@media screen and (max-width: 768px) {
-  .MenuBody {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .MenuContainer {
-    margin: 0 auto;
-    min-width: 150px;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    width: calc(100% - 20px);
-    background-color: var(--red);
-  }
-
-  .MenuContainer>div {
-    height: 200px;
-  }
-
-  .MenuText {
-    font-size: 1rem;
-  }
-
-  .PizzaImg {
-    height: auto;
-    width: 150px;
-  }
-
-  .CartContainer {
-    margin: 10px auto;
-  }
-}
-
-h1 {
-  color: black;
-  text-align: center;
-}
-
-h2 {
-  color: #333333;
-  text-align: center;
-}
-
-form {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  margin: 0 auto;
-  text-align: center;
-  /* Added this line */
-}
-
-label {
-  display: block;
-  margin-bottom: 10px;
-  color: #333333;
-}
-
-.enterZipText,
-input[type="radio"] {
-  width: 100%;
-  padding: 5px;
-  margin: 10px;
-  border: 1px solid #cccccc;
-  border-radius: 3px;
-}
-
-input[type="radio"] {
-  display: none;
-}
-
-input[type="radio"]+label {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  text-align: center;
-  margin-right: 10px;
-}
-
-input[type="radio"]:checked+label {
-  background-color: var(--red);
-}
-
-.enterZipText {
-  display: block;
-}
-
-.selected a {
-  color: rgb(55, 255, 155);
-}
-
-.table,
-.th,
-.td {
-  border: 1px solid;
-}
-
-.table {
-  width: 80%;
-  margin-left: 10%;
 }

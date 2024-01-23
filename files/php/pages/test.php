@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo("Er is iets fout gegaan, probeer het later opnieuw!");
     }
 }
-Functions::htmlHeader();
+Functions::htmlHeader(320);
 echo("
 <div>
     <h1 class='text-center'>Test Page</h1>

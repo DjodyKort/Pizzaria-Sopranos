@@ -151,14 +151,37 @@ class Functions {
 
     # ==== HTML ====
     # Global header
-    public static function htmlHeader(): void {
+    public static function htmlHeader(string $logoHeight): void {
         // ======== Declaring Variables ========
-        # Sessions
+        # ==== Sessions ====
         session_start();
 
-        # Strings
-        $headerMessage = $_SESSION['headerMessage'] ?? '';
+        # ==== Strings ====
+
+        # ==== HTML ====
+        # Non changing HTML
+        $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
         $_SESSION['headerMessage'] = '';
+
+        # Dynamic HTML
+        if(empty($_SESSION['cart'])){
+            $_SESSION['cart'] = [];
+        }
+        if(empty($_SESSION['total'])){
+            $_SESSION['total'] = 0;
+        }
+
+
+        if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
+            $accountButtons = "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
+        }
+        else {
+            $accountButtons = "
+            <a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/register.php'><h4 class='me-3 text-muted'>Registreren</h4></a>
+            <div class='pt-2 pb-2 align-middle'><div class='vr h-100'></div></div>
+            <a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/login.php'><h4 class='ms-3 text-muted'>Inloggen</h4></a>
+            ";
+        }
 
         // ======== Start of Program ========
         # Check if user is logged in or not
@@ -186,36 +209,27 @@ class Functions {
                 <script src='".self::dynamicPathFromIndex()."files/js/jquery-3.7.1.min.js'></script>
                 <script src='".self::dynamicPathFromIndex()."files/js/bootstrap.bundle.min.js'></script> 
             </head>
-            <body>");
-
-        if($headerMessage != ''){
-            echo("<div class='container-sm'>
+            <body class='mt-5'>
+            <!-- Header Message -->
             $headerMessage
-            </div>");
-        }
-
-
-        echo("<div class='htmlHeader'>
-                <div class='headerDivs'>
-                    <a href=".self::dynamicPathFromIndex().">
-                        <img src='".self::dynamicPathFromIndex()."files/images/logo.jpg' class='float-start img-fluid' style='width: calc(90% - 75px);'>
-                    </a>
-                </div> ")
-            ;
-        if(!isset($_SESSION['loggedIn'])){ echo("
-                    <div class='headerDivs'>
-                        <p class='login'><a href='".self::dynamicPathFromIndex()."files/php/pages/login.php'>Login</a></p>
-                        <p class='signUp'><a href='".self::dynamicPathFromIndex()."files/php/pages/register.php'>Registreer</a></p>
-                    </div> ");
-        }
-        else if ($_SESSION['loggedIn']) {echo("  
-                    <div class='headerDivs'>
-                        <p class='username'><a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'>". $_SESSION['name'] ."</a></p>
+            
+            <!-- Navbar -->
+            <div class='container-fluid'>
+                <div class='row'>
+                    <!-- Logo -->
+                    <div class='col-12 col-md-6 offset-md-3 text-center'>
+                        <a href='".self::dynamicPathFromIndex()."index.php'><img src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' height='$logoHeight' alt='Responsive image'></a>
                     </div>
-                ");
-        }echo("
-        </div>
-    ");
+                    
+                    <!-- Account -->
+                    <div class='col-12 col-md-3 text-md-start text-center'>
+                        <div class='d-flex justify-content-center justify-content-md-start mt-3'>
+                            $accountButtons
+                        </div>
+                    </div>
+                </div>
+            </div>
+        ");
     }
 
     # Global footer

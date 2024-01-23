@@ -168,6 +168,15 @@ class Functions {
             $_SESSION['headerMessage'] = '';
         }
 
+        # Dynamic HTML
+        if(empty($_SESSION['cart'])){
+            $_SESSION['cart'] = [];
+        }
+        if(empty($_SESSION['total'])){
+            $_SESSION['total'] = 0;
+        }
+
+
         if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
             $accountButtons = "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
         }

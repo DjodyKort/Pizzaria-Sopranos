@@ -39,12 +39,9 @@ if (!isset($_GET['pizzaID'])) {
         ");
     }
 
-    if (empty($_SESSION['pizza1'])) {
+    if (empty($_SESSION['cart'])) {
         
     }else{
-        // $_SESSION['total'] = 0;
-        // $_SESSION['cart'] = '';
-        //print_r($_SESSION['cart'][1]['Toppings']);
         for($i = 0;  $i <= count($_SESSION['cart']) -1; $i++){
             echo("<br/>".$_SESSION['cart'][$i]['Pizza'] .  " " . $_SESSION['cart'][$i]['Size'] . "<br/>");
             foreach($_SESSION['cart'][$i]['Toppings'] as $toppingData){
@@ -70,7 +67,6 @@ if (!isset($_GET['pizzaID'])) {
         JOIN $tableToppings t ON dt.toppingID = t.toppingID
         WHERE dt.dishID = $pizzaID
     ");
-    $_SESSION['total'] = 0;
     echo ("
     <form method='post'>
     <p>Pizza Bottom</p>
@@ -112,8 +108,7 @@ if (!isset($_GET['pizzaID'])) {
     
     $arrMoney = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `price` FROM $tableDishes WHERE `dishID` = $pizzaID");
     $money = $arrMoney[0]['price'];
-    $_SESSION['total'] += $money;
-    echo($_SESSION['total'] . "<br/>");
+    
     $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableToppings ORDER BY `name` ASC");
     
     echo ("</tbody></table>
@@ -167,10 +162,12 @@ if (!isset($_GET['pizzaID'])) {
             $toppingName = $selectedToppings[$i];
             $quantity = $toppingQuantities[$i];
             $priceTopping = 0;
+            //check if html page wasnt changed by user
             $arrCheck = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `name` , `price` FROM $tableToppings WHERE `name` = '$toppingName'");
             if(empty($arrCheck)){
                 $toppingName = '';
             }
+            //check if quantity is in between the bounds
             if($quantity > 3){
                 $quantity = 1;
             }
@@ -178,9 +175,33 @@ if (!isset($_GET['pizzaID'])) {
             
             // Add the topping data to the array
             if(!empty($toppingName)){
-                $priceTopping = $quantity * $arrCheck[0]['price'];
-                $_SESSION['total'] += $priceTopping;
-                echo($_SESSION['total'] . "<br/>");
+                
+                //check if its a standard topping and if its quantity > then 1
+                $found = false;
+                foreach ($arrayToppings as $topping) {
+                    if ($topping['name'] === $toppingName) {
+                        $found = true;
+                        break;
+                    }
+                    
+                }
+                //check if the standard toppings are 1 or less 
+                if($found && $quantity <= 1){
+                    $priceTopping = $arrCheck[0]['price'];
+                }//if its more then 1 do quantity - 1 so the total
+                else if($found && $quantity >= 1){
+                    $priceTopping = ($quantity - 1) * $arrCheck[0]['price'];
+                    $_SESSION['total'] += $priceTopping;
+                    echo($_SESSION['total'] . " > 1<br/>");
+
+                }//do standard calculation for toppings
+                else{
+                    $priceTopping = $quantity * $arrCheck[0]['price'];
+                    $_SESSION['total'] += $priceTopping;
+                    echo($_SESSION['total'] . " no <br/>");
+                }
+                
+                
                 $toppingData[] = array(
                     'name' => $toppingName,
                     'quantity' => $quantity,
@@ -188,10 +209,9 @@ if (!isset($_GET['pizzaID'])) {
                 );
             }
         }
-        
+        //set size
         $size = '';
         $_SESSION['total'] += $_POST['size'];
-        echo($_SESSION['total'] . "<br/>");
         if($_POST['size'] == 0){
             $size = 'Normaal';
         }
@@ -200,19 +220,15 @@ if (!isset($_GET['pizzaID'])) {
         }else{
             $size = 'XXL';
         }
+        $_SESSION['total'] += $money;
+        //put data into current SESSION var
+        echo($_SESSION['total'] . " <br/>");
         $_SESSION['cart'][] = array(
             "Pizza" => $pizzaName[0]['name'],
             "Size" => $size,
             "Toppings" => $toppingData
         );
-        // Now $selectedToppings is an array containing the selected toppings
-        // You can loop through it or perform any other necessary processing
-        //print_r($toppingData);
-        // foreach($toppingData as $total){
-        //     $_SESSION['pizzaTotal'] += $total['price'];
-        // }
-        //print_r($_SESSION['orderedItems']);
-        //header("Location: menu2.php");
+        header("Location: menu2.php");
     }
 }
 
@@ -222,7 +238,7 @@ ob_end_flush();
 ?>
 
 <script>
-    //chnage from int to long
+    //change from int to long
     var total = parseFloat(document.getElementById("money").value);
     // Function to increment the counter
     function increment(topping , toppingPrice) {

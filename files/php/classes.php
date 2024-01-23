@@ -78,9 +78,6 @@ class PizzariaSopranosDB {
     private static string $dbPass = 'DePJH7L3';
     private static string $dbName = 'deb142504_sopranos';
 
-    # PDO
-    private static ?PDO $pdo = null;
-
     // ======== Functions ========
     private static function connectToDB(): PDO {
         // ==== Declaring Variables ====

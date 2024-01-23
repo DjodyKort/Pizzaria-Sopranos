@@ -9,7 +9,7 @@ $currentPage = $_GET['page'] ?? '';
 
 // ============ Start of Program ============
 # Header
-Functions::htmlHeader();
+Functions::htmlHeader(320);
 
 # Checking if the logout button is pressed
 if(isset($_GET['page'])){

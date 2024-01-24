@@ -38,12 +38,11 @@ if (!isset($_GET['pizzaID'])) {
         </form>
         ");
     }
-
     if (empty($_SESSION['cart'])) {
         
     }else{
         for($i = 0;  $i <= count($_SESSION['cart']) -1; $i++){
-            echo("<br/>".$_SESSION['cart'][$i]['Pizza'] .  " " . $_SESSION['cart'][$i]['Size'] . "<br/>");
+            echo("<br/>".$_SESSION['cart'][$i]['Pizza'] .  " " . $_SESSION['cart'][$i]['Size'] . "<br/> " . $_SESSION['cart'][$i]['Sauce'] . " Sauce <br/>" );
             foreach($_SESSION['cart'][$i]['Toppings'] as $toppingData){
                 print_r($toppingData['name'] . " ");
                 print_r($toppingData['price']);
@@ -75,9 +74,9 @@ if (!isset($_GET['pizzaID'])) {
             <option value='2'>Groot + €2</option>
             <option value='4'>XXL + €4</option>
         </select>
-        <select>
-            <option value='0'>tomato</option>
-            <option value='1'>bbq</option>
+        <select name = 'Sauce'>
+            <option value='Tomato'>tomato</option>
+            <option value='BBQ'>bbq</option>
         </select><br/>
         <p>Ingredients</p>
         <table>
@@ -226,6 +225,7 @@ if (!isset($_GET['pizzaID'])) {
         $_SESSION['cart'][] = array(
             "Pizza" => $pizzaName[0]['name'],
             "Size" => $size,
+            "Sauce" => $_POST['Sauce'],
             "Toppings" => $toppingData
         );
         header("Location: menu2.php");

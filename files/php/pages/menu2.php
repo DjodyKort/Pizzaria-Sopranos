@@ -41,15 +41,43 @@ if (!isset($_GET['pizzaID'])) {
     if (empty($_SESSION['cart'])) {
         
     }else{
+        //  $_SESSION['cart'] = '';
+        // $_SESSION['total'] = 0;
+        // print_r($_SESSION['cart']);
         for($i = 0;  $i <= count($_SESSION['cart']) -1; $i++){
             echo("<br/>".$_SESSION['cart'][$i]['Pizza'] .  " " . $_SESSION['cart'][$i]['Size'] . "<br/> " . $_SESSION['cart'][$i]['Sauce'] . " Sauce <br/>" );
             foreach($_SESSION['cart'][$i]['Toppings'] as $toppingData){
                 print_r($toppingData['name'] . " ");
                 print_r($toppingData['price']);
+                print_r($toppingData['orignal']);
                 echo("<br/>");
             }
+            echo("
+                Pizza Prijs : ".$_SESSION['cart'][$i]['DishTotal']."
+                <form method='post'>
+                    <input type='submit' name='update' value='update'>
+                    <input type='submit' name='delete' value='delete'>
+                    <input type='hidden' name='arrayKey' value='".$i."'>
+                </form>
+            ");
         }
         echo("Total Prijs: " . $_SESSION['total']);
+        //delete key from array and update total correspondingly 
+        if(isset($_POST['delete'])){
+            if(isset($_POST['arrayKey'])){
+                $_SESSION['total'] -= $_SESSION['cart'][$_POST['arrayKey']]['DishTotal'];
+                //delete the array key
+                unset($_SESSION['cart'][$_POST['arrayKey']]);
+                //order the array keys so they start at 0
+                $_SESSION['cart'] = array_values($_SESSION['cart']);
+                header("Refresh:0");
+            }
+        }
+        if(isset($_POST['update'])){
+            if(isset($_POST['arrayKey'])){
+                header("Location: ./menu2.php?pizzaID=".$_SESSION['cart'][$_POST['arrayKey']]['Id']."&arrayKey=".$_POST['arrayKey']."");
+            }
+        }
     }
     
     if(!empty($_SESSION['orderItems'])){
@@ -66,52 +94,100 @@ if (!isset($_GET['pizzaID'])) {
         JOIN $tableToppings t ON dt.toppingID = t.toppingID
         WHERE dt.dishID = $pizzaID
     ");
-    echo ("
-    <form method='post'>
-    <p>Pizza Bottom</p>
-        <select id='sizeSelector' onchange='updatePrice()' name='size' >
-            <option value='0'>Normaal</option>
-            <option value='2'>Groot + €2</option>
-            <option value='4'>XXL + €4</option>
-        </select>
-        <select name = 'Sauce'>
-            <option value='Tomato'>tomato</option>
-            <option value='BBQ'>bbq</option>
-        </select><br/>
-        <p>Ingredients</p>
-        <table>
-        <tbody id='tbody'>");
-    for ($i = 0; $i < count($arrayToppings); $i++) {
-        echo ("
-            <tr>
-                <td>
-                    <img src='../../images/minus.png' height='25px' alt='reduction' style='cursor: pointer;' onclick='reduction(`".$arrayToppings[$i]['name'] .'`,'.$arrayToppings[$i]['price']." )'>
-                </td>
-                <td>
-                    <p style='margin: 5px 0 5px 15px;' >" . $arrayToppings[$i]['name'] . "</p> 
-                </td>
-                <td>
-                    <p id='counter".$arrayToppings[$i]['name']."' style='margin: 5px 15px;'>1</p>
-                    <input type='hidden' name='toppingQuantities[]' id='amount".$arrayToppings[$i]['name']."' value='1'>
-                    <input type='hidden' name='selectedToppings[]' value='".$arrayToppings[$i]['name']."'>
-                    <input type='hidden' id='".$arrayToppings[$i]['name']."' name='".$arrayToppings[$i]['name']."' value='true'>
-                    <input type='hidden' id='amount".$arrayToppings[$i]['name']."' name='amount".$arrayToppings[$i]['name']."' value='1'>
-                </td>
-                <td>
-                    <img src='../../images/plus.png' height='25px' alt='Increment' style='cursor: pointer;' onclick='increment(`".$arrayToppings[$i]['name'] .'`,'.$arrayToppings[$i]['price'].")'>
-                <td>
-            </tr>");
-    }
+    $arrToppings = array();
+    $arrMoney = array();
+    $money = 0;
+    
+    //if statement to check if a dish needs updating 
 
-    // Add a row for adding a new topping
+    if (isset($_GET['arrayKey'])) {
+        // Display form for updating with existing data
+        // Assuming $existingArray contains the data you want to populate in the form
+        echo ("
+            <form method='post'>
+            <p>Pizza Bottom</p>
+                <select id='sizeSelector' onchange='updatePrice()' name='size' >
+                    <option value='0'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size'] == 'Normaal' ? " selected" : "") . ">Normaal</option>
+                    <option value='2'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'Groot' ? " selected" : "") . ">Groot + €2</option>
+                    <option value='4'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'XXL' ? " selected" : "") . ">XXL + €4</option>
+                </select>
+                <select name='Sauce'>
+                    <option value='Tomato'" . ($_SESSION['cart'][$_GET['arrayKey']]['Sauce'] == 'Tomato' ? " selected" : "") . ">tomato</option>
+                    <option value='BBQ'" . ($_SESSION['cart'][$_GET['arrayKey']]['Sauce'] == 'BBQ' ? " selected" : "") . ">bbq</option>
+                </select><br/>
+                <p>Ingredients</p>
+                <table>
+                <tbody id='tbody'>");
     
+        for ($i = 0; $i < count($_SESSION['cart'][$_GET['arrayKey']]['Toppings']); $i++) {
+            echo ("
+                <tr>
+                    <td>
+                        <img src='../../images/minus.png' height='25px' alt='reduction' style='cursor: pointer;' onclick='reduction(`" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . '`,' . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['price'] . " )'>
+                    </td>
+                    <td>
+                        <p style='margin: 5px 0 5px 15px;' >" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "</p> 
+                    </td>
+                    <td>
+                        <p id='counter" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' style='margin: 5px 15px;'>" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "</p>
+                        <input type='hidden' name='toppingQuantities[]' id='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "'>
+                        <input type='hidden' name='selectedToppings[]' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "'>
+                        <input type='hidden' id='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' name='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . ($_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['orignal'] == true ? "true" : "false") . "'>
+                        <input type='hidden' id='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' name='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "'>
+                    </td>
+                    <td>
+                        <img src='../../images/plus.png' height='25px' alt='Increment' style='cursor: pointer;' onclick='increment(`" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . '`,' . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['price'] . " )'>
+                    <td>
+                </tr>");
+        }
+    
+        echo ("</tbody></table>
+                <table>");
+    }else{
+            echo ("
+        <form method='post'>
+        <p>Pizza Bottom</p>
+            <select id='sizeSelector' onchange='updatePrice()' name='size' >
+                <option value='0'>Normaal</option>
+                <option value='2'>Groot + €2</option>
+                <option value='4'>XXL + €4</option>
+            </select>
+            <select name = 'Sauce'>
+                <option value='Tomato'>tomato</option>
+                <option value='BBQ'>bbq</option>
+            </select><br/>
+            <p>Ingredients</p>
+            <table>
+            <tbody id='tbody'>");
+        for ($i = 0; $i <= count($arrayToppings) - 1; $i++) {
+            echo ("
+                <tr>
+                    <td>
+                        <img src='../../images/minus.png' height='25px' alt='reduction' style='cursor: pointer;' onclick='reduction(`".$arrayToppings[$i]['name'] .'`,'.$arrayToppings[$i]['price']." )'>
+                    </td>
+                    <td>
+                        <p style='margin: 5px 0 5px 15px;' >" . $arrayToppings[$i]['name'] . "</p> 
+                    </td>
+                    <td>
+                        <p id='counter".$arrayToppings[$i]['name']."' style='margin: 5px 15px;'>1</p>
+                        <input type='hidden' name='toppingQuantities[]' id='amount".$arrayToppings[$i]['name']."' value='1'>
+                        <input type='hidden' name='selectedToppings[]' value='".$arrayToppings[$i]['name']."'>
+                        <input type='hidden' id='".$arrayToppings[$i]['name']."' name='".$arrayToppings[$i]['name']."' value='true'>
+                        <input type='hidden' id='amount".$arrayToppings[$i]['name']."' name='amount".$arrayToppings[$i]['name']."' value='1'>
+                    </td>
+                    <td>
+                        <img src='../../images/plus.png' height='25px' alt='Increment' style='cursor: pointer;' onclick='increment(`".$arrayToppings[$i]['name'] .'`,'.$arrayToppings[$i]['price'].")'>
+                    <td>
+                </tr>");
+        }
+        echo ("</tbody></table>
+        <table> ");
+        
+    }
     $arrMoney = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `price` FROM $tableDishes WHERE `dishID` = $pizzaID");
-    $money = $arrMoney[0]['price'];
-    
+    $money += $arrMoney[0]['price'];
     $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableToppings ORDER BY `name` ASC");
     
-    echo ("</tbody></table>
-    <table> ");
     foreach ($arrToppings as $index => $topping) {
         if ($index < 3) {
             // Display the first 3 toppings directly
@@ -146,21 +222,30 @@ if (!isset($_GET['pizzaID'])) {
         </td>
     </tr>
     </table>
-    
-    <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$money."' onclick='updateHidden();'>
-    <input type='hidden' id='money' name='money' value='".floatval($money)."' />
-    </form>
     ");
+    if(!isset($_GET['arrayKey'])){
+        echo("    <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$money."' onclick='updateHidden();'>
+        <input type='hidden' id='money' name='money' value='".floatval($money)."' />
+        </form>
+        ");
+    }else{
+        echo("    <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$_SESSION['cart'][$_GET['arrayKey']]['DishTotal']."' onclick='updateHidden();'>
+        <input type='hidden' id='money' name='money' value='".floatval($_SESSION['cart'][$_GET['arrayKey']]['DishTotal'])."' />
+        </form>
+        ");
+    }
 
     if(isset($_POST['submitPizza'])){
         $selectedToppings = $_POST['selectedToppings'];
         $toppingQuantities = $_POST['toppingQuantities'];
         $pizzaName = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `name` FROM $tableDishes WHERE `dishID` = " . $_GET['pizzaID']);
         // Loop through the selected toppings and their quantities
+        $priceTopping = 0;
+        $dishTotal = 0;
         for ($i = 0; $i < count($selectedToppings); $i++) {
             $toppingName = $selectedToppings[$i];
             $quantity = $toppingQuantities[$i];
-            $priceTopping = 0;
+            
             //check if html page wasnt changed by user
             $arrCheck = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `name` , `price` FROM $tableToppings WHERE `name` = '$toppingName'");
             if(empty($arrCheck)){
@@ -190,27 +275,24 @@ if (!isset($_GET['pizzaID'])) {
                 }//if its more then 1 do quantity - 1 so the total
                 else if($found && $quantity >= 1){
                     $priceTopping = ($quantity - 1) * $arrCheck[0]['price'];
-                    $_SESSION['total'] += $priceTopping;
-                    echo($_SESSION['total'] . " > 1<br/>");
-
+                    $dishTotal += $priceTopping;
                 }//do standard calculation for toppings
                 else{
                     $priceTopping = $quantity * $arrCheck[0]['price'];
-                    $_SESSION['total'] += $priceTopping;
-                    echo($_SESSION['total'] . " no <br/>");
+                    $dishTotal += $priceTopping;
                 }
-                
                 
                 $toppingData[] = array(
                     'name' => $toppingName,
                     'quantity' => $quantity,
-                    'price' => $priceTopping
+                    'price' => $priceTopping,
+                    'orignal' => $_POST[$toppingName]
                 );
             }
         }
         //set size
         $size = '';
-        $_SESSION['total'] += $_POST['size'];
+        $dishTotal += $_POST['size'];
         if($_POST['size'] == 0){
             $size = 'Normaal';
         }
@@ -219,15 +301,34 @@ if (!isset($_GET['pizzaID'])) {
         }else{
             $size = 'XXL';
         }
-        $_SESSION['total'] += $money;
-        //put data into current SESSION var
-        echo($_SESSION['total'] . " <br/>");
-        $_SESSION['cart'][] = array(
-            "Pizza" => $pizzaName[0]['name'],
-            "Size" => $size,
-            "Sauce" => $_POST['Sauce'],
-            "Toppings" => $toppingData
-        );
+        $dishTotal += $money;
+        if(!isset($_GET['arrayKey'])){
+            $_SESSION['total'] += $dishTotal;
+            //put data into current SESSION var
+            $_SESSION['cart'][] = array(
+                "Pizza" => $pizzaName[0]['name'],
+                "Id" => $_GET['pizzaID'],
+                "Size" => $size,
+                "Sauce" => $_POST['Sauce'],
+                "DishTotal" => $dishTotal,
+                "Toppings" => $toppingData
+            );
+        }else{
+            //echo($_SESSION['cart'][$_GET['arrayKey']]['DishTotal'] > "<br/>");
+            $_SESSION['total'] -= $_SESSION['cart'][$_GET['arrayKey']]['DishTotal'];
+            //echo($_SESSION['total']);
+            $_SESSION['total'] += $dishTotal;
+            //echo($_SESSION['total']);
+            $_SESSION['cart'][$_GET['arrayKey']] = array(
+                "Pizza" => $pizzaName[0]['name'],
+                "Id" => $_GET['pizzaID'],
+                "Size" => $size,
+                "Sauce" => $_POST['Sauce'],
+                "DishTotal" => $dishTotal,
+                "Toppings" => $toppingData
+            );
+        }
+        
         header("Location: menu2.php");
     }
 }
@@ -241,18 +342,30 @@ ob_end_flush();
     //change from int to long
     var total = parseFloat(document.getElementById("money").value);
     // Function to increment the counter
-    function increment(topping , toppingPrice) {
+    function increment(topping, toppingPrice) {
         var currentCounter = parseInt(document.getElementById('counter' + topping).innerText);
-           
+        var inputHidden = document.getElementById(topping).value;
+
+        if (inputHidden === "true" && (currentCounter === 0)) {
+            // Do not update the total price, but still increment the counter
+            var newCounter = currentCounter + 1;
+            document.getElementById('counter' + topping).innerText = newCounter;
+            document.getElementById('amount' + topping).value = newCounter;
+            return;
+        }
+
         if (currentCounter < 3) {
             var newCounter = currentCounter + 1;
             document.getElementById('counter' + topping).innerText = newCounter;
             document.getElementById('amount' + topping).value = newCounter;
             total += toppingPrice;
+
             var roundedNumber = parseFloat(total).toFixed(2);
             document.getElementById("submitButton").value = 'Add to Cart Amount €' + roundedNumber;
         }
     }
+
+
 
     // Function to add a new topping row
     function addNewTopping(topping, toppingPrice) {
@@ -291,24 +404,38 @@ ob_end_flush();
 
 
     //function for reducing the amount of an counter
-    function reduction(topping , toppingPrice) {
+    function reduction(topping, toppingPrice) {
         var currentCounterElement = document.getElementById('counter' + topping);
         var currentCounter = parseInt(currentCounterElement.innerText);
-        var inputHidden = document.getElementById(topping).value; 
-        console.log(typeof inputHidden);
+        var inputHidden = document.getElementById(topping).value;
+        if (inputHidden === "true" && currentCounter === 0) {
+        // Do not update the total price or decrement the counter below 0
+            return;
+        }
+        if (inputHidden === "true" && (currentCounter === 0 || currentCounter === 1)) {
+            // Do not update the total price, but still decrement the counter
+            var newCounter = currentCounter - 1;
+            currentCounterElement.innerText = newCounter;
+            document.getElementById('amount' + topping).value = newCounter;
+            return;
+        }
+
         if (currentCounter > 0) {
             var newCounter = currentCounter - 1;
             currentCounterElement.innerText = newCounter;
             document.getElementById('amount' + topping).value = newCounter;
             total -= toppingPrice;
+
             var roundedNumber = parseFloat(total).toFixed(2);
             document.getElementById("submitButton").value = 'Add to Cart Amount €' + roundedNumber;
+
             if (newCounter === 0 && inputHidden == 'false') {
                 var rowToRemove = currentCounterElement.parentNode.parentNode;
                 rowToRemove.parentNode.removeChild(rowToRemove);
             }
         }
     }
+
 
     var sizeSelector = document.getElementById('sizeSelector');
     var previousSizeValue = sizeSelector.options[sizeSelector.selectedIndex].value;

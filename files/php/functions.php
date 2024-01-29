@@ -223,7 +223,7 @@ class Functions {
                 <div class='row'>
                     <!-- Logo -->
                     <div class='col-12 col-md-6 offset-md-3 text-center'>
-                        <a href='".self::dynamicPathFromIndex()."index.php'><img src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' height='$logoHeight' alt='Responsive image'></a>
+                        <a href='".self::dynamicPathFromIndex()."index.php'><img width='$logoHeight' class='mw-100' src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' alt='Responsive image'></a>
                     </div>
                     
                     <!-- Account -->
@@ -240,6 +240,7 @@ class Functions {
     # Global footer
     public static function htmlFooter(): void {
         echo("
+                <div class='mt-5'></div>
                 </body>
             </html>
         ");

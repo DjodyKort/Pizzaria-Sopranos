@@ -56,14 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 echo("
 <div class='container'>
     <div class='row justify-content-center'>
-        <div class='col-lg-6 col-md-8 col-sm-10 border border-dark rounded'>
+        <div class='col-lg-6 col-md-8 col-sm-10 col-10 border border-dark rounded'>
             <div class='container-fluid mt-4 pl-5'>
                 <form method='post'>
                     <div class='row'>
-                        <div class='col-lg-8 col-md-12 col-sm-12'>              
+                        <div class='col-lg-8 col-md-12 col-sm-12'>
                             <label for='nameEmailInput'>E-mailadres </label><br/>
                             <input class='w-100 mb-3' type='email' id='idEmailInput' name='nameEmailInput'>
-                            
+
                             <label for='namePasswordInput'>Wachtwoord </label><br/>
                             <input class='w-100 mb-3 inputPassword' type='password' id='idPasswordInput' name='namePasswordInput'>
                         </div>
@@ -76,7 +76,7 @@ echo("
                         </div>
                     </div>
                 </form>
-            </div>   
+            </div>
         </div>
     </div>
 </div>

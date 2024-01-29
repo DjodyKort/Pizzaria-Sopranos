@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 echo("
 <div class='container'>
     <div class='row justify-content-center'>
-        <div class='col-lg-6 col-md-8 col-sm-10 border border-dark rounded'>
+        <div class='col-lg-6 col-md-8 col-sm-10 col-10 border border-dark rounded'>
             <div class='container-fluid mt-4 pl-5'>
                 <form method='post'>
                     <div class='row'>

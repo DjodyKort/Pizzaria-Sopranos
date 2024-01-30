@@ -248,25 +248,32 @@ class Functions {
 
     # == Accounts page ==
     # Account navbar
-    public static function htmlAccountNavbar(): void {
+    public static function htmlAccountNavbar(): string {
         // ======== Declaring Variables ========
         # Strings
         $currentPage = $_GET['page'] ?? '';
 
         // ======== Start of Program ========
-        echo("
-            <table class='table-responsive'>
-                <tr> ");
-                    foreach (ConfigData::$userSettingLinks as $key => $value) {
-                        if ($key == $currentPage) {
-                            echo("<td class='pe-3 selected'><a href='?page=$key'>$value</a></td>");
-                        }
-                        else {
-                            echo("<td class='pe-3' ><a href='?page=$key'>$value</a></td>");
-                        }
-                    } echo("
-                </tr>
-            </table>
-        ");
+        $string = "<div class='container-fluid'><div class='row'><div class='col-12 d-flex justify-content-center'>";
+
+        foreach(ConfigData::$userSettingLinks as $key => $value) {
+            // Check if logout
+            if ($key == 'logout') {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/api/userAPI.php/logout' class='d-flex align-items-center me-5 text-decoration-none text-black'><p class='mb-0 '>$value</p></a>";
+                continue;
+            }
+
+            // Check if current page
+            if ($key == $currentPage or ($key == 'account' and $currentPage == '')) {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-5'>$value</a>";
+            }
+            else {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings btn me-5'>$value</a>";
+            }
+        }
+
+        $string .= "</div></div></div>";
+
+        return $string;
     }
 }

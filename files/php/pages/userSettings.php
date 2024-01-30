@@ -19,14 +19,11 @@ if(isset($_GET['page'])){
     }
 }
 
-
-# Account Navbar
-Functions::htmlAccountNavbar();
-
-# Body
+# ==== Dynamic HTML ====
+$mainPage = '';
 switch ($currentPage) {
     case 'addresses':
-        echo("
+        $mainPage = "
             <table class='table'>
                 <tr class='tr'>
                     <td class='td'>Addressen</td>
@@ -38,11 +35,9 @@ switch ($currentPage) {
                     <td class='td'>Vroedschapstraat 2 6445BH</td>
                 </tr>
             <table/>
-        "); break;
+        "; break;
     case 'orders':
-        echo("
-        
-        "); break;
+        break;
     default:
         // ==== Declaring Variables ====
         # Arrays
@@ -70,7 +65,7 @@ switch ($currentPage) {
             var_dump($userData);
         }
         else {
-            echo("
+            $mainPage = "
                 <div class='container'>
                     <label for='nameName'>Naam: </label><br/>
                     <input type='text' id='idName' name='nameName' value='".$_SESSION['name']."'><br/>
@@ -86,7 +81,25 @@ switch ($currentPage) {
                     <br/>
                     <input type='submit' value='Verzenden'>
                 <div>
-            ");
+            ";
         }
         break;
 }
+
+# ==== Body ====
+# Main page
+echo("
+<div class='container'>
+    <div class='row justify-content-center mb-3'>
+    <!-- Account Navbar -->
+        <div class='col-6'>
+            ".Functions::htmlAccountNavbar()."
+        </div>
+    </div>
+    <div class='row justify-content-center'>
+        <div class='col-8'>
+            $mainPage
+        </div>
+    </div>
+</div>
+");

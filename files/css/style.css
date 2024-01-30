@@ -76,3 +76,36 @@ body {
 .divTextIndexFields {
 
 }
+
+/* ============ userSettings page ============ */
+/* ==== Global ==== */
+.buttonUserSettings {
+    /* ==== Styling ==== */
+    display: flex;
+    border: black 1px solid;
+    text-align: center;
+
+    /* ==== Sizing ==== */
+    width: 100%;
+    height: 40px;
+
+    /* ==== Coloring ==== */
+    background-color: #ffffff;
+
+    /* ==== Spacing ==== */
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+.buttonUserSettings:hover {
+    /* ==== Styling ==== */
+    border: black 1px solid;
+
+    /* ==== Coloring ==== */
+    background-color: #b6d7a8;
+}
+
+.buttonUserSettingsActive {
+    background-color: #b6d7a8;
+}
+

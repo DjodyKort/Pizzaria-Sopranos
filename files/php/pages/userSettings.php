@@ -8,9 +8,6 @@ require_once('../classes.php');
 $currentPage = $_GET['page'] ?? '';
 
 // ============ Start of Program ============
-# Header
-Functions::htmlHeader(320);
-
 # Checking if the logout button is pressed
 if(isset($_GET['page'])){
     if ($_GET['page'] == 'logout') {
@@ -18,6 +15,22 @@ if(isset($_GET['page'])){
         header("Location: ".Functions::dynamicPathFromIndex()."index.php");
     }
 }
+
+# ==== POST Requests ====
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // ======== Declaring Variables ========
+
+
+    // ======== Start of POST Request ========
+    # Checking if all the fields are filled in
+    if (empty($_POST['nameEmailInput']) || empty($_POST['namePasswordInput'])) {
+        echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+        $boolTrue = False;
+    }
+}
+
+# Header
+Functions::htmlHeader(320);
 
 # ==== Dynamic HTML ====
 $mainPage = '';
@@ -79,7 +92,7 @@ switch ($currentPage) {
                     <label for='namePhoneNumber'>Telefoonnummer: </label><br/>
                     <input type='tel' id='idPhoneNumber' name='namePhoneNumber' value='".$userData[1]['data']['users'][0]['phoneNumber']."'><br/>
                     <br/>
-                    <input type='submit' value='Verzenden'>
+                    <input type='submit' value='Wijzigen'>
                 <div>
             ";
         }
@@ -92,12 +105,12 @@ echo("
 <div class='container'>
     <div class='row justify-content-center mb-3'>
     <!-- Account Navbar -->
-        <div class='col-6'>
+        <div class='col-6 mb-3'>
             ".Functions::htmlAccountNavbar()."
         </div>
     </div>
     <div class='row justify-content-center'>
-        <div class='col-8'>
+        <div class='col-10 col-lg-6 col-md-7 col-sm-10'>
             $mainPage
         </div>
     </div>

@@ -7,7 +7,7 @@ require_once('../classes.php');
 
 // ============ Start of Program ============
 # Header
-Functions::htmlHeader(300);
+Functions::htmlHeader(320);
 
 # POST Request
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 echo("
 <div class='container'>
     <div class='row justify-content-center'>
-        <div class='col-lg-6 col-md-8 col-sm-10 col-10 border border-dark rounded'>
+        <div class='col-lg-5 col-md-8 col-sm-10 col-10 border border-dark rounded'>
             <div class='container-fluid mt-4 pl-5'>
                 <form method='post'>
                     <div class='row'>

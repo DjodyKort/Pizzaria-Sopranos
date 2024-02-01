@@ -219,7 +219,7 @@ class Functions {
             $headerMessage
             
             <!-- Navbar -->
-            <div class='container-fluid'>
+            <div class='container-fluid mb-4'>
                 <div class='row'>
                     <!-- Logo -->
                     <div class='col-12 col-md-6 offset-md-3 text-center'>
@@ -259,16 +259,16 @@ class Functions {
         foreach(ConfigData::$userSettingLinks as $key => $value) {
             // Check if logout
             if ($key == 'logout') {
-                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/api/userAPI.php/logout' class='d-flex align-items-center me-5 text-decoration-none text-black'><p class='mb-0 '>$value</p></a>";
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=logout' class='d-flex align-items-center me-3 text-decoration-none text-black'><img width='22px' src='".Functions::dynamicPathFromIndex()."files/images/logout.svg'><p class='mb-0'>$value</p></a>";
                 continue;
             }
 
             // Check if current page
             if ($key == $currentPage or ($key == 'account' and $currentPage == '')) {
-                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-5'>$value</a>";
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-3'>$value</a>";
             }
             else {
-                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings btn me-5'>$value</a>";
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings btn me-3'>$value</a>";
             }
         }
 

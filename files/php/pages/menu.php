@@ -23,7 +23,7 @@ $result = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableDishes");
 if (isset($_POST['menu1'])) {
     $pizzaID = $_POST['pizzaID'];
     if ($_SESSION['boolPreventHeader']) {
-        header("Location: ./menu2.php?pizzaID=$pizzaID");
+        header("Location: ./menu.php?pizzaID=$pizzaID");
         $_SESSION['boolPreventHeader'] = false;
     }
 }
@@ -75,7 +75,7 @@ if (!isset($_GET['pizzaID'])) {
         }
         if(isset($_POST['update'])){
             if(isset($_POST['arrayKey'])){
-                header("Location: ./menu2.php?pizzaID=".$_SESSION['cart'][$_POST['arrayKey']]['Id']."&arrayKey=".$_POST['arrayKey']."");
+                header("Location: ./menu.php?pizzaID=".$_SESSION['cart'][$_POST['arrayKey']]['Id']."&arrayKey=".$_POST['arrayKey']."");
             }
         }
     }
@@ -329,7 +329,7 @@ if (!isset($_GET['pizzaID'])) {
             );
         }
         
-        header("Location: menu2.php");
+        header("Location: menu.php");
     }
 }
 

@@ -64,6 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // ==== Start of Program ====
             $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/updateUser', ConfigData::$userAPIAccessToken, $arrPushedUserData);
 
+            // Setting the session variables to the new name
+            $_SESSION['name'] = $arrAPIReturn[1]['data']['name'];
+
             // Making the header message
             $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Gegevens zijn gewijzigd!</div>";
 

@@ -240,6 +240,8 @@ class Functions {
     # Global footer
     public static function htmlFooter(): void {
         echo("
+        <div class='mt-5'>
+        </div>
                 </body>
             </html>
         ");

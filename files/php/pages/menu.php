@@ -30,38 +30,67 @@ if (isset($_POST['menu1'])) {
 
 if (!isset($_GET['pizzaID'])) {
     //here needs to come a foreach loop for when all pizza's are added to the database
-    foreach($result as $row){
-        echo (" 
-        <form method='post'>
-            <input type='submit' name='menu1' value='Bestellen'>
-            <input type='hidden' name='pizzaID' value='".$row['dishID']."'>
-        </form>
+    echo("<div class='container-fluid'>");
+    echo("<div class='row'>");
+    
+    echo("<div class='col-8'>");
+    echo("<form method='post'>");
+    echo("<div class='row'>");
+
+    foreach ($result as $row) {
+        // Open a new row for every three items
+
+        echo ("
+            <div class='col-4 col '>
+                
+                    <img src='" . Functions::dynamicPathFromIndex() . "/files/images/pizza.png' class='img-thumbnail' alt='Pizza Image' style='max-width: 100%; height: auto;'>
+                    <br/><label>" . $row['name'] . "</label>
+                    <input type='submit' name='menu1' value='Bestellen'>
+                    <input type='hidden' name='pizzaID' value='" . $row['dishID'] . "'>
+                
+            </div>
         ");
+        // Close the row after every three items
     }
+
+    echo("</form></div></div>");
+
+    
     if (empty($_SESSION['cart'])) {
         
     }else{
         //  $_SESSION['cart'] = '';
         // $_SESSION['total'] = 0;
         // print_r($_SESSION['cart']);
-        for($i = 0;  $i <= count($_SESSION['cart']) -1; $i++){
-            echo("<br/>".$_SESSION['cart'][$i]['Pizza'] .  " " . $_SESSION['cart'][$i]['Size'] . "<br/> " . $_SESSION['cart'][$i]['Sauce'] . " Sauce <br/>" );
-            foreach($_SESSION['cart'][$i]['Toppings'] as $toppingData){
-                print_r($toppingData['name'] . " ");
-                print_r($toppingData['price']);
-                print_r($toppingData['orignal']);
-                echo("<br/>");
-            }
+            echo("<div class='col-4'>");
+        for ($i = 0; $i <= count($_SESSION['cart']) - 1; $i++) {
             echo("
-                Pizza Prijs : ".$_SESSION['cart'][$i]['DishTotal']."
-                <form method='post'>
-                    <input type='submit' name='update' value='update'>
-                    <input type='submit' name='delete' value='delete'>
-                    <input type='hidden' name='arrayKey' value='".$i."'>
-                </form>
+                <div class='list-group-item'>
+                    <p class='mb-1'>" . $_SESSION['cart'][$i]['Pizza'] . " - " . $_SESSION['cart'][$i]['Size'] . "</p>
             ");
-        }
-        echo("Total Prijs: " . $_SESSION['total']);
+        
+        
+            echo("
+                    <p class='mb-1'>Pizza Price: €" . $_SESSION['cart'][$i]['DishTotal'] . "</p>
+                    <form method='post' class='form-inline'>
+                        <button type='submit' class='btn  mr-1' name='update'>Wijzigen</button>
+                        <button type='submit' class='btn ' name='delete'>Verwijderen</button>
+                        <input type='hidden' name='arrayKey' value='" . $i . "'>
+                    </form>
+                    
+            ");
+        }echo("<p>Total Price: €" . $_SESSION['total'] . "</p>
+        </div>");
+        
+       
+        echo("
+                    </div>
+                    
+                </div>
+                </div>
+            </div>
+        
+        ");
         //delete key from array and update total correspondingly 
         if(isset($_POST['delete'])){
             if(isset($_POST['arrayKey'])){
@@ -99,22 +128,36 @@ if (!isset($_GET['pizzaID'])) {
     $money = 0;
     
     //if statement to check if a dish needs updating 
-
+    echo("
+    <div class='container'>
+        <div class='row justify-content-center'>
+            <div class='col-10   border border-dark rounded'>
+                <div class='container-fluid mt-4'>
+                    <div class='row'>
+                        <div class='col-md-6'>
+                            <img src='" . Functions::dynamicPathFromIndex() . "/files/images/QuattroFormaggi.jpeg' class='img-fluid' alt='Image'>
+                        </div>
+                        <div class='col-md-6'>
+    ");
     if (isset($_GET['arrayKey'])) {
         // Display form for updating with existing data
         // Assuming $existingArray contains the data you want to populate in the form
         echo ("
             <form method='post'>
             <p>Pizza Bottom</p>
-                <select id='sizeSelector' onchange='updatePrice()' name='size' >
-                    <option value='0'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size'] == 'Normaal' ? " selected" : "") . ">Normaal</option>
-                    <option value='2'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'Groot' ? " selected" : "") . ">Groot + €2</option>
-                    <option value='4'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'XXL' ? " selected" : "") . ">XXL + €4</option>
-                </select>
-                <select name='Sauce'>
+                <div class='form-group'>
+                    <select id='sizeSelector' onchange='updatePrice()' name='size' class='form-control' >
+                        <option value='0'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size'] == 'Normaal' ? " selected" : "") . ">Normaal</option>
+                        <option value='2'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'Groot' ? " selected" : "") . ">Groot + €2</option>
+                        <option value='4'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'XXL' ? " selected" : "") . ">XXL + €4</option>
+                    </select>
+                </div>
+                <div class='form-group'>
+                <select name='Sauce' class='form-control'>
                     <option value='Tomato'" . ($_SESSION['cart'][$_GET['arrayKey']]['Sauce'] == 'Tomato' ? " selected" : "") . ">tomato</option>
                     <option value='BBQ'" . ($_SESSION['cart'][$_GET['arrayKey']]['Sauce'] == 'BBQ' ? " selected" : "") . ">bbq</option>
-                </select><br/>
+                </select>
+                </div>
                 <p>Ingredients</p>
                 <table>
                 <tbody id='tbody'>");
@@ -132,7 +175,7 @@ if (!isset($_GET['pizzaID'])) {
                         <p id='counter" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' style='margin: 5px 15px;'>" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "</p>
                         <input type='hidden' name='toppingQuantities[]' id='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "'>
                         <input type='hidden' name='selectedToppings[]' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "'>
-                        <input type='hidden' id='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' name='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . ($_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['orignal'] == true ? "true" : "false") . "'>
+                        <input type='hidden' id='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' name='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . ($_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['orignal'] == 'true' ? "true" : "false") . "'>
                         <input type='hidden' id='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' name='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "'>
                     </td>
                     <td>
@@ -140,9 +183,6 @@ if (!isset($_GET['pizzaID'])) {
                     <td>
                 </tr>");
         }
-    
-        echo ("</tbody></table>
-                <table>");
     }else{
             echo ("
         <form method='post'>
@@ -180,10 +220,12 @@ if (!isset($_GET['pizzaID'])) {
                     <td>
                 </tr>");
         }
-        echo ("</tbody></table>
-        <table> ");
+        
         
     }
+    echo ("</tbody></table>
+        <div class='scrollable-table' style='max-height: 200px; overflow-y: auto;'>
+        <table> ");
     $arrMoney = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `price` FROM $tableDishes WHERE `dishID` = $pizzaID");
     $money += $arrMoney[0]['price'];
     $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableToppings ORDER BY `name` ASC");
@@ -217,23 +259,26 @@ if (!isset($_GET['pizzaID'])) {
     }
         echo("
     <tr id='toggleRow'>
-        <td colspan='5'>
-            <button onclick='toggleAdditionalToppings()' name='buttonAdditonalToppings' type='button'>Show More Toppings</button>
-        </td>
+        
+            <td colspan='5' >
+                <button onclick='toggleAdditionalToppings()' name='buttonAdditonalToppings' type='button' class='btn btn-secondary'>Show More Toppings</button>
+            </td>
+        
     </tr>
-    </table>
+    </table></div>
     ");
     if(!isset($_GET['arrayKey'])){
-        echo("    <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$money."' onclick='updateHidden();'>
+        echo("    <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$money."' onclick='updateHidden();' class='btn btn-primary'>
         <input type='hidden' id='money' name='money' value='".floatval($money)."' />
-        </form>
         ");
     }else{
-        echo("    <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$_SESSION['cart'][$_GET['arrayKey']]['DishTotal']."' onclick='updateHidden();'>
+        echo("    <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$_SESSION['cart'][$_GET['arrayKey']]['DishTotal']."' onclick='updateHidden();' class='btn btn-primary'>
         <input type='hidden' id='money' name='money' value='".floatval($_SESSION['cart'][$_GET['arrayKey']]['DishTotal'])."' />
-        </form>
+         
         ");
     }
+    echo("<div class='mt-2'>
+    </div></form></div></div></div></div></div></div></div>");
 
     if(isset($_POST['submitPizza'])){
         $selectedToppings = $_POST['selectedToppings'];

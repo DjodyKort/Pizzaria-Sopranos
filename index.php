@@ -16,7 +16,7 @@ Functions::htmlHeader(380);
 echo("
 <div class='container'>
     <div class='row justify-content-center'>
-        <div class='col-6 border border-dark rounded'>
+        <div class='col-lg-6 col-md-8 col-sm-10 col-10 border border-dark rounded'>
             <div class='container-fluid mt-4'>
                 <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/menu.php'>
                     <!-- Buttons -->
@@ -41,7 +41,7 @@ echo("
                     <!-- Text field(s) -->
                     <div class='divIndexTextFields row justify-content-center'>
                         <!-- text field -->
-                        <div class='divTextIndexField1 col-lg-10 col-md-10 col-sm-12 d-flex'>
+                        <div class='divTextIndexField1 col-10 d-flex'>
                             <input type='text' class='form-control' placeholder='Zoek naar postcode' aria-label='Postcode' aria-describedby='button-addon2'>
                         </div>
                     </div>
@@ -93,18 +93,21 @@ $(document).ready(function(){
             buttonIndexSubmit.children('img').attr('src', strLeveringImgSource);
             
             // Changing the col-10 to col-8
-            divTextIndexField1.removeClass('col-lg-10 col-md-10 col-sm-12');
-            divTextIndexField1.addClass('col-lg-8 col-md-8 col-sm-12');
-            // Adding an extra input field for the house number
-            divTextIndexFields.append('<div style=\'padding: 0;\' class=\'inputIndexHouseNumber col-lg-2 col-md-2 col-sm-12\'><input type=\'text\' class=\'form-control\' placeholder=\'Nr.\' aria-label=\'Nr.\' aria-describedby=\'button-addon2\'></div>');
-
+            divTextIndexField1.removeClass('col-10');
+            divTextIndexField1.addClass('col-7 col-lg-8 col-md-8 col-sm-7');
+            
+            // Check if the element already exists
+            if ($('.inputIndexHouseNumber').length === 0) { 
+                // Adding an extra input field for the house number
+                divTextIndexFields.append('<div class=\'inputIndexHouseNumber col-3 col-lg-2 col-md-2 col-sm-3\'><input type=\'text\' class=\'form-control\' placeholder=\'Nr.\' aria-label=\'Nr.\' aria-describedby=\'button-addon2\'></div>');
+            }
         }
         else if($(this).attr('name') === 'nameButtonTakeout'){
             // Removing the extra input field for the house number
             divTextIndexFields.children('.inputIndexHouseNumber').remove();
             // Changing the col-8 to col-10
-            divTextIndexField1.removeClass('col-lg-8 col-md-8 col-sm-12');
-            divTextIndexField1.addClass('col-lg-10 col-md-10 col-sm-12');
+            divTextIndexField1.removeClass('col-7 col-lg-8 col-md-8 col-sm-7');
+            divTextIndexField1.addClass('col-10');
             
             // Changing p
             buttonIndexSubmit.children('p').text(strTakeoutParagraph);

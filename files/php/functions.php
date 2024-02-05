@@ -150,13 +150,18 @@ class Functions {
     }
 
     # ==== HTML ====
+    # Normal functions
+    public static function pre($data): void {
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+    }
+
     # Global header
     public static function htmlHeader(string $logoHeight): void {
         // ======== Declaring Variables ========
-        # ==== Sessions ====
+        # Sessions
         session_start();
-
-        # ==== Strings ====
 
         # ==== HTML ====
         # Non changing HTML
@@ -167,8 +172,6 @@ class Functions {
             $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
             $_SESSION['headerMessage'] = '';
         }
-
-        # Dynamic HTML
         if(empty($_SESSION['cart'])){
             $_SESSION['cart'] = [];
         }
@@ -240,8 +243,7 @@ class Functions {
     # Global footer
     public static function htmlFooter(): void {
         echo("
-        <div class='mt-5'>
-        </div>
+                <div class='mt-5'></div>
                 </body>
             </html>
         ");
@@ -249,25 +251,32 @@ class Functions {
 
     # == Accounts page ==
     # Account navbar
-    public static function htmlAccountNavbar(): void {
+    public static function htmlAccountNavbar(): string {
         // ======== Declaring Variables ========
         # Strings
         $currentPage = $_GET['page'] ?? '';
 
         // ======== Start of Program ========
-        echo("
-            <table class='table-responsive'>
-                <tr> ");
-                    foreach (ConfigData::$userSettingLinks as $key => $value) {
-                        if ($key == $currentPage) {
-                            echo("<td class='pe-3 selected'><a href='?page=$key'>$value</a></td>");
-                        }
-                        else {
-                            echo("<td class='pe-3' ><a href='?page=$key'>$value</a></td>");
-                        }
-                    } echo("
-                </tr>
-            </table>
-        ");
+        $string = "<div class='container-fluid'><div class='row'><div class='col-12 d-flex justify-content-center'>";
+
+        foreach(ConfigData::$userSettingLinks as $key => $value) {
+            // Check if logout
+            if ($key == 'logout') {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=logout' class='buttonUserSettings textLogout btn me-2'><p class='mb-0'>$value</p></a>";
+                continue;
+            }
+
+            // Check if current page
+            if ($key == $currentPage or ($key == 'account' and $currentPage == '')) {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-2'>$value</a>";
+            }
+            else {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings btn me-2'>$value</a>";
+            }
+        }
+
+        $string .= "</div></div></div>";
+
+        return $string;
     }
 }

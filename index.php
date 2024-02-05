@@ -18,7 +18,7 @@ echo("
     <div class='row justify-content-center'>
         <div class='col-lg-6 col-md-8 col-sm-10 col-10 border border-dark rounded'>
             <div class='container-fluid mt-4'>
-                <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/menu2.php'>
+                <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/menu.php'>
                     <!-- Buttons -->
                     <div class='row justify-content-center mb-5'>
                         <!-- First column with delivery button -->

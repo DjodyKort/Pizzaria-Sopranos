@@ -222,11 +222,11 @@ class Functions {
             $headerMessage
             
             <!-- Navbar -->
-            <div class='container-fluid mb-4'>
+            <div class='container-fluid'>
                 <div class='row'>
                     <!-- Logo -->
                     <div class='col-12 col-md-6 offset-md-3 text-center'>
-                        <a href='".self::dynamicPathFromIndex()."index.php'><img width='$logoHeight' class='mw-100' src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' alt='Responsive image'></a>
+                        <a href='".self::dynamicPathFromIndex()."index.php'><img src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' height='$logoHeight' alt='Responsive image'></a>
                     </div>
                     
                     <!-- Account -->

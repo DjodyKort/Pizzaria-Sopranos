@@ -3,15 +3,6 @@
 require_once('../functions.php');
 require_once('../classes.php');
 
-// ============ Checking access ============
-# Logout button
-if (isset($_GET['page'])){
-    if ($_GET['page'] == 'logout') {
-        session_destroy();
-        header("Location: ".Functions::dynamicPathFromIndex()."index.php");
-    }
-}
-
 // ============ Declaring Variables ============
 # Strings
 $currentPage = $_GET['page'] ?? '';
@@ -19,6 +10,14 @@ $currentPage = $_GET['page'] ?? '';
 // ============ Start of Program ============
 # Header
 Functions::htmlHeader(300);
+
+# Logout button
+if (isset($_GET['page'])){
+    if ($_GET['page'] == 'logout') {
+        session_destroy();
+        header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+    }
+}
 
 # Dynamic POST Requests
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -78,16 +77,9 @@ $mainPage = '';
 switch ($currentPage) {
     case 'addresses':
         $mainPage = "
+            <h3>Bezorgadressen</h3>
             <table class='table'>
-                <tr class='tr'>
-                    <td class='td'>Addressen</td>
-                </tr>
-                <tr class='tr'>
-                    <td class='td'>Vroedschapstraat 1 6445BH</td>
-                </tr>
-                <tr class='tr'>
-                    <td class='td'>Vroedschapstraat 2 6445BH</td>
-                </tr>
+                
             <table/>
         "; break;
     case 'orders':

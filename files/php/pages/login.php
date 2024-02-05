@@ -69,7 +69,7 @@ echo("
                         </div>
                     </div>
                     <div class='row mt-4 mb-4'>
-                        <div class='col-11 justify-content-center'>
+                        <div class='col-12 col-lg-12 justify-content-center'>
                             <button type='submit' class='buttonIndexSubmit d-flex justify-content-center align-items-center btn w-100'>
                                 <p style='margin: auto;'>Inloggen</p>
                             </button>

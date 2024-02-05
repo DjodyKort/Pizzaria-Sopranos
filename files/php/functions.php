@@ -150,13 +150,18 @@ class Functions {
     }
 
     # ==== HTML ====
+    # Normal functions
+    public static function pre($data): void {
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+    }
+
     # Global header
     public static function htmlHeader(string $logoHeight): void {
         // ======== Declaring Variables ========
-        # ==== Sessions ====
+        # Sessions
         session_start();
-
-        # ==== Strings ====
 
         # ==== HTML ====
         # Non changing HTML
@@ -167,8 +172,6 @@ class Functions {
             $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
             $_SESSION['headerMessage'] = '';
         }
-
-        # Dynamic HTML
         if(empty($_SESSION['cart'])){
             $_SESSION['cart'] = [];
         }
@@ -259,16 +262,16 @@ class Functions {
         foreach(ConfigData::$userSettingLinks as $key => $value) {
             // Check if logout
             if ($key == 'logout') {
-                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=logout' class='d-flex align-items-center me-3 text-decoration-none text-black'><img width='22px' src='".Functions::dynamicPathFromIndex()."files/images/logout.svg'><p class='mb-0'>$value</p></a>";
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=logout' class='buttonUserSettings textLogout btn me-2'><p class='mb-0'>$value</p></a>";
                 continue;
             }
 
             // Check if current page
             if ($key == $currentPage or ($key == 'account' and $currentPage == '')) {
-                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-3'>$value</a>";
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-2'>$value</a>";
             }
             else {
-                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings btn me-3'>$value</a>";
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings btn me-2'>$value</a>";
             }
         }
 

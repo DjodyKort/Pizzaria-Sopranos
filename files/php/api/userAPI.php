@@ -34,34 +34,46 @@ if (!empty($uri) && !empty($method)) {
                         ]);
                         exit();
                     }
+                    # Checking if the POST is not empty
+                    if (empty($_POST)) {
+                        Functions::setHTTPResponseCode(400);
+                        Functions::returnJson([
+                            'error' => 'Invalid POST data'
+                        ]);
+                        exit();
+                    }
 
-                    # == Strings ==
+                    # ==== Declaring Variables ====
                     # POST Variables
-                    $strName = $_POST['nameNameInput'];
-                    $strEmail = strtolower($_POST['nameEmailInput']);
-                    $strBillingAddress = $_POST['billingAddress'];
-                    $intPhoneNumber = $_POST['phoneNumber'];
-                    $intID = $_POST['id'];
+                    $userID = $_POST['userID'];
+                    $strName = $_POST['users']['name'];
+                    $strEmail = $_POST['users']['email'];
+                    $strBirthDate = $_POST['users']['birthDate'];
+                    $strPhoneNumber = $_POST['users']['phoneNumber'];
 
+                    # SQL
+                    $query = "UPDATE users SET name = ?, email = ?, birthDate = ?, phoneNumber = ? WHERE userID = ?";
 
                     // ==== Start of Program ====
-
-                    # Update the user
-                    $query = "UPDATE users SET name = ?, email = ?, billingAddress = ?, phoneNumber = ? WHERE userID = $intID";
                     try {
-                        PizzariaSopranosDB::pdoSqlReturnTrue($query, [$strName, $strEmail, $strBillingAddress, $intPhoneNumber]);
-                    } catch (Exception $e) {
+                        # Update the user
+                        PizzariaSopranosDB::pdoSqlReturnTrue($query, [$strName, $strEmail, $strBirthDate, $strPhoneNumber, $userID]);
+
+                        # Return API status
+                        Functions::setHTTPResponseCode(200);
+                        Functions::returnJson([
+                            'status' => 'success',
+                        ]);
+                    }
+                    catch (Exception $e) {
                         Functions::setHTTPResponseCode(403);
                         Functions::returnJson([
                             'error' => 'Something went wrong'
                         ]);
                         exit();
                     }
-                    Functions::setHTTPResponseCode(200);
-                    Functions::returnJson([
-                        'status' => 'success',
-                    ]);
-                } else {
+                }
+                else {
                     Functions::setHTTPResponseCode(418);
                     Functions::returnJson([
                         'error' => 'Invalid method'

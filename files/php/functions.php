@@ -181,7 +181,7 @@ class Functions {
 
 
         if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
-            $accountButtons = "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
+            $accountButtons = "<a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
         }
         else {
             $accountButtons = "

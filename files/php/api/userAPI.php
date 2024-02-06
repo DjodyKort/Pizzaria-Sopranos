@@ -63,6 +63,9 @@ if (!empty($uri) && !empty($method)) {
                         Functions::setHTTPResponseCode(200);
                         Functions::returnJson([
                             'status' => 'success',
+                            'data' => [
+                                'name' => $strName,
+                            ]
                         ]);
                     }
                     catch (Exception $e) {

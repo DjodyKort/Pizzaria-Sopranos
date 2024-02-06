@@ -23,14 +23,14 @@ body {
     text-align: center;
 
     /* ==== Coloring ==== */
-    background-color: #DA4856;
+    background-color: #E73126;
 
     /* ==== Spacing ==== */
     padding: 6px;
 }
 .buttonIndexSubmit p {
     /* ==== Coloring ==== */
-    color: #231F20;
+    color: white;
 
     /* ==== Styling ==== */
     font-size: 20px;
@@ -38,7 +38,7 @@ body {
 
 }
 .buttonIndexSubmit:hover {
-    background-color: #DA4856;
+    background-color: #E73126;
     box-shadow: 0px 10px 10px rgb(190, 53, 67);
     color: #fff;
     transform: translateY(-5px);
@@ -50,7 +50,8 @@ body {
     text-align: center;
 
     /* ==== Coloring ==== */
-    background-color: #DA4856;
+    background-color: #E73126;
+    color: white;
 
     /* ==== Spacing ==== */
     padding: 12px;
@@ -60,7 +61,7 @@ body {
     border: black 1px solid;
 
     /* ==== Coloring ==== */
-    background-color: #DA4856;
+    background-color: #E73126;
 
 }
 
@@ -121,3 +122,14 @@ body {
     background-color: #b6d7a8;
 }
 
+/* ============ Login page ============ */
+/* ==== Global ==== */
+.divRegisterText {
+    /* Coloring */
+    color: #a8989c;
+}
+.pRegisterText {
+    /* Coloring & Decoration*/
+    color: red;
+    text-decoration: none;
+}

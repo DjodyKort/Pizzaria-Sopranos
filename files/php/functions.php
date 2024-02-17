@@ -2,6 +2,27 @@
 // ============ Functions ============
 class Functions {
     // ======== Functions ========
+    # ==== API (PHP) ====
+    public static function checkAccessToken($authToken): void {
+        $boolAccessGranted = Functions::isEqual($authToken, ConfigData::$userAPIAccessToken);
+        if (!$boolAccessGranted) {
+            Functions::setHTTPResponseCode(403);
+            Functions::returnJson([
+                'error' => 'Invalid access token'
+            ]);
+            exit();
+        }
+    }
+    public static function checkPostData($postData): void {
+        if (empty($postData)) {
+            Functions::setHTTPResponseCode(400);
+            Functions::returnJson([
+                'error' => 'Invalid POST data'
+            ]);
+            exit();
+        }
+    }
+
     # ==== API (HTML/JSON) ====
     public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): mixed {
         // ======== Declaring Variables ========
@@ -92,7 +113,7 @@ class Functions {
         ");
     }
 
-    # ==== PHP (Make life easier) ====
+    # ==== PHP (efficiency) ====
     public static function addAddressToDB($currentPage, $arrPushedUserData): void {
         $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
 

@@ -331,6 +331,48 @@ if (!empty($uri) && !empty($method)) {
                     ]);
                 }
                 break;
+            case '/deleteAddress':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $userID = filter_var($_POST['userID'], FILTER_SANITIZE_NUMBER_INT);
+                    unset($_POST['userID']);
+                    $strTableName = array_key_first($_POST);
+                    $addressIDName = array_key_first($_POST[$strTableName]);
+                    $addressID = filter_var($_POST[$strTableName][$addressIDName], FILTER_SANITIZE_NUMBER_INT);
+
+                    # SQL
+                    $query = "DELETE FROM $strTableName WHERE userID = ? AND $addressIDName = ?";
+                    $arrPreparedValues = [$userID, $addressID];
+
+
+                    // ==== Start of Program ====
+                    try {
+                        # Delete the address
+                        PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPreparedValues);
+
+                        # Return API status
+                        Functions::setHTTPResponseCode(200);
+                        Functions::returnJson([
+                            'status' => 'success',
+                        ]);
+
+                    }
+                    catch (Exception $e) {
+                        Functions::setHTTPResponseCode(403);
+                        Functions::returnJson([
+                            'error' => 'Something went wrong'
+                        ]);
+                        exit();
+                    }
+                }
+                break;
             default:
                 Functions::setHTTPResponseCode(418);
                 Functions::returnJson([

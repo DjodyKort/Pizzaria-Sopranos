@@ -56,6 +56,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 Functions::addAddressToDB($currentPage, $arrPushedUserData);
             }
             break;
+        case 'deleteFAddress':
+            // ==== Start of POST Request ====
+            # Checking if the post isn't empty
+            if (empty($_POST['idAddress'])) {
+                echo("Er is iets fout gegaan! Probeer het later opnieuw.");
+                $boolTrue = False;
+            }
+            else {
+                // == Declaring Variables ==
+                # Arrays
+                $arrPushedUserData = [
+                    'userID' => $_SESSION['userID'],
+                    'billingAddresses' => [
+                        ConfigData::$dbKeys['billingAddresses']['id'] => $_POST['idAddress'],
+                    ],
+                ];
+
+                // == Start of Program ==
+                Functions::deleteAddressFromDB($arrPushedUserData);
+            }
+
+
+            break;
         case 'createBAddress':
             // ==== Declaring Variables ====
             # Bools
@@ -84,6 +107,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 // == Start of Program ==
                 Functions::addAddressToDB($currentPage, $arrPushedUserData);
+            }
+            break;
+        case 'deleteBAddress':
+            // ==== Start of POST Request ====
+            # Checking if the post isn't empty
+            if (empty($_POST['idAddress'])) {
+                echo("Er is iets fout gegaan! Probeer het later opnieuw.");
+                $boolTrue = False;
+            }
+            else {
+                // == Declaring Variables ==
+                # Arrays
+                $arrPushedUserData = [
+                    'userID' => $_SESSION['userID'],
+                    'addresses' => [
+                        ConfigData::$dbKeys['addresses']['id'] => $_POST['idAddress'],
+                    ],
+                ];
+
+                // == Start of Program ==
+                Functions::deleteAddressFromDB($arrPushedUserData);
             }
             break;
         case 'orders':
@@ -137,56 +181,74 @@ switch ($currentPage) {
         # Arrays
         $arrUserNeededData = [
             'userID' => $_SESSION['userID'],
-            't'
+            'billingAddresses' => [
+                'billingAddressID' => ConfigData::$dbKeys['billingAddresses']['id'],
+                'streetName' => ConfigData::$dbKeys['billingAddresses']['streetName'],
+                'houseNumber' => ConfigData::$dbKeys['billingAddresses']['houseNumber'],
+                'houseNumberAddition' => ConfigData::$dbKeys['billingAddresses']['houseNumberAddition'],
+                'postalCode' => ConfigData::$dbKeys['billingAddresses']['postalCode'],
+                'city' => ConfigData::$dbKeys['billingAddresses']['city'],
+            ],
+            'addresses' => [
+                'billingAddressID' => ConfigData::$dbKeys['addresses']['id'],
+                'streetName' => ConfigData::$dbKeys['addresses']['streetName'],
+                'houseNumber' => ConfigData::$dbKeys['addresses']['houseNumber'],
+                'houseNumberAddition' => ConfigData::$dbKeys['addresses']['houseNumberAddition'],
+                'postalCode' => ConfigData::$dbKeys['addresses']['postalCode'],
+                'city' => ConfigData::$dbKeys['addresses']['city'],
+            ]
         ];
 
         // ==== Start of switch case ====
-        $mainPage = "
-        <div class='container'>
-            <div class='row'>
-                <h4 class='p-0'>Factuuradres</h4>
-                <div class='container m-0 mb-3 col-12 col-lg-11 col-md-11'>
-                    <div class='row border border-black pt-3 pb-3'>
-                        <div class='col-6 d-flex align-items-center'>
-                            <p class='m-0 ms-1'>Nog niet ingevuld</p>
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/getUserData', ConfigData::$userAPIAccessToken, $arrUserNeededData);
+
+        if ($arrAPIReturn[0] != 200) {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+            header("Location: ./userSettings.php?page=addresses");
+        }
+        else {
+            // == Declaring Variables ==
+            # Adresses
+            $arrBillingAddresses = $arrAPIReturn[1]['data']['billingAddresses'];
+            $arrAddresses = $arrAPIReturn[1]['data']['addresses'];
+
+            # HTML
+            $htmlBillingAddresses = Functions::htmlShowBillingAddresses($arrBillingAddresses);
+            $htmlAddresses = Functions::htmlShowAddresses($arrAddresses);
+
+            // == Start of Program ==
+            $mainPage = "
+            <div class='container'>
+                <div class='row'>
+                    <h4 class='p-0'>Factuuradres</h4>
+                    $htmlBillingAddresses
+                    
+                    <div class='clearfix mb-1'></div>
+                    <hr class='col-12 col-lg-11 col-md-11'/>
+                    
+                    <h4 class='p-0'>Bezorgadressen</h4>
+                    <div class='container m-0 col-12 col-lg-11 col-md-11'>
+                        <div class='row'>
+                            <div class='col-12 p-0 mt-2 mb-3'>
+                                <a class='d-flex align-items-center text-decoration-none text-black' href='./userSettings.php?page=createBAddress' >
+                                    <!-- Round button with plus inside -->
+                                    <button class='p-0 buttonNoOutline'>
+                                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
+                                    </button>
+                                
+                                    <!-- Text -->
+                                    <p class='m-0 ms-2'>
+                                        Adres toevoegen
+                                    </p>
+                                </a>
+                            </div>
                         </div>
-                        <div class='col-6 d-flex flex-column align-items-end'>
-                            <a class='text-decoration-none' href='./userSettings.php?page=createFAddress'>
-                                <button class='btn btn-outline-danger'>Aanmaken</button>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class='clearfix mb-1'></div>
-                <hr class='col-12 col-lg-11 col-md-11'/>
-                
-                <h4 class='p-0'>Bezorgadressen</h4>
-                <div class='container m-0 col-12 col-lg-11 col-md-11'>
-                    <div class='row'>
-                        <div class='col-12 p-0 mt-2 mb-3'>
-                            <a class='d-flex align-items-center text-decoration-none text-black' href='./userSettings.php?page=createBAddress' >
-                                <!-- Round button with plus inside -->
-                                <button class='buttonNoOutline'>
-                                    <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
-                                </button>
-                            
-                                <!-- Text -->
-                                <p class='m-0 ms-2'>
-                                    Adres toevoegen
-                                </p>
-                            </a>
-                        </div>
-                    </div>
-                    <div class='row border border-black pt-4 pb-4'>
-                        <div class='col-12 d-flex justify-content-center'>
-                            <p class='m-0 text-center'>Nog geen adressen toegevoegd</p>
-                        </div>
+                        $htmlAddresses
                     </div>
                 </div>
             </div>
-        </div>
         ";
+        }
         break;
     case 'createFAddress':
         // ==== Start of switch case ====

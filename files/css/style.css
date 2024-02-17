@@ -131,6 +131,11 @@ body {
     background-color: #b6d7a8;
 }
 
+.addressText {
+    /* ==== Sizing ==== */
+    font-size: calc(0.9rem + 0.08vw);
+}
+
 /* ============ Login page ============ */
 /* ==== Global ==== */
 .divRegisterText {

@@ -59,6 +59,7 @@ class ConfigData {
         400 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid POST data
         403 => ['De login gegevens zijn niet correct!', 'danger'], // API Access key invalid
         405 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid method
+        406 => ['Er is al een factuuradres opgegeven, probeer deze te wijzigen!', 'warning'], // Billing address already exists
         418 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid endpoint
 
         419 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid variable (most likely invalid date)

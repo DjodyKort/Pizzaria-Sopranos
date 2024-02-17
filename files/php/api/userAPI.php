@@ -310,6 +310,86 @@ if (!empty($uri) && !empty($method)) {
                     ]);
                 }
                 break;
+            case '/addAddress':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    # Access
+                    $boolAccessGranted = Functions::isEqual($headers['Authorization'], ConfigData::$userAPIAccessToken);
+                    if (!$boolAccessGranted) {
+                        Functions::setHTTPResponseCode(403);
+                        Functions::returnJson([
+                            'error' => 'Invalid access token'
+                        ]);
+                        exit();
+                    }
+                    # Checking if the POST is not empty
+                    if (empty($_POST)) {
+                        Functions::setHTTPResponseCode(400);
+                        Functions::returnJson([
+                            'error' => 'Invalid POST data'
+                        ]);
+                        exit();
+                    }
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $userID = $_POST['userID'];
+
+                    unset($_POST['userID']);
+                    $strTableName = array_key_first($_POST);
+
+                    $strStreet = $_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['streetName']];
+                    $strHouseNumber = $_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['houseNumber']];
+                    $strHouseNumberAddition = $_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['houseNumberAddition']];
+                    $strZipCode = $_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['postalCode']];
+                    $strCity = $_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['city']];
+
+                    # SQL
+                    $checkQuery = "SELECT * FROM $strTableName WHERE userID = ?";
+                    $query = "INSERT INTO $strTableName (userID, streetName, houseNumber, houseNumberAddition, postalCode, city) VALUES (?, ?, ?, ?, ?, ?)";
+
+                    # == Arrays ==
+                    $arrPreparedValues = [$userID, $strStreet, $strHouseNumber, $strHouseNumberAddition, $strZipCode, $strCity];
+
+                    // ==== Start of Program ====
+                    try {
+                        # Check if the address already exists IF it's a billing address
+                        if ($strTableName == 'billingAddresses') {
+                            $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($checkQuery, [$userID]);
+                            if (count($arrResult) > 0) {
+                                Functions::setHTTPResponseCode(406);
+                                Functions::returnJson([
+                                    'error' => 'Address already exists'
+                                ]);
+                                exit();
+                            }
+                        }
+
+                        # Insert the address
+                        PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPreparedValues);
+                        # Return API status
+                        Functions::setHTTPResponseCode(200);
+                        Functions::returnJson([
+                            'status' => 'success',
+                        ]);
+                    }
+                    catch (Exception $e) {
+                        Functions::setHTTPResponseCode(403);
+                        Functions::returnJson([
+                            'error' => 'Something went wrong'
+                        ]);
+                        exit();
+                    }
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
             default:
                 Functions::setHTTPResponseCode(418);
                 Functions::returnJson([

@@ -92,6 +92,23 @@ class Functions {
         ");
     }
 
+    # ==== PHP (Make life easier) ====
+    public static function addAddressToDB($currentPage, $arrPushedUserData): void {
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
+
+        if ($arrAPIReturn[0] != 200) {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+            header("Location: ./userSettings.php?page=$currentPage");
+        }
+        else {
+            // Making the header message
+            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is toegevoegd!</div>";
+
+            // Redirecting to the account page
+            header("Location: ./userSettings.php");
+        }
+    }
+
     # ==== PHP ====
     public static function pathToURL($file, $protocol = 'https://'): string {
         // ======== Declaring Variables ========
@@ -226,7 +243,7 @@ class Functions {
                 <div class='row'>
                     <!-- Logo -->
                     <div class='col-12 col-md-6 offset-md-3 text-center'>
-                        <a href='".self::dynamicPathFromIndex()."index.php'><img src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' height='$logoHeight' alt='Responsive image'></a>
+                        <a href='".self::dynamicPathFromIndex()."index.php'><img class='mw-100' src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' height='$logoHeight' alt='Responsive image'></a>
                     </div>
                     
                     <!-- Account -->
@@ -278,5 +295,42 @@ class Functions {
         $string .= "</div></div></div>";
 
         return $string;
+    }
+
+    # Address form
+    public static function htmlAddAddress($strTitle): string {
+        $mainPage = "
+        <div class='container'>
+            <div class='row'>
+                <h4>$strTitle</h4>
+                <div class='container m-0 col-12 col-lg-11 col-md-11'>
+                    <form method='POST'>
+                        <div class='row'>
+                            <div class='col-12 col-lg-6 col-md-6'>
+                                <label for='nameStreetName'>Straatnaam: </label>
+                                <input class='form-control' type='text' id='idStreetName' name='nameStreetName' placeholder='Straatnaam'>
+                                <br/>
+                                <label for='nameHouseNumber'>Huisnummer: </label>
+                                <input class='form-control' type='text' id='idHouseNumber' name='nameHouseNumber' placeholder='Huisnummer'>
+                                <br/>
+                                <label for='nameHouseNumberAddition'>Huisnummer toevoeging: </label>
+                                <input class='form-control' type='text' id='idHouseNumberAddition' name='nameHouseNumberAddition' placeholder='Huisnummer toevoeging'>
+                                <br/>
+                                <label for='namePostalCode'>Postcode: </label>
+                                <input class='form-control' type='text' id='idPostalCode' name='namePostalCode' placeholder='Postcode'>
+                                <br/>
+                                <label for='nameCity'>Plaats: </label>
+                                <input class='form-control' type='text' id='idCity' name='nameCity' placeholder='Plaats'>
+                                <br/>
+                                <input class='btn btn-outline-danger' type='submit' value='Aanmaken'>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        ";
+
+        return $mainPage;
     }
 }

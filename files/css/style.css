@@ -80,6 +80,15 @@ body {
 
 /* ============ userSettings page ============ */
 /* ==== Global ==== */
+.buttonNoOutline {
+    /* ==== Styling ==== */
+    border: none;
+    outline: none;
+
+    /* ==== Coloring ==== */
+    background-color: transparent;
+}
+
 .buttonUserSettings {
     /* ==== Styling ==== */
     display: flex;

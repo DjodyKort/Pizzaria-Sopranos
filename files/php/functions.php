@@ -24,7 +24,7 @@ class Functions {
     }
 
     # ==== API (HTML/JSON) ====
-    public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): mixed {
+    public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): array {
         // ======== Declaring Variables ========
         $curl = curl_init();
 
@@ -45,7 +45,6 @@ class Functions {
         ));
 
         $response = curl_exec($curl);
-        $err = curl_error($curl);
         curl_close($curl);
 
         return [curl_getinfo($curl, CURLINFO_HTTP_CODE), (json_decode($response, true) ?? [])];
@@ -70,7 +69,7 @@ class Functions {
 
             // ==== Start of IF ====
             # Echo the message
-            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>$message</div>";
+            $_SESSION['headerMessage'] = "<div class='alert alert-$color' role='alert'>$message</div>";
         }
         else {
             // ==== Start of Else ====
@@ -81,6 +80,7 @@ class Functions {
 
     # ==== JS ====
     static function hidePasswordByName($name): void {
+        /** @noinspection JSVoidFunctionReturnValueUsed */
         echo("
             <script>
                 // ======== Declaring Variables ========
@@ -134,22 +134,20 @@ class Functions {
 
         if ($arrAPIReturn[0] != 200) {
             Functions::echoByStatusCode($arrAPIReturn[0]);
-            header("Location: ./userSettings.php?page=addresses");
         }
         else {
             // Making the header message
             $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is verwijderd!</div>";
-
-            // Redirecting to the account page
-            header("Location: ./userSettings.php?page=addresses");
         }
+        // Redirecting to the account page
+        header("Location: ./userSettings.php?page=addresses");
     }
 
     # ==== PHP ====
     public static function pathToURL($file, $protocol = 'https://'): string {
         // ======== Declaring Variables ========
         # ==== Strings ====
-        $documentRoot = realpath(self::dynamicPathFromIndex(__FILE__));
+        $documentRoot = realpath(self::dynamicPathFromIndex());
         if (str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
             // Getting the name of folder
             $folderName = '/'.basename($documentRoot);
@@ -173,8 +171,7 @@ class Functions {
         $relativeUrl = ltrim($relativeUrl, '/');
 
         // Combine the base URL with the relative URL
-        $url = "{$protocol}{$_SERVER['HTTP_HOST']}{$folderName}/{$relativeUrl}";
-        return $url;
+        return "{$protocol}{$_SERVER['HTTP_HOST']}{$folderName}/{$relativeUrl}";
     }
 
     public static function dynamicPathFromIndex(): string {
@@ -345,7 +342,7 @@ class Functions {
                         <p class='m-0 ms-1'>Nog niet ingevuld</p>
                     </div>
                     <div class='col-6 d-flex flex-column align-items-end'>
-                        <a class='text-decoration-none' href='./userSettings.php?page=createFAddress'>
+                        <a class='text-decoration-none' href='".Functions::dynamicPathFromIndex()."/files/php/pages/userSettings.php?page=createFAddress'>
                             <button class='btn btn-outline-danger'>Aanmaken</button>
                         </a>
                     </div>
@@ -453,7 +450,7 @@ class Functions {
 
 
     public static function htmlAddAddress($strTitle): string {
-        $mainPage = "
+        return "
         <div class='container'>
             <div class='row'>
                 <h4>$strTitle</h4>
@@ -484,7 +481,5 @@ class Functions {
             </div>
         </div>
         ";
-
-        return $mainPage;
     }
 }

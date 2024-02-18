@@ -266,6 +266,52 @@ if (!empty($uri) && !empty($method)) {
                     ]);
                 }
                 break;
+            case '/getAddress':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $userID = filter_var($_POST['userID'], FILTER_SANITIZE_NUMBER_INT);
+                    unset($_POST['userID']);
+                    $strTableName = array_key_first($_POST);
+                    $addressIDName = ConfigData::$dbKeys[$strTableName]['id'];
+                    $addressID = filter_var($_POST[$strTableName], FILTER_SANITIZE_NUMBER_INT);
+
+                    # SQL
+                    $query = "SELECT * FROM $strTableName WHERE userID = ? AND $addressIDName = ?";
+
+                    // ==== Start of Program ====
+                    # Getting the user data
+                    $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($query, [$userID, $addressID]);
+
+                    # Checking if the user data is not empty
+                    if (empty($arrResult)) {
+                        Functions::setHTTPResponseCode(403);
+                        Functions::returnJson([
+                            'error' => 'Something went wrong',
+                        ]);
+                        exit();
+                    }
+
+                    # Returning the requested user data
+                    Functions::setHTTPResponseCode(200);
+                    Functions::returnJson([
+                        'status' => 'success',
+                        'data' => $arrResult
+                    ]);
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
             case '/addAddress':
                 // ======== POST ========
                 if ($method == 'POST') {
@@ -329,6 +375,54 @@ if (!empty($uri) && !empty($method)) {
                     Functions::returnJson([
                         'error' => 'Invalid method'
                     ]);
+                }
+                break;
+            case '/updateAddress':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $userID = filter_var($_POST['userID'], FILTER_SANITIZE_NUMBER_INT);
+                    unset($_POST['userID']);
+                    $strTableName = array_key_first($_POST);
+                    $addressIDName = ConfigData::$dbKeys[$strTableName]['id'];
+                    $addressID = filter_var($_POST[$strTableName][$addressIDName], FILTER_SANITIZE_NUMBER_INT);
+
+                    $strStreet = htmlspecialchars($_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['streetName']], ENT_QUOTES, 'UTF-8');
+                    $strHouseNumber = htmlspecialchars($_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['houseNumber']], ENT_QUOTES, 'UTF-8');
+                    $strHouseNumberAddition = htmlspecialchars($_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['houseNumberAddition']], ENT_QUOTES, 'UTF-8');
+                    $strZipCode = htmlspecialchars($_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['postalCode']], ENT_QUOTES, 'UTF-8');
+                    $strCity = htmlspecialchars($_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['city']], ENT_QUOTES, 'UTF-8');
+
+                    # SQL
+                    $query = "UPDATE $strTableName SET streetName = ?, houseNumber = ?, houseNumberAddition = ?, postalCode = ?, city = ? WHERE userID = ? AND $addressIDName = ?";
+                    $arrPreparedValues = [$strStreet, $strHouseNumber, $strHouseNumberAddition, $strZipCode, $strCity, $userID, $addressID];
+
+                    $completedQuery = "UPDATE $strTableName SET streetName = '$strStreet', houseNumber = '$strHouseNumber', houseNumberAddition = '$strHouseNumberAddition', postalCode = '$strZipCode', city = '$strCity' WHERE userID = $userID AND $addressIDName = $addressID";
+                    // ==== Start of Program ====
+                    try {
+                        # Update the address
+                        PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPreparedValues);
+
+                        # Return API status
+                        Functions::setHTTPResponseCode(200);
+                        Functions::returnJson([
+                            'status' => 'success',
+                            $completedQuery
+                        ]);
+                    }
+                    catch (Exception $e) {
+                        Functions::setHTTPResponseCode(403);
+                        Functions::returnJson([
+                            'error' => 'Something went wrong'
+                        ]);
+                        exit();
+                    }
                 }
                 break;
             case '/deleteAddress':

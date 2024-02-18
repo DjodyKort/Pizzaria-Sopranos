@@ -79,6 +79,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
             break;
+        case 'changeFAddress':
+            // ==== Declaring Variables ====
+            # Bools
+            $boolTrue = True;
+
+            // ==== Start of POST Request ====
+            # Checking if all the fields are filled in
+            if (empty($_POST['nameStreetName']) || empty($_POST['nameHouseNumber']) || empty($_POST['namePostalCode']) || empty($_POST['nameCity'])) {
+                echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+                $boolTrue = False;
+            }
+
+            if ($boolTrue) {
+                // == Declaring Variables ==
+                # Arrays
+                $arrPushedUserData = [
+                    'userID' => $_SESSION['userID'],
+                    ConfigData::$dbTables['addresses'] => [
+                        ConfigData::$dbKeys[ConfigData::$dbTables['addresses']]['id'] => $_POST['idAddress'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['addresses']]['streetName'] => $_POST['nameStreetName'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['addresses']]['houseNumber'] => $_POST['nameHouseNumber'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['addresses']]['houseNumberAddition'] => $_POST['nameHouseNumberAddition'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['addresses']]['postalCode'] => $_POST['namePostalCode'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['addresses']]['city'] => $_POST['nameCity'],
+                    ],
+                ];
+
+                // == Start of Program ==
+                Functions::updateAddressInDB($currentPage, $arrPushedUserData);
+            }
+            break;
         case 'createBAddress':
             // ==== Declaring Variables ====
             # Bools
@@ -130,6 +161,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 Functions::deleteAddressFromDB($arrPushedUserData);
             }
             break;
+        case 'changeBAddress':
+            // ==== Declaring Variables ====
+            # Bools
+            $boolTrue = True;
+
+            // ==== Start of POST Request ====
+            # Checking if all the fields are filled in
+            if (empty($_POST['nameStreetName']) || empty($_POST['nameHouseNumber']) || empty($_POST['namePostalCode']) || empty($_POST['nameCity'])) {
+                echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+                $boolTrue = False;
+            }
+
+            if ($boolTrue) {
+                // == Declaring Variables ==
+                # Arrays
+                $arrPushedUserData = [
+                    'userID' => $_SESSION['userID'],
+                    ConfigData::$dbTables['billingAddresses'] => [
+                        ConfigData::$dbKeys[ConfigData::$dbTables['billingAddresses']]['id'] => $_POST['idAddress'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['billingAddresses']]['streetName'] => $_POST['nameStreetName'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['billingAddresses']]['houseNumber'] => $_POST['nameHouseNumber'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['billingAddresses']]['houseNumberAddition'] => $_POST['nameHouseNumberAddition'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['billingAddresses']]['postalCode'] => $_POST['namePostalCode'],
+                        ConfigData::$dbKeys[ConfigData::$dbTables['billingAddresses']]['city'] => $_POST['nameCity'],
+                    ],
+                ];
+
+                // == Start of Program ==
+                Functions::updateAddressInDB($currentPage, $arrPushedUserData);
+            }
+            break;
+
         case 'orders':
             break;
         default:
@@ -254,9 +317,17 @@ switch ($currentPage) {
         // ==== Start of switch case ====
         $mainPage = Functions::htmlAddAddress('Factuuradres toevoegen');
         break;
+    case 'changeFAddress':
+        // ==== Start of switch case ====
+        $mainPage = Functions::htmlChangeAddress(ConfigData::$dbTables['addresses'] ,'Bezorgadres wijzigen');
+        break;
     case 'createBAddress':
         // ==== Start of switch case ====
         $mainPage = Functions::htmlAddAddress('Bezorgadres toevoegen');
+        break;
+    case 'changeBAddress':
+        // ==== Start of switch case ====
+        $mainPage = Functions::htmlChangeAddress(ConfigData::$dbTables['billingAddresses'] ,'Factuuradres wijzigen');
         break;
     case 'orders':
         break;

@@ -9,6 +9,12 @@ class ConfigData {
     public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
 
     # ==== Arrays ====
+    # Database tablenames
+    public static array $dbTables = [
+        'users' => 'users',
+        'addresses' => 'addresses',
+        'billingAddresses' => 'billingAddresses',
+    ];
     # Database keys
     public static array $dbKeys = [
         'users' => [

@@ -142,6 +142,23 @@ class Functions {
         // Redirecting to the account page
         header("Location: ./userSettings.php?page=addresses");
     }
+    public static function updateAddressInDB($currentPage, $arrPushedUserData): void {
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/updateAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
+
+        if ($arrAPIReturn[0] != 200) {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+            header("Location: ./userSettings.php?page=addresses");
+        }
+        else {
+            var_dump($arrAPIReturn);
+            // Making the header message
+            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is gewijzigd!</div>";
+
+            // Redirecting to the account page
+            header("Location: ./userSettings.php?page=addresses");
+        }
+    }
+
 
     # ==== PHP ====
     public static function pathToURL($file, $protocol = 'https://'): string {
@@ -375,7 +392,7 @@ class Functions {
                     </div>
                     <div class='col-3 d-flex flex-column align-items-end'>
                         <div class='text-decoration-none d-flex flex-column'>
-                            <button class='btn btn-sm btn-outline-success'>Wijzigen</button>
+                            <a class='btn btn-sm btn-outline-success' href='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=changeBAddress&idAddress=$intID'>Wijzigen</a>
                             <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=deleteFAddress'>
                                 <input type='hidden' name='idAddress' value='$intID'>
                                 <input type='submit' class='btn btn-sm btn-outline-danger mt-2' value='Verwijderen'>
@@ -429,7 +446,7 @@ class Functions {
                         </div>
                         <div class='col-3 d-flex flex-column align-items-end justify-content-center'>
                             <div class='text-decoration-none d-flex flex-column'>
-                                <button class='btn btn-sm btn-outline-success'>Wijzigen</button>
+                                <a class='btn btn-sm btn-outline-success' href='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=changeFAddress&idAddress=$intID'>Wijzigen</a>
                                 <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=deleteBAddress'>
                                     <input type='hidden' name='idAddress' value='$intID'>
                                     <input type='submit' class='btn btn-sm btn-outline-danger mt-2' value='Verwijderen'>
@@ -446,6 +463,67 @@ class Functions {
             # Return the string
             return $string;
         }
+    }
+
+    # Changing addresses
+    public static function htmlChangeAddress($strTableName, $strTitle): string
+    {
+        // ======== Declaring Variables ========
+        # ==== Ints ====
+        $intID = $_GET['idAddress'] ?? 0;
+
+        # ==== Arrays ====
+        # API
+        $neededAddressData = [
+            'userID' => $_SESSION['userID'],
+            $strTableName => $intID
+        ];
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/getAddress', ConfigData::$userAPIAccessToken, $neededAddressData);
+
+        # Address
+        $arrAddress = $arrAPIReturn[1]['data'][0];
+
+        # ==== Strings ====
+        # Static
+        $strStreetName = $arrAddress['streetName'];
+        $strHouseNumber = $arrAddress['houseNumber'];
+        $strHouseNumberAddition = $arrAddress['houseNumberAddition'];
+        $strPostalCode = $arrAddress['postalCode'];
+        $strCity = $arrAddress['city'];
+
+        // ======== Start of Program ========
+        return "
+        <div class='container'>
+            <div class='row'>
+                <h4>$strTitle</h4>
+                <div class='container m-0 col-12 col-lg-11 col-md-11'>
+                    <form method='POST'>
+                        <div class='row'>
+                            <div class='col-12 col-lg-6 col-md-6'>
+                                <label for='nameStreetName'>Straatnaam: </label>
+                                <input class='form-control' type='text' id='idStreetName' name='nameStreetName' value='$strStreetName'>
+                                <br/>
+                                <label for='nameHouseNumber'>Huisnummer: </label>
+                                <input class='form-control' type='text' id='idHouseNumber' name='nameHouseNumber' value='$strHouseNumber'>
+                                <br/>
+                                <label for='nameHouseNumberAddition'>Huisnummer toevoeging: </label>
+                                <input class='form-control' type='text' id='idHouseNumberAddition' name='nameHouseNumberAddition' value='$strHouseNumberAddition'>
+                                <br/>
+                                <label for='namePostalCode'>Postcode: </label>
+                                <input class='form-control' type='text' id='idPostalCode' name='namePostalCode' value='$strPostalCode'>
+                                <br/>
+                                <label for='nameCity'>Plaats: </label>
+                                <input class='form-control' type='text' id='idCity' name='nameCity' value='$strCity'>
+                                <br/>
+                                <input type='hidden' name='idAddress' value='$intID'>
+                                <input class='btn btn-outline-danger' type='submit' value='Wijzigen'>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>                           
+       ";
     }
 
 

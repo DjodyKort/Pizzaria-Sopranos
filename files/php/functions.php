@@ -2,8 +2,29 @@
 // ============ Functions ============
 class Functions {
     // ======== Functions ========
+    # ==== API (PHP) ====
+    public static function checkAccessToken($authToken): void {
+        $boolAccessGranted = Functions::isEqual($authToken, ConfigData::$userAPIAccessToken);
+        if (!$boolAccessGranted) {
+            Functions::setHTTPResponseCode(403);
+            Functions::returnJson([
+                'error' => 'Invalid access token'
+            ]);
+            exit();
+        }
+    }
+    public static function checkPostData($postData): void {
+        if (empty($postData)) {
+            Functions::setHTTPResponseCode(400);
+            Functions::returnJson([
+                'error' => 'Invalid POST data'
+            ]);
+            exit();
+        }
+    }
+
     # ==== API (HTML/JSON) ====
-    public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): mixed {
+    public static function sendFormToAPI(string $strAPIURL, string $strAPIAccessToken, array $arrPOSTData): array {
         // ======== Declaring Variables ========
         $curl = curl_init();
 
@@ -24,7 +45,6 @@ class Functions {
         ));
 
         $response = curl_exec($curl);
-        $err = curl_error($curl);
         curl_close($curl);
 
         return [curl_getinfo($curl, CURLINFO_HTTP_CODE), (json_decode($response, true) ?? [])];
@@ -49,7 +69,7 @@ class Functions {
 
             // ==== Start of IF ====
             # Echo the message
-            $_SESSION['headerMessage'] = "<div class='alert alert-danger' role='alert'>$message</div>";
+            $_SESSION['headerMessage'] = "<div class='alert alert-$color' role='alert'>$message</div>";
         }
         else {
             // ==== Start of Else ====
@@ -60,6 +80,7 @@ class Functions {
 
     # ==== JS ====
     static function hidePasswordByName($name): void {
+        /** @noinspection JSVoidFunctionReturnValueUsed */
         echo("
             <script>
                 // ======== Declaring Variables ========
@@ -92,11 +113,58 @@ class Functions {
         ");
     }
 
+    # ==== PHP (efficiency) ====
+    public static function addAddressToDB($currentPage, $arrPushedUserData): void {
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
+
+        if ($arrAPIReturn[0] != 200) {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+            header("Location: ./userSettings.php?page=$currentPage");
+        }
+        else {
+            // Making the header message
+            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is toegevoegd!</div>";
+
+            // Redirecting to the account page
+            header("Location: ./userSettings.php?page=addresses");
+        }
+    }
+    public static function deleteAddressFromDB($arrPushedUserData): void {
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/deleteAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
+
+        if ($arrAPIReturn[0] != 200) {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+        }
+        else {
+            // Making the header message
+            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is verwijderd!</div>";
+        }
+        // Redirecting to the account page
+        header("Location: ./userSettings.php?page=addresses");
+    }
+    public static function updateAddressInDB($currentPage, $arrPushedUserData): void {
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/updateAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
+
+        if ($arrAPIReturn[0] != 200) {
+            Functions::echoByStatusCode($arrAPIReturn[0]);
+            header("Location: ./userSettings.php?page=addresses");
+        }
+        else {
+            var_dump($arrAPIReturn);
+            // Making the header message
+            $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is gewijzigd!</div>";
+
+            // Redirecting to the account page
+            header("Location: ./userSettings.php?page=addresses");
+        }
+    }
+
+
     # ==== PHP ====
     public static function pathToURL($file, $protocol = 'https://'): string {
         // ======== Declaring Variables ========
         # ==== Strings ====
-        $documentRoot = realpath(self::dynamicPathFromIndex(__FILE__));
+        $documentRoot = realpath(self::dynamicPathFromIndex());
         if (str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
             // Getting the name of folder
             $folderName = '/'.basename($documentRoot);
@@ -120,8 +188,7 @@ class Functions {
         $relativeUrl = ltrim($relativeUrl, '/');
 
         // Combine the base URL with the relative URL
-        $url = "{$protocol}{$_SERVER['HTTP_HOST']}{$folderName}/{$relativeUrl}";
-        return $url;
+        return "{$protocol}{$_SERVER['HTTP_HOST']}{$folderName}/{$relativeUrl}";
     }
 
     public static function dynamicPathFromIndex(): string {
@@ -226,7 +293,7 @@ class Functions {
                 <div class='row'>
                     <!-- Logo -->
                     <div class='col-12 col-md-6 offset-md-3 text-center'>
-                        <a href='".self::dynamicPathFromIndex()."index.php'><img src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' height='$logoHeight' alt='Responsive image'></a>
+                        <a href='".self::dynamicPathFromIndex()."index.php'><img class='mw-100' src='".self::dynamicPathFromIndex()."files/images/sopranos-logo.png' height='$logoHeight' alt='Responsive image'></a>
                     </div>
                     
                     <!-- Account -->
@@ -249,7 +316,7 @@ class Functions {
         ");
     }
 
-    # == Accounts page ==
+    # ==== Accounts page ====
     # Account navbar
     public static function htmlAccountNavbar(): string {
         // ======== Declaring Variables ========
@@ -278,5 +345,219 @@ class Functions {
         $string .= "</div></div></div>";
 
         return $string;
+    }
+
+    # == Addresses ==
+    # Showing addresses
+    public static function htmlShowBillingAddresses($arrAddresses): string
+    {
+        // ======== Checking if empty ========
+        if (empty($arrAddresses)) {
+            return "<div class='container m-0 mb-3 col-12 col-lg-11 col-md-11'>
+                <div class='row border border-black pt-3 pb-3'>
+                    <div class='col-6 d-flex align-items-center'>
+                        <p class='m-0 ms-1'>Nog niet ingevuld</p>
+                    </div>
+                    <div class='col-6 d-flex flex-column align-items-end'>
+                        <a class='text-decoration-none' href='".Functions::dynamicPathFromIndex()."/files/php/pages/userSettings.php?page=createFAddress'>
+                            <button class='btn btn-outline-danger'>Aanmaken</button>
+                        </a>
+                    </div>
+                </div>
+            </div>";
+        }
+        else {
+            // ======== Declaring Variables ========
+            # Arrays
+            $arrAddress = $arrAddresses[0];
+
+            # Int
+            $intID = $arrAddress['billingAddressID'];
+
+            # Strings
+            $strStreetName = $arrAddress['streetName'];
+            $strHouseNumber = $arrAddress['houseNumber'];
+            $strHouseNumberAddition = $arrAddress['houseNumberAddition'];
+            $strPostalCode = $arrAddress['postalCode'];
+            $strCity = $arrAddress['city'];
+
+            // ======== Start of Program ========
+            return "<div class='container m-0 mb-3 col-12 col-lg-11 col-md-11'>
+                <div class='row border border-black pt-2 pb-2'>
+                    <div class='col-9 d-flex align-items-center'>
+                        <p class='addressText mw-100 m-0 ms-1'>
+                        $strStreetName $strHouseNumber $strHouseNumberAddition<br/>
+                        $strPostalCode $strCity
+                        </p>
+                    </div>
+                    <div class='col-3 d-flex flex-column align-items-end'>
+                        <div class='text-decoration-none d-flex flex-column'>
+                            <a class='btn btn-sm btn-outline-success' href='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=changeBAddress&idAddress=$intID'>Wijzigen</a>
+                            <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=deleteFAddress'>
+                                <input type='hidden' name='idAddress' value='$intID'>
+                                <input type='submit' class='btn btn-sm btn-outline-danger mt-2' value='Verwijderen'>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>";
+        }
+    }
+    public static function htmlShowAddresses($arrAddresses): string
+    {
+        // ======== Checking if empty ========
+        if (empty($arrAddresses)) {
+            return "
+            <div class='row border border-black pt-4 pb-4'>
+                <div class='col-12 d-flex justify-content-center'>
+                    <p class='m-0 text-center'>Nog geen adressen toegevoegd</p>
+                </div>
+            </div>";
+        }
+        else {
+            // ======== Declaring Variables ========
+            # Strings
+            $string = '';
+
+            // ======== Start of Program ========
+            # Adding the start of the div
+            $string .= "<div class='row p-0 pe-2 overflow-y-auto' style='height: 210px'>";
+            foreach ($arrAddresses as $arrAddress) {
+                // ==== Declaring Variables ====
+                # Ints
+                $intID = $arrAddress['addressID'];
+
+                # Strings
+                $strStreetName = $arrAddress['streetName'];
+                $strHouseNumber = $arrAddress['houseNumber'];
+                $strHouseNumberAddition = $arrAddress['houseNumberAddition'];
+                $strPostalCode = $arrAddress['postalCode'];
+                $strCity = $arrAddress['city'];
+
+                // ==== Start of Program ====
+                $string .= "
+                <div class='container m-0 mb-3 col-12 col-lg-12 col-md-12'>
+                    <div class='row border border-black pt-2 pb-2'>
+                        <div class='col-9 d-flex align-items-center'>
+                            <p class='addressText mw-100 m-0 ms-1'>
+                            $strStreetName $strHouseNumber $strHouseNumberAddition<br/>
+                            $strPostalCode $strCity
+                            </p>
+                        </div>
+                        <div class='col-3 d-flex flex-column align-items-end justify-content-center'>
+                            <div class='text-decoration-none d-flex flex-column'>
+                                <a class='btn btn-sm btn-outline-success' href='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=changeFAddress&idAddress=$intID'>Wijzigen</a>
+                                <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=deleteBAddress'>
+                                    <input type='hidden' name='idAddress' value='$intID'>
+                                    <input type='submit' class='btn btn-sm btn-outline-danger mt-2' value='Verwijderen'>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ";
+            }
+
+            $string .= '</div>'; // Closing div
+
+            # Return the string
+            return $string;
+        }
+    }
+
+    # Changing addresses
+    public static function htmlChangeAddress($strTableName, $strTitle): string
+    {
+        // ======== Declaring Variables ========
+        # ==== Ints ====
+        $intID = $_GET['idAddress'] ?? 0;
+
+        # ==== Arrays ====
+        # API
+        $neededAddressData = [
+            'userID' => $_SESSION['userID'],
+            $strTableName => $intID
+        ];
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/getAddress', ConfigData::$userAPIAccessToken, $neededAddressData);
+
+        # Address
+        $arrAddress = $arrAPIReturn[1]['data'][0];
+
+        # ==== Strings ====
+        # Static
+        $strStreetName = $arrAddress['streetName'];
+        $strHouseNumber = $arrAddress['houseNumber'];
+        $strHouseNumberAddition = $arrAddress['houseNumberAddition'];
+        $strPostalCode = $arrAddress['postalCode'];
+        $strCity = $arrAddress['city'];
+
+        // ======== Start of Program ========
+        return "
+        <div class='container'>
+            <div class='row'>
+                <h4>$strTitle</h4>
+                <div class='container m-0 col-12 col-lg-11 col-md-11'>
+                    <form method='POST'>
+                        <div class='row'>
+                            <div class='col-12 col-lg-6 col-md-6'>
+                                <label for='nameStreetName'>Straatnaam: </label>
+                                <input class='form-control' type='text' id='idStreetName' name='nameStreetName' value='$strStreetName'>
+                                <br/>
+                                <label for='nameHouseNumber'>Huisnummer: </label>
+                                <input class='form-control' type='text' id='idHouseNumber' name='nameHouseNumber' value='$strHouseNumber'>
+                                <br/>
+                                <label for='nameHouseNumberAddition'>Huisnummer toevoeging: </label>
+                                <input class='form-control' type='text' id='idHouseNumberAddition' name='nameHouseNumberAddition' value='$strHouseNumberAddition'>
+                                <br/>
+                                <label for='namePostalCode'>Postcode: </label>
+                                <input class='form-control' type='text' id='idPostalCode' name='namePostalCode' value='$strPostalCode'>
+                                <br/>
+                                <label for='nameCity'>Plaats: </label>
+                                <input class='form-control' type='text' id='idCity' name='nameCity' value='$strCity'>
+                                <br/>
+                                <input type='hidden' name='idAddress' value='$intID'>
+                                <input class='btn btn-outline-danger' type='submit' value='Wijzigen'>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>                           
+       ";
+    }
+
+
+    public static function htmlAddAddress($strTitle): string {
+        return "
+        <div class='container'>
+            <div class='row'>
+                <h4>$strTitle</h4>
+                <div class='container m-0 col-12 col-lg-11 col-md-11'>
+                    <form method='POST'>
+                        <div class='row'>
+                            <div class='col-12 col-lg-6 col-md-6'>
+                                <label for='nameStreetName'>Straatnaam: </label>
+                                <input class='form-control' type='text' id='idStreetName' name='nameStreetName' placeholder='Straatnaam'>
+                                <br/>
+                                <label for='nameHouseNumber'>Huisnummer: </label>
+                                <input class='form-control' type='text' id='idHouseNumber' name='nameHouseNumber' placeholder='Huisnummer'>
+                                <br/>
+                                <label for='nameHouseNumberAddition'>Huisnummer toevoeging: </label>
+                                <input class='form-control' type='text' id='idHouseNumberAddition' name='nameHouseNumberAddition' placeholder='Huisnummer toevoeging'>
+                                <br/>
+                                <label for='namePostalCode'>Postcode: </label>
+                                <input class='form-control' type='text' id='idPostalCode' name='namePostalCode' placeholder='Postcode'>
+                                <br/>
+                                <label for='nameCity'>Plaats: </label>
+                                <input class='form-control' type='text' id='idCity' name='nameCity' placeholder='Plaats'>
+                                <br/>
+                                <input class='btn btn-outline-danger' type='submit' value='Aanmaken'>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        ";
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 // ============ Imports ============
 # Internally
 require_once('../functions.php');

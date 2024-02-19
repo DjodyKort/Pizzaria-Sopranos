@@ -80,6 +80,15 @@ body {
 
 /* ============ userSettings page ============ */
 /* ==== Global ==== */
+.buttonNoOutline {
+    /* ==== Styling ==== */
+    border: none;
+    outline: none;
+
+    /* ==== Coloring ==== */
+    background-color: transparent;
+}
+
 .buttonUserSettings {
     /* ==== Styling ==== */
     display: flex;
@@ -120,6 +129,11 @@ body {
 
 .buttonUserSettingsActive {
     background-color: #b6d7a8;
+}
+
+.addressText {
+    /* ==== Sizing ==== */
+    font-size: calc(0.9rem + 0.08vw);
 }
 
 /* ============ Login page ============ */

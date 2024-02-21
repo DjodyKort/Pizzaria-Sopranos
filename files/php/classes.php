@@ -9,9 +9,15 @@ class ConfigData {
     public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
 
     # ==== Arrays ====
+    # Employee user roles
+    public static array $employeeUserRoles = [
+        'owner' => 'Owner',
+        'employee' => 'Employee',
+    ];
     # Database tablenames
     public static array $dbTables = [
         'users' => 'users',
+        'employeeUsers' => 'employeeUsers',
         'addresses' => 'addresses',
         'billingAddresses' => 'billingAddresses',
     ];

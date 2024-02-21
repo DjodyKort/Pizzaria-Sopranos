@@ -316,7 +316,7 @@ class Functions {
         ");
     }
 
-    # ==== Accounts page ====
+    # == Accounts page ==
     # Account navbar
     public static function htmlAccountNavbar(): string {
         // ======== Declaring Variables ========

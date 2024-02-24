@@ -26,14 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     # Sending to API
     if ($boolTrue) {
         # Send form to API
-        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/loginUser', ConfigData::$userAPIAccessToken, $_POST);
+        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/employeeLogin', ConfigData::$userAPIAccessToken, $_POST);
         # Check if it's done
         if ($arrAPIReturn[0] == 200) {
             // Putting the data in the session
-            $_SESSION['userID'] = $arrAPIReturn[1]['data']['userID'];
+            $_SESSION['employeeID'] = $arrAPIReturn[1]['data']['employeeID'];
             $_SESSION['name'] = $arrAPIReturn[1]['data']['name'];
             $_SESSION['loggedIn'] = True;
-            if (empty($_SESSION['userID']) || empty($_SESSION['name'])) {
+            $_SESSION['role'] = $arrAPIReturn[1]['data']['role'];
+
+            if (empty($_SESSION['employeeID']) || empty($_SESSION['name']) || empty($_SESSION['role'])) {
                 echo("Er is iets fout gegaan!");
             }
             else {
@@ -46,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         else {
             Functions::echoByStatusCode($arrAPIReturn[0]);
-            header("Location: ./login.php");
+            header("Location: ./employeelogin.php");
         }
     }
 }

@@ -16,23 +16,22 @@ class ConfigData {
     ];
     # Database tablenames
     public static array $dbTables = [
-        'users' => 'users',
-        'employeeUsers' => 'employeeUsers',
         'addresses' => 'addresses',
+        'allergies' => 'allergies',
+        'allergyRelations' => 'allergyRelations',
         'billingAddresses' => 'billingAddresses',
+        'defaultToppingRelations' => 'defaultToppingRelations',
+        'dishes' => 'dishes',
+        'employeeRoles' => 'employeeRoles',
+        'employeeUsers' => 'employeeUsers',
+        'media' => 'media',
+        'orderDishes' => 'orderDishes',
+        'orders' => 'orders',
+        'toppings' => 'toppings',
+        'users' => 'users',
     ];
     # Database keys
     public static array $dbKeys = [
-        'users' => [
-            'id' => 'userID',
-            'name' => 'name',
-            'email' => 'email',
-            'password' => 'password',
-            'created_at' => 'dateUserCreated',
-            'phoneNumber' => 'phoneNumber',
-            'birthDate' => 'birthDate',
-            'last_login' => 'dateUserLastLogin',
-        ],
         'addresses' => [
             'id' => 'addressID',
             'userID' => 'userID',
@@ -41,6 +40,16 @@ class ConfigData {
             'houseNumberAddition' => 'houseNumberAddition',
             'postalCode' => 'postalCode',
             'city' => 'city',
+        ],
+        'allergies' => [
+            'id' => 'allergyID',
+            'allergy' => 'name',
+            'description' => 'description',
+        ],
+        'allergyRelations' => [
+            'id' => 'allergyRelationID',
+            'allergyID' => 'allergyID',
+            'dishID' => 'dishID',
         ],
         'billingAddresses' => [
             'id' => 'billingAddressID',
@@ -51,6 +60,85 @@ class ConfigData {
             'postalCode' => 'postalCode',
             'city' => 'city',
         ],
+        'defaultToppingRelations' => [
+            'id' => 'toppingRelationID',
+            'dishID' => 'dishID',
+            'toppingID' => 'toppingID',
+            'dateAdded' => 'dateAdded',
+            'dateUpdated' => 'dateUpdated',
+        ],
+        'dishes' => [
+            'id' => 'dishID',
+            'name' => 'name',
+            'price' => 'price',
+            'discountPercentage' => 'discountPercentage',
+            'ratingSpicy' => 'ratingSpicy',
+            'dateAdded' => 'dateAdded',
+            'dateUpdated' => 'dateUpdated',
+        ],
+        'employeeRoles' => [
+            'id' => 'roleID',
+            'role' => 'roleName',
+        ],
+        'employeeUsers' => [
+            'id' => 'employeeID',
+            'password' => 'password',
+            'passcode' => 'passcode',
+            'roleID' => 'roleID',
+            'createdAt' => 'dateEmployeeCreated',
+            'lastLogin' => 'dateEmployeeLastLogin',
+            'name' => 'name',
+            'phoneNumber' => 'phoneNumber',
+            'email' => 'email',
+            'birthDate' => 'birthDate'
+        ],
+        'media' => [
+            'id' => 'mediaID',
+            'dishID' => 'dishID',
+            'mediaStatus' => 'mediaStatus',
+            'mediaGroup' => 'mediaGroup',
+            'fileExtension' => 'fileExtension',
+            'fileName' => 'fileName',
+            'mediaOrder' => 'mediaOrder',
+        ],
+        'orderDishes' => [
+            'id' => 'orderDishID',
+            'orderID' => 'orderID',
+            'dishID' => 'dishID',
+            'toppings' => 'toppings',
+        ],
+        'orders' => [
+            'id' => 'orderID',
+            'userID' => 'userID',
+            'billingAddressID' => 'billingAddressID',
+            'orderStatus' => 'orderStatus',
+            'addressID' => 'addressID',
+            'isGuest' => 'isGuest',
+            'dateOrdered' => 'dateOrdered',
+            'streetName' => 'streetName',
+            'houseNumber' => 'houseNumber',
+            'houseNumberAddition' => 'houseNumberAddition',
+            'postalCode' => 'postalCode',
+            'city' => 'city',
+        ],
+        'toppings' => [
+            'id' => 'toppingID',
+            'name' => 'name',
+            'price' => 'price',
+            'maxAmount' => 'maxAmount',
+            'dateAdded' => 'dateAdded',
+            'dateUpdated' => 'dateUpdated',
+        ],
+        'users' => [
+            'id' => 'userID',
+            'password' => 'password',
+            'createdAt' => 'dateUserCreated',
+            'lastLogin' => 'dateUserLastLogin',
+            'name' => 'name',
+            'phoneNumber' => 'phoneNumber',
+            'email' => 'email',
+            'birthDate' => 'birthDate',
+        ],
     ];
 
     # User setting links
@@ -58,6 +146,13 @@ class ConfigData {
         'account' => 'Account',
         'addresses' => 'Adressen',
         'orders' => 'Orders',
+        'logout' => 'Uitloggen',
+    ];
+    public static array $employeeSettingLinks = [
+        'orders' => 'Orders',
+        'menu' => 'Menu-items',
+        'toppings' => 'Topping-lijst',
+        'account' => 'Accountbeheer',
         'logout' => 'Uitloggen',
     ];
 

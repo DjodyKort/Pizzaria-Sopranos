@@ -217,6 +217,41 @@ class Functions {
     }
 
     # ==== HTML ====
+    # Global
+    public static function htmlNumberPad($strIdInput): string {
+        // ======== Declaring Variables ========
+        # ==== Strings ====
+        # Numberpad info
+        $backButtonValue = '⌫';
+        $strClearButtonValue = 'C';
+
+        # HTML
+        $strHTML = "<div class='container p-0'><div class='row'>";
+
+        # Arrays
+        $arrNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+
+        // ======== Start of Program ========
+        // Create the number pad with the numbers
+        for ($i = 0; $i < 9; $i++) {
+            if ($i % 3 == 0) {
+                $strHTML .= "</div><div class='row mt-3'>"; // End of row and start of new row with margin-top
+            }
+            // Add number button with increased font size and padding
+            $strHTML .= "<div class='col-4 col-sm-4 col-md-4'><button class='btn btn-primary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='addValueToPasscodeInput(\"$strIdInput\", this.innerHTML)'>{$arrNumbers[$i]}</button></div>";
+        }
+
+        // Add the last row with 'Back', '0' and 'Clear' buttons
+        $strHTML .= "</div><div class='row mt-3'>
+            <div class='col-4 col-sm-4 col-md-4'><button class='btn btn-secondary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='removeLastValueFromPasscodeInput(\"$strIdInput\")'>$backButtonValue</button></div>
+            <div class='col-4 col-sm-4 col-md-4'><button class='btn btn-primary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='addValueToPasscodeInput(\"$strIdInput\", this.innerHTML)'>{$arrNumbers[9]}</button></div>
+            <div class='col-4 col-sm-4 col-md-4'><button class='btn btn-secondary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='clearPasscodeInput(\"$strIdInput\")'>$strClearButtonValue</button></div>
+        </div></div>"; // End of row and container
+
+        // Return the number pad
+        return $strHTML;
+}
+
     # Normal functions
     public static function pre($data): void {
         echo "<pre>";
@@ -248,7 +283,13 @@ class Functions {
 
 
         if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
-            $accountButtons = "<a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
+            // Checking if the user is normal user or employee
+            if (isset($_SESSION['role'])) {
+                $accountButtons = "<a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php'><h4>{$_SESSION['name']}</h4></a>";
+            }
+            else {
+                $accountButtons = "<a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
+            }
         }
         else {
             $accountButtons = "
@@ -339,6 +380,34 @@ class Functions {
             }
             else {
                 $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=$key' class='buttonUserSettings btn me-2'>$value</a>";
+            }
+        }
+
+        $string .= "</div></div></div>";
+
+        return $string;
+    }
+    public static function htmlEmployeeNavbar(): string {
+        // ======== Declaring Variables ========
+        # Strings
+        $currentPage = $_GET['page'] ?? '';
+
+        // ======== Start of Program ========
+        $string = "<div class='container-fluid'><div class='row'><div class='col-12 d-flex justify-content-center'>";
+
+        foreach(ConfigData::$employeeSettingLinks as $key => $value) {
+            // Check if logout
+            if ($key == 'logout') {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php?page=logout' class='buttonUserSettings textLogout btn me-2'><p class='mb-0'>$value</p></a>";
+                continue;
+            }
+
+            // Check if current page
+            if ($key == $currentPage or ($key == 'account' and $currentPage == '')) {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-2'>$value</a>";
+            }
+            else {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php?page=$key' class='buttonUserSettings btn me-2'>$value</a>";
             }
         }
 
@@ -525,8 +594,6 @@ class Functions {
         </div>                           
        ";
     }
-
-
     public static function htmlAddAddress($strTitle): string {
         return "
         <div class='container'>

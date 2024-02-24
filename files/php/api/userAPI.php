@@ -46,13 +46,16 @@ if (!empty($uri) && !empty($method)) {
                     }
 
                     # == Strings ==
+                    # Table name
+                    $strTableName = ConfigData::$dbTables['users'];
+
                     # POST Variables
                     $strEmail = strtolower(filter_var($_POST['nameEmailInput'], FILTER_SANITIZE_EMAIL));
                     $strPassword = htmlspecialchars($_POST['namePasswordInput'], ENT_QUOTES, 'UTF-8');
 
                     # SQL Variables
-                    $queryCheckUser = "SELECT * FROM users WHERE email = ?";
-                    $queryUpdateLastLogin = "UPDATE users SET dateUserLastLogin = ? WHERE email = ?";
+                    $queryCheckUser = "SELECT * FROM $strTableName WHERE ".ConfigData::$dbKeys[$strTableName]['email']." = ?";
+                    $queryUpdateLastLogin = "UPDATE $strTableName SET ".ConfigData::$dbKeys[$strTableName]['lastLogin']." = ? WHERE ".ConfigData::$dbKeys[$strTableName]['email']." = ?";
 
                     # == Arrays ==
                     # User check
@@ -87,6 +90,89 @@ if (!empty($uri) && !empty($method)) {
                         'data' => [
                             'userID' => $arrResult[0]['userID'],
                             'name' => $arrResult[0]['name']
+                        ]
+                    ]);
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
+            case '/employeeLogin':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Datetime ==
+                    try {
+                        $dateTimeNow = new DateTime('now', new DateTimeZone('Europe/Amsterdam'));
+                        $dateTimeNow = $dateTimeNow->format('Y-m-d H:i:s');
+                    }
+                    catch (Exception $e) {
+                        $dateTimeNow = '2023-01-01 00:00:00';
+                        Functions::setHTTPResponseCode(419);
+                        Functions::returnJson([
+                            'error' => 'Invalid date'
+                        ]);
+
+                    }
+
+                    # == Strings ==
+                    # Table name
+                    $strTableName = ConfigData::$dbTables['employeeUsers'];
+                    $strRoleTableName = ConfigData::$dbTables['employeeRoles'];
+
+                    # POST Variables
+                    $strEmail = strtolower(filter_var($_POST['nameEmailInput'], FILTER_SANITIZE_EMAIL));
+                    $strPassword = htmlspecialchars($_POST['namePasswordInput'], ENT_QUOTES, 'UTF-8');
+
+                    # SQL Variables
+                    $queryCheckUser = "SELECT * FROM $strTableName WHERE ".ConfigData::$dbKeys[$strTableName]['email']." = ?";
+                    $queryUpdateLastLogin = "UPDATE $strTableName SET ".ConfigData::$dbKeys[$strTableName]['lastLogin']." = ? WHERE ".ConfigData::$dbKeys[$strTableName]['id']." = ?";
+                    $queryGetRoleInfo = "SELECT * FROM $strRoleTableName WHERE ".ConfigData::$dbKeys[$strRoleTableName]['id']." = ?";
+
+                    # == Arrays ==
+                    # User check
+                    $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($queryCheckUser, [$strEmail]);
+
+                    // ==== Start of Program ====
+                    # Check if the user exists
+                    if (count($arrResult) == 0) {
+                        Functions::setHTTPResponseCode(401);
+                        Functions::returnJson([
+                            'error' => 'User not found'
+                        ]);
+                        exit();
+                    }
+
+                    # Check if the password is correct
+                    if (!password_verify($strPassword, $arrResult[0]['password'])) {
+                        Functions::setHTTPResponseCode(420);
+                        Functions::returnJson([
+                            'error' => 'Invalid password'
+                        ]);
+                        exit();
+                    }
+
+                    # Update the last login date
+                    PizzariaSopranosDB::pdoSqlReturnTrue($queryUpdateLastLogin, [$dateTimeNow, $arrResult[0]['employeeID']]);
+
+                    # Getting the role information from the roles table via the roleID
+                    $arrRoleInfo = PizzariaSopranosDB::pdoSqlReturnArray($queryGetRoleInfo, [$arrResult[0]['roleID']]);
+
+                    # Return the user data
+                    Functions::setHTTPResponseCode(200);
+                    Functions::returnJson([
+                        'status' => 'success',
+                        'data' => [
+                            'employeeID' => $arrResult[0]['employeeID'],
+                            'name' => $arrResult[0]['name'],
+                            'role' => $arrResult[0]['roleID']
                         ]
                     ]);
                 }

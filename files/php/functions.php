@@ -301,7 +301,7 @@ class Functions {
 
         // ======== Start of Program ========
         # Checking if on employeePanel account page or not
-        if ($_GET['page'] ?? '' != ConfigData::$employeePanelPages['account']) {
+        if (!isset($_GET['page']) or $_GET['page'] != ConfigData::$employeePanelPages['account']) {
             # Putting the logged in on false
             $_SESSION['employeePasscodeLoggedIn'] = false;
         }

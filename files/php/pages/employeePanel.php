@@ -35,6 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!$boolIsPasscodeLoggedIn) {
                 // ==== Declaring Variables ====
                 # == Arrays ==
+                # POST
+                $_POST['employeeID'] = $_SESSION['employeeID'] ?? '';
+
                 # API
                 $apiReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/employeePasscodeLogin', ConfigData::$userAPIAccessToken, $_POST);
 
@@ -50,9 +53,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             # Changing the user info (assume it's an editing attempt)
             else {
+                // ==== Declaring Variables ====
+                # == Arrays ==
+                # POST
+                $_POST['employeeID'] = $_SESSION['employeeID'] ?? '';
 
+                # API
+                $arrPushedUserData = [
+                    ConfigData::$dbKeys['employeeUsers']['id'] => $_SESSION[ConfigData::$dbKeys['employeeUsers']['id']],
+                    ConfigData::$dbTables['employeeUsers'] => [
+                        'name' => $_POST['nameName'],
+                        'email' => $_POST['nameEmail'],
+                        'birthDate' => $_POST['nameBirthDate'],
+                        'phoneNumber' => $_POST['namePhoneNumber'],
+                        'passcode' => $_POST['namePasscode'],
+                    ],
+                ];
+                $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/updateEmployeeUser', ConfigData::$userAPIAccessToken, $arrPushedUserData);
+
+                // ==== Start of If ====
+                // Setting the session variables to the new name
+                $_SESSION['name'] = $arrAPIReturn[1]['data']['name'];
+
+                // Making the header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Gegevens zijn gewijzigd!</div>";
+
+                // Redirecting to the login page
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['account']."");
             }
-
             break;
         default:
             // ==== Declaring Variables ====
@@ -211,7 +239,64 @@ switch ($currentPage) {
             ";
         }
         else {
-           //
+           // ==== Declaring Variables ====
+            # == Strings ==
+            $strEmployeeTableName = Configdata::$dbTables['employeeUsers'];
+
+            # == Arrays ==
+            # API
+            $arrNeededUserData = [
+                'employeeID' => $_SESSION['employeeID'],
+                $strEmployeeTableName => [
+                    'name' => ConfigData::$dbKeys[$strEmployeeTableName]['name'],
+                    'email' => ConfigData::$dbKeys[$strEmployeeTableName]['email'],
+                    'birthDate' => ConfigData::$dbKeys[$strEmployeeTableName]['birthDate'],
+                    'phoneNumber' => ConfigData::$dbKeys[$strEmployeeTableName]['phoneNumber'],
+                    'passcode' => ConfigData::$dbKeys[$strEmployeeTableName]['passcode'],
+                ]
+            ];
+            $apiReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/getEmployeeData', ConfigData::$userAPIAccessToken, $arrNeededUserData);
+
+            // ==== Start of If ====
+            # Making it into a form
+            if ($apiReturn[0] == 200) {
+                $employeeData = $apiReturn[1]['data'][$strEmployeeTableName][0];
+
+                $mainPage = "
+                <div class='container'>
+                    <div class='row justify-content-center'>
+                        <div class='col-6'>
+                            <form method='POST' id='idFormEmployeeData'>
+                                <div class='mb-3'>
+                                    <label for='idName' class='form-label'>Naam</label>
+                                    <input type='text' id='idName' name='nameName' class='form-control' value='$employeeData[name]' required/>
+                                </div>
+                                <div class='mb-3'>
+                                    <label for='idEmail' class='form-label'>Email</label>
+                                    <input type='email' id='idEmail' name='nameEmail' class='form-control' value='$employeeData[email]' required/>
+                                </div>
+                                <div class='mb-3'>
+                                    <label for='idBirthDate' class='form-label'>Geboortedatum</label>
+                                    <input type='date' id='idBirthDate' name='nameBirthDate' class='form-control' value='$employeeData[birthDate]' required/>
+                                </div>  
+                                <div class='mb-3'>
+                                    <label for='idPhoneNumber' class='form-label'>Telefoonnummer</label>
+                                    <input type='tel' id='idPhoneNumber' name='namePhoneNumber' class='form-control' value='$employeeData[phoneNumber]' required/>
+                                </div>
+                                <div class='mb-3'>
+                                    <label for='idPasscode' class='form-label'>Code</label>
+                                    <input type='password' id='idPasscode' name='namePasscode' class='form-control' value='$employeeData[passcode]' required/>
+                                </div>
+                                <button class='btn btn-primary w-100' form='idFormEmployeeData'>Opslaan</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                ";
+            }
+            else {
+                header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+            }
         }
         break;
 

@@ -196,14 +196,15 @@ if (!empty($uri) && !empty($method)) {
                     $strTableName = ConfigData::$dbTables['employeeUsers'];
 
                     # POST Variables
+                    $employeeID = filter_var($_POST['employeeID'], FILTER_SANITIZE_NUMBER_INT);
                     $strPasscode = filter_var($_POST['namePasscode'], FILTER_SANITIZE_NUMBER_INT);
 
                     # SQL Variables
-                    $queryCheckAuth = "SELECT * FROM $strTableName WHERE ".ConfigData::$dbKeys[$strTableName]['passcode']." = ?";
+                    $queryCheckAuth = "SELECT * FROM $strTableName WHERE ".ConfigData::$dbKeys[$strTableName]['passcode']." = ? AND ".ConfigData::$dbKeys[$strTableName]['id']." = ?";
 
                     // ==== Start of Program ====
                     # Check if the passcode exists
-                    $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($queryCheckAuth, [$strPasscode]);
+                    $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($queryCheckAuth, [$strPasscode, $employeeID]);
 
                     # Check if the passcode is correct
                     if (count($arrResult) == 0) {
@@ -229,7 +230,7 @@ if (!empty($uri) && !empty($method)) {
                 }
 
             // ==== Getting data ====
-            # Users
+            # Users / Employees
             case '/getUserData':
                 // ======== POST ========
                 if ($method == 'POST') {
@@ -259,6 +260,60 @@ if (!empty($uri) && !empty($method)) {
                         // == Start of Program ==
                         # Getting the user data
                         $arrResult[$strKey] = PizzariaSopranosDB::pdoSqlReturnArray($query, [$userID]);
+
+                        # Checking if the user data is not empty
+                        if (empty($arrResult)) {
+                            Functions::setHTTPResponseCode(403);
+                            Functions::returnJson([
+                                'error' => 'Something went wrong',
+                            ]);
+                            exit();
+                        }
+                    }
+
+                    # Returning the requested user data
+                    Functions::setHTTPResponseCode(200);
+                    Functions::returnJson([
+                        'status' => 'success',
+                        'data' => $arrResult
+                    ]);
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
+            case '/getEmployeeData':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    $test = '';
+                    # POST Variables
+                    $employeeID = filter_var($_POST['employeeID'], FILTER_SANITIZE_NUMBER_INT);
+
+                    # == Arrays ==
+                    $arrResult = [];
+
+                    // ==== Start of Program ====
+                    # Deleting the userID from the POST array
+                    unset($_POST['employeeID']);
+
+                    # Getting the user data
+                    foreach ($_POST as $strKey => $arrValues) {
+                        // == Declaring Variables ==
+                        # SQL
+                        $query = "SELECT ".implode(', ', $arrValues)." FROM $strKey WHERE employeeID = ?";
+
+                        // == Start of Program ==
+                        # Getting the user data
+                        $arrResult[$strKey] = PizzariaSopranosDB::pdoSqlReturnArray($query, [$employeeID]);
 
                         # Checking if the user data is not empty
                         if (empty($arrResult)) {
@@ -408,7 +463,6 @@ if (!empty($uri) && !empty($method)) {
                     ]);
                 }
                 break;
-
             # Addresses
             case '/addAddress':
                 // ======== POST ========
@@ -477,7 +531,55 @@ if (!empty($uri) && !empty($method)) {
                 break;
 
             // ==== Updating data ====
-            # Users
+            # Users / Employees
+            case '/updateEmployeeUser':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    # ==== Declaring Variables ====
+                    # POST Variables
+                    $employeeID = filter_var($_POST['employeeID'], FILTER_SANITIZE_NUMBER_INT);
+                    $strName = htmlspecialchars($_POST[ConfigData::$dbTables['employeeUsers']]['name'], ENT_QUOTES, 'UTF-8');
+                    $strEmail = filter_var($_POST[ConfigData::$dbTables['employeeUsers']]['email'], FILTER_SANITIZE_EMAIL);
+                    $strBirthDate = htmlspecialchars($_POST[ConfigData::$dbTables['employeeUsers']]['birthDate'], ENT_QUOTES, 'UTF-8');
+                    $strPhoneNumber = htmlspecialchars($_POST[ConfigData::$dbTables['employeeUsers']]['phoneNumber'], ENT_QUOTES, 'UTF-8');
+                    $strPasscode = filter_var($_POST[ConfigData::$dbTables['employeeUsers']]['passcode'], FILTER_SANITIZE_NUMBER_INT);
+
+                    # SQL
+                    $query = "UPDATE employeeUsers SET name = ?, email = ?, birthDate = ?, phoneNumber = ?, passcode = ? WHERE employeeID = ?";
+
+                    // ==== Start of Program ====
+                    try {
+                        # Update the user
+                        PizzariaSopranosDB::pdoSqlReturnTrue($query, [$strName, $strEmail, $strBirthDate, $strPhoneNumber, $strPasscode, $employeeID]);
+
+                        # Return API status
+                        Functions::setHTTPResponseCode(200);
+                        Functions::returnJson([
+                            'status' => 'success',
+                            'data' => [
+                                'name' => $strName,
+                            ]
+                        ]);
+                    }
+                    catch (Exception $e) {
+                        Functions::setHTTPResponseCode(403);
+                        Functions::returnJson([
+                            'error' => 'Something went wrong'
+                        ]);
+                        exit();
+                    }
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
             case '/updateUser':
                 // ======== POST ========
                 if ($method == 'POST') {

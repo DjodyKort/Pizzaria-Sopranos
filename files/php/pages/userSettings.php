@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 # Arrays
                 $arrPushedUserData = [
                     'userID' => $_SESSION['userID'],
-                    'users' => [
+                    ConfigData::$dbTables['users'] => [
                         'name' => $_POST['nameName'],
                         'email' => $_POST['nameEmail'],
                         'birthDate' => $_POST['nameBirthDate'],

@@ -11,7 +11,7 @@ $tableToppings = 'toppings';
 
 // ============ Start of Program ============
 # Header
-ob_start();
+
 Functions::htmlHeader(320);
 //sql statement for menu1 
 
@@ -379,7 +379,6 @@ if (!isset($_GET['pizzaID'])) {
 
 # Footer
 Functions::htmlFooter();
-ob_end_flush();
 ?>
 
 <script>

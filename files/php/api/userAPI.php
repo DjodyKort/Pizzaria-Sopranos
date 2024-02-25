@@ -183,6 +183,50 @@ if (!empty($uri) && !empty($method)) {
                     ]);
                 }
                 break;
+            case '/employeePasscodeLogin':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # Table name
+                    $strTableName = ConfigData::$dbTables['employeeUsers'];
+
+                    # POST Variables
+                    $strPasscode = filter_var($_POST['namePasscode'], FILTER_SANITIZE_NUMBER_INT);
+
+                    # SQL Variables
+                    $queryCheckAuth = "SELECT * FROM $strTableName WHERE ".ConfigData::$dbKeys[$strTableName]['passcode']." = ?";
+
+                    // ==== Start of Program ====
+                    # Check if the passcode exists
+                    $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($queryCheckAuth, [$strPasscode]);
+
+                    # Check if the passcode is correct
+                    if (count($arrResult) == 0) {
+                        Functions::setHTTPResponseCode(408);
+                        Functions::returnJson([
+                            'error' => 'Invalid passcode'
+                        ]);
+                        exit();
+                    }
+                    else {
+                        # Return the user data
+                        Functions::setHTTPResponseCode(200);
+                        Functions::returnJson([
+                            'status' => 'success',
+                        ]);
+                    }
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
 
             // ==== Getting data ====
             # Users

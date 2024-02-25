@@ -25,7 +25,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // ======== Start of POST Request ========
     switch ($currentPage) {
+        case ConfigData::$employeePanelPages['account']:
+            // ==== Declaring Variables ====
+            # Bools
+            $boolIsPasscodeLoggedIn = $_SESSION['employeePasscodeLoggedIn'] ?? false;
 
+            // ==== Start of Case ====
+            # Logging in with passcode (assume it is a login attempt)
+            if (!$boolIsPasscodeLoggedIn) {
+                // ==== Declaring Variables ====
+                # == Arrays ==
+                # API
+                $apiReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/employeePasscodeLogin', ConfigData::$userAPIAccessToken, $_POST);
+
+                // ==== Start of If ====
+                if ($apiReturn[0] != 200) {
+                    echo("
+                    nope
+                    ");
+                }
+                else {
+                    $_SESSION['employeePasscodeLoggedIn'] = true;
+                }
+            }
+            # Changing the user info (assume it's an editing attempt)
+            else {
+
+            }
+
+            break;
         default:
             // ==== Declaring Variables ====
             # Strings
@@ -36,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 # Dynamic HTML
 $mainPage = '';
 switch ($currentPage) {
-    case 'menu':
+    case ConfigData::$employeePanelPages['menu']:
         // ==== Declaring Variables ====
         # == Ints ==
         $breakCounter = 0;
@@ -105,7 +133,7 @@ switch ($currentPage) {
             $mainPage .= "</div>";
         }
         break;
-    case 'toppings':
+    case ConfigData::$employeePanelPages['toppings']:
         // ==== Declaring Variables ====
         # == Strings ==
         # SQL
@@ -145,35 +173,46 @@ switch ($currentPage) {
             ";
         }
         break;
-    case 'account':
+    case ConfigData::$employeePanelPages['account']:
         // ==== Declaring Variables ====
-        # == Strings ==
+        # Bools
+        $boolIsPasscodeLoggedIn = $_SESSION['employeePasscodeLoggedIn'] ?? false;
+
+        # Strings
         $idPasscodeInput = 'idPasscode';
         $namePasscodeInput = 'namePasscode';
 
         // ==== Start of Case ====
-        # Making form for the passcode verification
-        $mainPage = "
-        <div class='container'>
-            <div class='row justify-content-center'>
-                <div class='col-3'>
-                    <!-- Form -->
-                    <form method='post' id='idFormPasscodeLogin'>
-                        <input type='password' id='$idPasscodeInput' name='$namePasscodeInput' class='form-control mb-3' placeholder='Code' required/>
-                    </form>
+        if (!$boolIsPasscodeLoggedIn) {
+            // ==== Start of If ====
+            # Making form for the passcode verification
+            $mainPage = "
+                <div class='container'>
+                    <div class='row justify-content-center'>
+                        <!-- Form -->
+                        <div class='col-3'>
+                            <form method='post' id='idFormPasscodeLogin'>
+                                <input type='password' id='$idPasscodeInput' name='$namePasscodeInput' class='form-control mb-3' placeholder='Code' required/>
+                            </form>
+                        </div>
+                        
+                        <!-- Submit button -->
+                        <div class='col-2'>
+                            <button class='btn btn-primary w-100' form='idFormPasscodeLogin'>Inloggen</button>
+                        </div>
+                    </div>
+                    <div class='row justify-content-center'>
+                        <!-- Numberpad -->
+                        <div class='col-5'>
+                            ".Functions::htmlNumberPad($idPasscodeInput)."
+                        </div>
+                    </div>
                 </div>
-                <div class='col-2'><!-- Submit button -->
-                    <button class='btn btn-primary w-100' form='idFormPasscodeLogin'>Inloggen</button>
-                </div>
-            </div>
-            <div class='row justify-content-center'>
-                <div class='col-5'>
-                    <!-- Numberpad -->
-                    ".Functions::htmlNumberPad($idPasscodeInput)."
-                </div>
-            </div>
-        </div>
-        ";
+            ";
+        }
+        else {
+           //
+        }
         break;
 
     default:
@@ -198,7 +237,6 @@ echo("
         </div>
     </div>
 </div>
-
 ");
 
 # Scripts

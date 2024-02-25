@@ -9,12 +9,13 @@ class ConfigData {
     public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
 
     # ==== Arrays ====
+    # == Database variables ==
     # Employee user roles
     public static array $employeeUserRoles = [
         'owner' => 'Owner',
         'employee' => 'Employee',
     ];
-    # Database tablenames
+    # Database table names
     public static array $dbTables = [
         'addresses' => 'addresses',
         'allergies' => 'allergies',
@@ -141,38 +142,58 @@ class ConfigData {
         ],
     ];
 
-    # User setting links
+    # == User settings ==
+    # Employees
+    public static array $employeePanelPages = [
+        'menu' => 'menu',
+        'toppings' => 'toppings',
+        'orders' => 'orders',
+        'account' => 'employeeAccount',
+    ];
+    public static array $employeeSettingLinks = [
+        'orders' => 'Orders',
+        'menu' => 'Menu-items',
+        'toppings' => 'Topping-lijst',
+        'employeeAccount' => 'Accountbeheer',
+        'logout' => 'Uitloggen',
+    ];
+
+    # Users
     public static array $userSettingLinks = [
         'account' => 'Account',
         'addresses' => 'Adressen',
         'orders' => 'Orders',
         'logout' => 'Uitloggen',
     ];
-    public static array $employeeSettingLinks = [
-        'orders' => 'Orders',
-        'menu' => 'Menu-items',
-        'toppings' => 'Topping-lijst',
-        'account' => 'Accountbeheer',
-        'logout' => 'Uitloggen',
-    ];
 
     # Statuscodes
     public static array $statusCodes = [
-        # UserAPI
-        401 => ['De login gegevens zijn niet correct!', 'danger'], // User not found
-        402 => ['Het account bestaat al!', 'warning'], // User already exists
-        403 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Database error
-
-        400 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid POST data
-        405 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid method
-        406 => ['Er is al een factuuradres opgegeven, probeer deze te wijzigen!', 'warning'], // Billing address already exists
-        407 => ['De login gegevens zijn niet correct!', 'danger'], // API Access key invalid
+        # ==== API errors ====
+        # Pathway errors
         418 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid endpoint
 
+        # Authentication errors
+        407 => ['De login gegevens zijn niet correct!', 'danger'], // API Access key invalid
+        405 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid method
+
+        # Variable / SQL errors
         419 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid variable (most likely invalid date)
+        400 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid POST data
+        403 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // SQL error
 
+        # ==== UserAPI ====
+        # Employee passcode login errors
+        408 => ['De login gegevens zijn niet correct!', 'danger'], // EMPLOYEE LOGIN - Not authorized (invalid passcode)
+
+        # User login errors
         420 => ['De login gegevens zijn niet correct!', 'danger'], // USER LOGIN - Not authorized (invalid password or email)
+        401 => ['De login gegevens zijn niet correct!', 'danger'], // USER LOGIN - User not found (not found in database)
+        402 => ['Het account bestaat al!', 'warning'], // User already exists
 
+        # Address errors
+        406 => ['Er is al een factuuradres opgegeven, probeer deze te wijzigen!', 'warning'], // Billing address already exists
+
+        # General errors
         421 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Any error really
     ];
 }

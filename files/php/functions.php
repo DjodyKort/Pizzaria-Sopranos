@@ -263,6 +263,7 @@ class Functions {
     public static function htmlHeader(string $logoHeight): void {
         // ======== Declaring Variables ========
         # Sessions
+        ob_start();
         session_start();
 
         # ==== HTML ====
@@ -280,7 +281,6 @@ class Functions {
         if(empty($_SESSION['total'])){
             $_SESSION['total'] = 0;
         }
-
 
         if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
             // Checking if the user is normal user or employee
@@ -300,6 +300,12 @@ class Functions {
         }
 
         // ======== Start of Program ========
+        # Checking if on employeePanel account page or not
+        if ($_GET['page'] ?? '' != ConfigData::$employeePanelPages['account']) {
+            # Putting the logged in on false
+            $_SESSION['employeePasscodeLoggedIn'] = false;
+        }
+
         # Check if user is logged in or not
         if (!isset($_SESSION['loggedIn']) or !$_SESSION['loggedIn']) {
             # Check if on index
@@ -350,11 +356,16 @@ class Functions {
 
     # Global footer
     public static function htmlFooter(): void {
+        // ======== Start of Program ========
+        # Footer echo
         echo("
                 <div class='mt-5'></div>
                 </body>
             </html>
         ");
+
+        # Sessions
+        ob_end_flush();
     }
 
     # == Accounts page ==

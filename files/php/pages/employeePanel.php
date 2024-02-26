@@ -9,7 +9,7 @@ $currentPage = $_GET['page'] ?? '';
 
 // ============ Start of Program ============
 # Header
-Functions::htmlHeader(300);
+Functions::htmlHeader(340);
 
 # Logout button
 if (isset($_GET['page'])){
@@ -185,13 +185,13 @@ switch ($currentPage) {
         foreach ($toppings as $topping) {
             $mainPage .= "
             <div class='row mb-3'>
-                <div class='col-4'>
+                <div class='col-12 col-sm-6 col-md-4'>
                     ".$topping[ConfigData::$dbKeys['toppings']['name']]."
                 </div>
-                <div class='col-2'>
+                <div class='col-12 col-sm-6 col-md-2'>
                 € ".$topping[ConfigData::$dbKeys['toppings']['price']]."
                 </div>
-                <div class='col-6'>
+                <div class='col-12 col-sm-12 col-md-6'>
                     <div class='d-flex justify-content-end'>
                         <button class='btn btn-primary me-2'>Aanpassen</button>
                         <button class='btn btn-danger'>Verwijderen</button>
@@ -218,20 +218,20 @@ switch ($currentPage) {
                 <div class='container'>
                     <div class='row justify-content-center'>
                         <!-- Form -->
-                        <div class='col-3'>
+                        <div class='col-12 col-lg-3 col-sm-8 col-md-5 '>
                             <form method='post' id='idFormPasscodeLogin'>
                                 <input type='password' id='$idPasscodeInput' name='$namePasscodeInput' class='form-control mb-3' placeholder='Code' required/>
                             </form>
                         </div>
                         
                         <!-- Submit button -->
-                        <div class='col-2'>
+                        <div class='col-12 col-lg-3 col-sm-8 col-md-5'>
                             <button class='btn btn-primary w-100' form='idFormPasscodeLogin'>Inloggen</button>
                         </div>
                     </div>
                     <div class='row justify-content-center'>
                         <!-- Numberpad -->
-                        <div class='col-5'>
+                        <div class='col-12 col-lg-6 col-sm-8 col-md-10 col- '>
                             ".Functions::htmlNumberPad($idPasscodeInput)."
                         </div>
                     </div>

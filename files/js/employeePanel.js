@@ -1,24 +1,35 @@
 // ============ Functions ============
-// Function to add number to passcode input
-function addValueToPasscodeInput(idPasscodeInput, strValue) {
-    // ======== Declaring variables ========
-    const passcodeInput = document.getElementById(idPasscodeInput);
+// Image preview
+function imagePreviewListener(strInputFieldID, strImgPreviewID) {
+    // ==== Declaring Variables ====
 
-    // ======== Start of Function ========
-    passcodeInput.value += strValue;
+    // ==== Start of Function ====
+    // Add event listener to the input field
+
+    document.getElementById(strInputFieldID).addEventListener('change', function(e) {
+        var preview = document.getElementById(strImgPreviewID);
+        var file = e.target.files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function() {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+            preview.style.width = '40vw';
+
+            // Border
+            preview.style.border = '1px solid #000';
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "";
+        }
+    });
 }
 
-// Function to remove last number from passcode input
-function removeLastValueFromPasscodeInput(idPasscodeInput) {
-    // ======== Declaring variables ========
-    const passcodeInput = document.getElementById(idPasscodeInput);
+// ============ Event Listeners ============
+// Image preview
+imagePreviewListener('idMainMedia', 'idImgPreview');
 
-    // ======== Start of Function ========
-    passcodeInput.value = passcodeInput.value.slice(0, -1);
-}
-
-// Function to clear passcode input
-function clearPasscodeInput(idPasscodeInput) {
-    let passcodeInput = document.getElementById(idPasscodeInput);
-    passcodeInput.value = '';
-}
+// ============ Start of Main ============

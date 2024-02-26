@@ -439,7 +439,7 @@ class Functions {
                         <p class='m-0 ms-1'>Nog niet ingevuld</p>
                     </div>
                     <div class='col-6 d-flex flex-column align-items-end'>
-                        <a class='text-decoration-none' href='".Functions::dynamicPathFromIndex()."/files/php/pages/userSettings.php?page=createFAddress'>
+                        <a class='text-decoration-none' href='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=createFAddress'>
                             <button class='btn btn-outline-danger'>Aanmaken</button>
                         </a>
                     </div>

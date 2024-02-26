@@ -25,6 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // ======== Start of POST Request ========
     switch ($currentPage) {
+        # Form pages (updating the data)
+        case ConfigData::$employeePanelPages['additem']:
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # POST
+            $_POST['nameName'] = $_POST['nameName'] ?? '';
+            $_POST['namePrice'] = $_POST['namePrice'] ?? '';
+
+            // ==== Start of Case ====
+            # Giving media info
+            
+
+            break;
+
+        # Actual pages
         case ConfigData::$employeePanelPages['account']:
             // ==== Declaring Variables ====
             # Bools
@@ -92,6 +107,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 # Dynamic HTML
 $mainPage = '';
 switch ($currentPage) {
+    # Form pages (updating the data)
+    case ConfigData::$employeePanelPages['additem']:
+        // ==== Declaring Variables ====
+
+        // ==== Start of Case ====
+        # Making the form to add an item
+        $mainPage = "
+        <div class='container p-0'>
+            <div class='row justify-content-center'>
+                <div class='col-7 mb-4'>
+                    <h4>Item toevoegen</h4>
+                </div>
+                <div class='col-7'>
+                <form method='POST'>
+                    <!-- Dish Name -->
+                    <label for='idName' class='form-label'>Item naam</label>
+                    <input type='text' class='form-control mb-3' name='nameName' id='idName' required>
+                    
+                    <!-- Dish Price -->
+                    <label for='idPrice' class='form-label'>Prijs</label>
+                    <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='namePrice' id='idPrice' required>
+                    
+                    <!-- Media picker (Hoofdfoto) -->
+                    <label for='idMainMedia' class='form-label'>Hoofdfoto</label>
+                    <input type='file' class='form-control mb-3' name='nameMainMedia' id='idMainMedia' required>
+                    
+                    <!-- Image element for preview -->
+                    <img class='mb-3' id='idImgPreview' src='' alt='Preview' style='display: none;'/>
+                    
+                    <!-- Submit button -->
+                    <button class='btn btn-primary w-100'>Toevoegen</button>
+                </form>
+                </div>
+            </div>
+        </div>
+        ";
+
+        # Scripts
+        $mainPage .= "
+        <script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>
+        ";
+        break;
+
+    # Actual pages
     case ConfigData::$employeePanelPages['menu']:
         // ==== Declaring Variables ====
         # == Ints ==
@@ -106,10 +165,12 @@ switch ($currentPage) {
         # == HTML ==
         # Add item button
         $mainPage = "
-        <button class='p-0 buttonNoOutline d-flex'>
-            <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
-            <h4 class='m-0 ms-1 align-self-center'>Item toevoegen</h4>
-        </button>
+        <a class='text-decoration-none' href='./employeePanel.php?page=".ConfigData::$employeePanelPages['additem']."'>
+            <button class='p-0 buttonNoOutline d-flex'>
+                <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
+                <h4 class='align-self-center m-0 ms-1'>Item toevoegen</h4>
+            </button>
+        </a>
         <hr/>
         ";
 
@@ -124,6 +185,7 @@ switch ($currentPage) {
             $media = PizzariaSopranosDB::pdoSqlReturnArray($sql);
 
             # filePaths
+            $thumbPath = '';
             if (!empty($media)) {
                 $completeFileName = $media[0]['fileName'].$media[0]['fileExtension'];
                 $thumbPath = Functions::dynamicPathFromIndex()."files/images/dishes/".$dish[ConfigData::$dbKeys['dishes']['name']]."/$completeFileName";

@@ -145,6 +145,16 @@ class ConfigData {
     # == User settings ==
     # Employees
     public static array $employeePanelPages = [
+        # == Form pages (updating the data) ==
+        # Dishes
+        'additem' => 'addMenuItem',
+        'edititem' => 'editMenuItem',
+
+        # Toppings
+        'addtopping' => 'addTopping',
+        'edittopping' => 'editTopping',
+
+        # == Actual pages ==
         'menu' => 'menu',
         'toppings' => 'toppings',
         'orders' => 'orders',

@@ -3,6 +3,21 @@
 class Functions {
     // ======== Functions ========
     # ==== API (PHP) ====
+    public static function checkRolePermission($roleID, $permission): bool {
+        // ======== Declaring Variables ========
+        # ConfigData
+        $permissionKey = ConfigData::$dbKeys['employeeRoles']['permissions'];
+
+        # SQL
+        $queryGetRolePermissions = "SELECT $permissionKey FROM ".ConfigData::$dbTables['employeeRoles']." WHERE ".ConfigData::$dbKeys['employeeRoles']['id']." = ?";
+
+        # Arrays
+        $arrRolePermissions = PizzariaSopranosDB::pdoSqlReturnArray($queryGetRolePermissions, [$roleID])[0][$permissionKey];
+
+        // ======== Start of Program ========
+        # Check if the role has the permission
+        return in_array($permission, explode(',', $arrRolePermissions));
+    }
     public static function checkAccessToken($authToken): void {
         $boolAccessGranted = Functions::isEqual($authToken, ConfigData::$userAPIAccessToken);
         if (!$boolAccessGranted) {
@@ -161,6 +176,25 @@ class Functions {
 
 
     # ==== PHP ====
+    public static function moveFileToFolder($file, $folder): void {
+        // ======== Declaring Variables ========
+        # Strings
+        $strFileName = $file['name'];
+        $strFileTmpName = $file['tmp_name'];
+
+        // ======== Start of Program ========
+        // Move the file to the folder
+        move_uploaded_file($strFileTmpName, $folder.$strFileName);
+    }
+    public static function replaceExtension($strFileName, $strNewExtension): string {
+        // ======== Declaring Variables ========
+        # Strings
+        $strExtension = pathinfo($strFileName, PATHINFO_EXTENSION);
+        $strFileName = str_replace('.'.$strExtension, '', $strFileName);
+
+        // ======== Start of Program ========
+        return $strFileName.'.'.$strNewExtension;
+    }
     public static function pathToURL($file, $protocol = 'https://'): string {
         // ======== Declaring Variables ========
         # ==== Strings ====

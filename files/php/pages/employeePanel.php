@@ -29,14 +29,61 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case ConfigData::$employeePanelPages['additem']:
             // ==== Declaring Variables ====
             # == Strings ==
+            # ConfigData strings
+            $employeeID = ConfigData::$dbKeys['employeeUsers']['id'];
+            $roleID = ConfigData::$dbKeys['employeeUsers']['roleID'];
+            $strTableName = ConfigData::$dbTables['dishes'];
+
             # POST
             $_POST['nameName'] = $_POST['nameName'] ?? '';
             $_POST['namePrice'] = $_POST['namePrice'] ?? '';
+            $_POST['nameDiscountPercentage'] = $_POST['nameDiscountPercentage'] ?? '';
+            $_POST['nameDiscountPrice'] = $_POST['nameDiscountPrice'] ?? '';
+            $_POST['nameSpicyRating'] = $_POST['nameSpicyRating'] ?? '';
+
+            # Media
+            $tempPath = $_FILES['nameMainMedia']['tmp_name'];
+            $filePath = Functions::dynamicPathFromIndex()."files/images/dishes/$_POST[nameName]";
+
+            # Arrays
+            $arrPushedDishData = [
+                $employeeID => $_SESSION[$employeeID],
+                $roleID => $_SESSION['role'],
+                ConfigData::$dbTables['dishes'] => [
+                    ConfigData::$dbKeys[$strTableName]['name'] => $_POST['nameName'],
+                    ConfigData::$dbKeys[$strTableName]['price'] => $_POST['namePrice'],
+                    ConfigData::$dbKeys[$strTableName]['discountPercentage'] => $_POST['nameDiscountPercentage'],
+                    ConfigData::$dbKeys[$strTableName]['ratingSpicy'] => $_POST['nameSpicyRating'],
+                ],
+                ConfigData::$dbTables['media'] => [
+                    # File info
+                    'fileName' => $_FILES['nameMainMedia']['name'],
+                    'mediaGroup' => $_FILES['nameMainMedia']['type'],
+                ],
+            ];
 
             // ==== Start of Case ====
-            # Giving media info
-            
+            # Processing the POST request and media via the api
+            $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addDish', ConfigData::$userAPIAccessToken, $arrPushedDishData);
+            Functions::pre($arrAPIReturn);
 
+            # Moving the file to the right folder
+            if ($arrAPIReturn[0] != 200) {
+                Functions::echoByStatusCode($arrAPIReturn[0]);
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['additem']."");
+            }
+            else {
+                # Creating the folder if it doesn't exist
+                if (!file_exists($filePath)) {
+                    mkdir($filePath, 0777, true);
+                }
+
+                # Moving the file
+                move_uploaded_file($tempPath, $filePath.'/'.$_FILES['nameMainMedia']['name']);
+
+                # Redirecting to the menu page
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+            }
             break;
 
         # Actual pages
@@ -58,9 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 // ==== Start of If ====
                 if ($apiReturn[0] != 200) {
-                    echo("
-                    nope
-                    ");
+                    Functions::echoByStatusCode($apiReturn[0]);
+                    header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['account']."");
                 }
                 else {
                     $_SESSION['employeePasscodeLoggedIn'] = true;
@@ -120,7 +166,7 @@ switch ($currentPage) {
                     <h4>Item toevoegen</h4>
                 </div>
                 <div class='col-7'>
-                <form method='POST'>
+                <form method='POST' enctype='multipart/form-data'>
                     <!-- Dish Name -->
                     <label for='idName' class='form-label'>Item naam</label>
                     <input type='text' class='form-control mb-3' name='nameName' id='idName' required>
@@ -128,6 +174,25 @@ switch ($currentPage) {
                     <!-- Dish Price -->
                     <label for='idPrice' class='form-label'>Prijs</label>
                     <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='namePrice' id='idPrice' required>
+                    
+                    <!-- Discount in percentage -->
+                    <div class='container p-0'>
+                        <div class='row'>
+                            <div class='col-6'>
+                                <label for='idDiscountPercentage' class='form-label'>Korting in %</label>
+                                <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='nameDiscountPercentage' id='idDiscountPercentage' required>
+                            </div>
+                            <div class='col-6'>
+                                <label for='idDiscountPrice' class='form-label'>Korting in €</label>
+                                <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='nameDiscountPrice' id='idDiscountPrice' required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Spicy rating (1-5) -->
+                    <label for='idSpicyRating' class='form-label'>Pittigheid (1-5)</label><br/>
+                    <span id='idSpicyValue'></span>
+                    <input type='range' class='form-range mb-3' name='nameSpicyRating' id='idSpicyRating' min='1' max='5' required>
                     
                     <!-- Media picker (Hoofdfoto) -->
                     <label for='idMainMedia' class='form-label'>Hoofdfoto</label>
@@ -187,15 +252,32 @@ switch ($currentPage) {
             # filePaths
             $thumbPath = '';
             if (!empty($media)) {
-                $completeFileName = $media[0]['fileName'].$media[0]['fileExtension'];
-                $thumbPath = Functions::dynamicPathFromIndex()."files/images/dishes/".$dish[ConfigData::$dbKeys['dishes']['name']]."/$completeFileName";
+                $thumbPath = Functions::dynamicPathFromIndex()."files/images/dishes/".$dish[ConfigData::$dbKeys['dishes']['name']]."/{$media[0]['fileName']}";
+            }
+
+            # Discounted price
+            $discountPercentage = $dish[ConfigData::$dbKeys['dishes']['discountPercentage']];
+            $discountedPrice = $dish[ConfigData::$dbKeys['dishes']['price']] - ($dish[ConfigData::$dbKeys['dishes']['price']] * ($discountPercentage / 100));
+            $discountedPriceHTML = '';
+            if ($discountedPrice != $dish[ConfigData::$dbKeys['dishes']['price']]) {
+                $discountedPriceHTML = "
+                <div class='d-flex'>
+                    <!-- Discounted price -->
+                    <p class='card-text text-danger me-4'>€ ".$dish[ConfigData::$dbKeys['dishes']['price']]."</p>
+                    
+                    <!-- Discount percentage -->
+                    <p class='card-text text-danger'>$discountPercentage%</p>
+                </div>
+                ";
             }
 
             // ==== Start of Loop ====
+            # Checking if the counter is divisible by 3 so it can make a new row
             if ($breakCounter % 3 == 0) {
                 $mainPage .= "<div class='row mb-3'>";
             }
 
+            # Making the card
             $mainPage .= "
             <div class='col-lg-4 col-md-12 col-sm-12'>
                 <div class='card mb-4'>
@@ -203,6 +285,7 @@ switch ($currentPage) {
                     <div class='card-body'>
                         <h5 class='card-title'>".$dish[ConfigData::$dbKeys['dishes']['name']]."</h5>
                         <p class='card-text'>€ ".$dish[ConfigData::$dbKeys['dishes']['price']]."</p>
+                        $discountedPriceHTML
                         <div class='d-flex flex-wrap'>
                             <button class='btn btn-primary me-2'>Aanpassen</button>
                             <button class='btn btn-danger'>Verwijderen</button>
@@ -212,8 +295,10 @@ switch ($currentPage) {
             </div>
             ";
 
+            # Adding to the counter
             $breakCounter++;
 
+            # Checking if the counter is divisible by 3 so it can close the row
             if ($breakCounter % 3 == 0) {
                 $mainPage .= "</div>";
             }

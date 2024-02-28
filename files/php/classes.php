@@ -10,11 +10,69 @@ class ConfigData {
 
     # ==== Arrays ====
     # == Database variables ==
-    # Employee user roles
+    # Mime types
+    public static array $mimeTypes = [
+        'image/jpeg' => '.jpg',
+        'image/png' => '.png',
+        'image/gif' => '.gif',
+        'image/webp' => '.webp',
+        'image/svg+xml' => '.svg',
+        'image/bmp' => '.bmp',
+    ];
+    # Roles and permissions
+    public static array $employeeRoles = [
+        # Reading
+        'readorders' => 'readorders',
+        'readmenu' => 'readmenu',
+        'readtoppings' => 'readtoppings',
+        'readaccount' => 'readaccount',
+
+        # Writing
+        'additem' => 'additem',
+        'addtopping' => 'addtopping',
+
+        # Updating
+        'edititem' => 'edititem',
+        'edittopping' => 'edittopping',
+        'editaccount' => 'editaccount',
+
+        # Deleting
+        'deleteitem' => 'deleteitem',
+        'deletetopping' => 'deletetopping',
+    ];
     public static array $employeeUserRoles = [
         'owner' => 'Owner',
         'employee' => 'Employee',
     ];
+    public static array $employeeUserPermissions = [
+        'owner' => [
+            # Reading
+            'readorders',
+            'readmenu',
+            'readtoppings',
+            'readaccount',
+
+            # Writing
+            'additem',
+            'addtopping',
+
+            # Updating
+            'edititem',
+            'edittopping',
+            'editaccount',
+
+            # Deleting
+            'deleteitem',
+            'deletetopping',
+        ],
+        'employee' => [
+            # Reading
+            'readorders',
+            'readmenu',
+            'readtoppings',
+        ],
+    ];
+
     # Database table names
     public static array $dbTables = [
         'addresses' => 'addresses',
@@ -80,6 +138,7 @@ class ConfigData {
         'employeeRoles' => [
             'id' => 'roleID',
             'role' => 'roleName',
+            'permissions' => 'permissions',
         ],
         'employeeUsers' => [
             'id' => 'employeeID',
@@ -185,8 +244,12 @@ class ConfigData {
         # Authentication errors
         407 => ['De login gegevens zijn niet correct!', 'danger'], // API Access key invalid
         405 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid method
+        409 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // The user is not authorized because of it's role
 
         # Variable / SQL errors
+        412 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Mime type not allowed/supported
+        411 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Could not make the new file path (mkdir failed)
+        410 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Could not move the file to it's destination
         419 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid variable (most likely invalid date)
         400 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // Invalid POST data
         403 => ['Er is iets fout gegaan, probeer het later opnieuw!', 'warning'], // SQL error

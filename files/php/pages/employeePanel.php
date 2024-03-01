@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is toegevoegd!</div>";
 
                 # Redirecting to the menu page
-//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             break;
 

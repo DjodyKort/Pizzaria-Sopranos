@@ -1,4 +1,5 @@
 // ============ Functions ============
+// ======== Functions for in the main functions ========
 // Image preview
 function imagePreviewListener(strInputFieldID, strImgPreviewID) {
     // ==== Declaring Variables ====
@@ -41,46 +42,58 @@ function rangeSliderValueListener(strRangeSliderID, strOutputID) {
 
 // Sync the discount percentage with the discount price
 function syncDiscountPrice(strDiscountPercentageID, strDiscountPriceID, strOriginalPriceID) {
-    // ==== Declaring Variables ====
-    // Elements
-    const discountPercentage = document.getElementById(strDiscountPercentageID);
-    const discountPrice = document.getElementById(strDiscountPriceID);
-    const originalPrice = document.getElementById(strOriginalPriceID);
+    window.addEventListener('DOMContentLoaded', (event) => {
+        // Elements
+        const discountPercentage = document.getElementById(strDiscountPercentageID);
+        const discountPrice = document.getElementById(strDiscountPriceID);
+        const originalPrice = document.getElementById(strOriginalPriceID);
 
-    // ==== Start of Function ====
-    // Add event listener to the discount percentage
-    discountPercentage.addEventListener('input', function() {
-        let percentage = discountPercentage.value;
-        if (percentage > 100) {
-            percentage = 100;
-            discountPercentage.value = percentage;
-        }
-        discountPrice.value = originalPrice.value * (percentage / 100);
-    });
+        // Add event listener to the discount percentage
+        discountPercentage.addEventListener('input', function() {
+            // Parse input values as numbers
+            let discountPercentageValue = parseFloat(discountPercentage.value);
+            let originalPriceValue = parseFloat(originalPrice.value);
 
-    // Add event listener to the discount price
+            // Checking if the discount percentage is more than 100
+            if (discountPercentageValue > 100) {
+                discountPercentage.value = 100;
+            }
+            else {
+                // Calculate the discount price
+                discountPrice.value = (originalPriceValue * (discountPercentageValue / 100)).toFixed(2);
+            }
+        });
+
+        // Add event listener to the discount price
         discountPrice.addEventListener('input', function() {
-            let price = discountPrice.value;
-            if (price > originalPrice.value) {
-                price = originalPrice.value;
-                discountPrice.value = price;
+            // Parse input values as numbers
+            let discountPriceValue = parseFloat(discountPrice.value);
+            let originalPriceValue = parseFloat(originalPrice.value);
+
+            // Checking if the discount price is more than the original price
+            if (discountPriceValue > originalPriceValue) {
+                discountPrice.value = originalPriceValue.toFixed(2);
             }
-            discountPercentage.value = price / originalPrice.value * 100;
+            else {
+                // Calculate the discount percentage
+                discountPercentage.value = ((discountPriceValue / originalPriceValue) * 100).toFixed(2);
+            }
         });
 
-    // Add event listener to the original price
+        // Add event listener to the original price
         originalPrice.addEventListener('input', function() {
-            let price = originalPrice.value;
-            let discount = price * (discountPercentage.value / 100);
-            if (discount > price) {
-                discount = price;
-                discountPrice.value = discount;
-            } else {
-                discountPrice.value = discount;
-            }
-        });
-}
+            // Parse input values as numbers
+            let discountPercentageValue = parseFloat(discountPercentage.value);
+            let originalPriceValue = parseFloat(originalPrice.value);
 
+            // Calculate the discount price
+            discountPrice.value = (originalPriceValue * (discountPercentageValue / 100)).toFixed(2);
+
+            // Calculate the discount percentage
+            discountPercentage.value = ((discountPrice.value / originalPriceValue) * 100).toFixed(2);
+        });
+    });
+}
 
 // ============ Event Listeners ============
 // Image preview

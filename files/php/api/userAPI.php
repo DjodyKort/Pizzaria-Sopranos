@@ -542,6 +542,7 @@ if (!empty($uri) && !empty($method)) {
                     # POST Variables
                     $employeeID = filter_var($_POST['employeeID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['employeeID']);
                     $roleID = filter_var($_POST['roleID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['roleID']);
+                    $defaultToppings = $_POST[ConfigData::$dbTables['defaultToppingRelations']]; unset($_POST[ConfigData::$dbTables['defaultToppingRelations']]);
                     $strTableName = array_key_first($_POST);
                     $strMediaTableName = array_key_last($_POST);
 
@@ -582,12 +583,26 @@ if (!empty($uri) && !empty($method)) {
                     }
                     else {
                         try {
+                            // ==== Start of Loop ====
                             # Insert the dish
                             $dishID = PizzariaSopranosDB::pdoSqlReturnLastID($queryAddDish, array_values($arrDishData));
 
-                            // ==== Start of Loop ====
                             # Insert the media
                             PizzariaSopranosDB::pdoSqlReturnTrue($queryAddDishMedia, [$dishID, 1, $arrMediaKeys['mediaGroup'], $fileExtension, $arrMediaKeys['fileName'], 0]);
+
+                            # Insert the default topping relations
+                            foreach ($defaultToppings as $toppingID) {
+                                try {
+                                    PizzariaSopranosDB::pdoSqlReturnTrue("INSERT INTO defaultToppingRelations (dishID, toppingID) VALUES (?, ?)", [$dishID, $toppingID]);
+                                }
+                                catch (Exception $e) {
+                                    Functions::setHTTPResponseCode(403);
+                                    Functions::returnJson([
+                                        'error' => 'Something went wrong'
+                                    ]);
+                                    exit();
+                                }
+                            }
 
                             # Return API status
                             Functions::setHTTPResponseCode(200);

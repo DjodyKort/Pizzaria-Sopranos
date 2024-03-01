@@ -41,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST['nameDiscountPrice'] = $_POST['nameDiscountPrice'] ?? '';
             $_POST['nameSpicyRating'] = $_POST['nameSpicyRating'] ?? '';
 
+            $_POST['defaultToppings'] = $_POST['defaultToppings'] ?? '';
+
             # Media
             $tempPath = $_FILES['nameMainMedia']['tmp_name'];
             $filePath = Functions::dynamicPathFromIndex()."files/images/dishes/$_POST[nameName]";
@@ -49,11 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $arrPushedDishData = [
                 $employeeID => $_SESSION[$employeeID],
                 $roleID => $_SESSION['role'],
+                ConfigData::$dbTables['defaultToppingRelations'] => $_POST['defaultToppings'],
                 ConfigData::$dbTables['dishes'] => [
                     ConfigData::$dbKeys[$strTableName]['name'] => $_POST['nameName'],
                     ConfigData::$dbKeys[$strTableName]['price'] => $_POST['namePrice'],
                     ConfigData::$dbKeys[$strTableName]['discountPercentage'] => $_POST['nameDiscountPercentage'],
                     ConfigData::$dbKeys[$strTableName]['ratingSpicy'] => $_POST['nameSpicyRating'],
+
                 ],
                 ConfigData::$dbTables['media'] => [
                     # File info
@@ -81,8 +85,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 # Moving the file
                 move_uploaded_file($tempPath, $filePath.'/'.$_FILES['nameMainMedia']['name']);
 
+                # Header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is toegevoegd!</div>";
+
                 # Redirecting to the menu page
-                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             break;
 
@@ -156,6 +163,30 @@ switch ($currentPage) {
     # Form pages (updating the data)
     case ConfigData::$employeePanelPages['additem']:
         // ==== Declaring Variables ====
+        # == Strings ==
+        # SQL
+        $getAllToppingsSQL = "SELECT * FROM ".ConfigData::$dbTables['toppings'].";";
+
+        # == Arrays ==
+        # Toppings
+        $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray($getAllToppingsSQL);
+
+        # == HTML ==
+        # Default topping selector
+        $selectDefaultToppingsHTML = "<div class='mb-3'> <h5>Standaard toppings</h5>";
+        foreach ($arrToppings as $topping) {
+            // ==== Declaring Variables ====
+            $toppingID = $topping[ConfigData::$dbKeys['toppings']['id']];
+            $toppingName = $topping[ConfigData::$dbKeys['toppings']['name']];
+            $toppingPrice = $topping[ConfigData::$dbKeys['toppings']['price']];
+
+            // ==== Start of Loop ====
+            $selectDefaultToppingsHTML .= "
+                <input type='checkbox' class='form-check-input' name='defaultToppings[$toppingID]' id='idDefaultToppings$toppingID' value='$toppingID'>
+                <label class='form-check-label' for='idDefaultToppings$toppingID'>$toppingName</label> <br/>
+            ";
+        }
+        $selectDefaultToppingsHTML .= "</div>";
 
         // ==== Start of Case ====
         # Making the form to add an item
@@ -201,6 +232,9 @@ switch ($currentPage) {
                     <!-- Image element for preview -->
                     <img class='mb-3' id='idImgPreview' src='' alt='Preview' style='display: none;'/>
                     
+                    <!-- Selecting the default toppings for the dish -->
+                    $selectDefaultToppingsHTML
+                    
                     <!-- Submit button -->
                     <button class='btn btn-primary w-100'>Toevoegen</button>
                 </form>
@@ -210,9 +244,8 @@ switch ($currentPage) {
         ";
 
         # Scripts
-        $mainPage .= "
-        <script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>
-        ";
+        $mainPage .= "<script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>";
+
         break;
 
     # Actual pages

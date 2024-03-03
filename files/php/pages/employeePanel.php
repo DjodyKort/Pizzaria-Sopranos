@@ -25,6 +25,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // ======== Start of POST Request ========
     switch ($currentPage) {
+        # Form pages (deleting the data)
+        case ConfigData::$employeePanelPages['menu']:
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # POST
+            $_POST['deleteDishID'] = $_POST['deleteDishID'] ?? '';
+
+            # API
+            $arrPushedDishData = [
+                'roleID' => $_SESSION['role'],
+                ConfigData::$dbKeys[ConfigData::$dbTables['dishes']]['id'] => $_POST['deleteDishID'],
+            ];
+
+            // ==== Start of Case ====
+            # Processing the POST request and media via the api
+            $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/deleteDish', ConfigData::$userAPIAccessToken, $arrPushedDishData);
+            Functions::pre($arrAPIReturn);
+            if ($arrAPIReturn[0] != 200) {
+                Functions::echoByStatusCode($arrAPIReturn[0]);
+//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+            }
+            else {
+                # Header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is verwijderd!</div>";
+
+                # Redirecting to the menu page
+//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+            }
+            break;
+
         # Form pages (updating the data)
         case ConfigData::$employeePanelPages['additem']:
             // ==== Declaring Variables ====
@@ -74,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             # Moving the file to the right folder
             if ($arrAPIReturn[0] != 200) {
                 Functions::echoByStatusCode($arrAPIReturn[0]);
-                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['additem']."");
+//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['additem']."");
             }
             else {
                 # Creating the folder if it doesn't exist
@@ -89,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is toegevoegd!</div>";
 
                 # Redirecting to the menu page
-                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             break;
 
@@ -296,7 +326,7 @@ switch ($currentPage) {
                 $discountedPriceHTML = "
                 <div class='d-flex'>
                     <!-- Discounted price -->
-                    <p class='card-text text-danger me-4'>€ ".$dish[ConfigData::$dbKeys['dishes']['price']]."</p>
+                    <p class='card-text text-danger me-4'>€ $discountedPrice</p>
                     
                     <!-- Discount percentage -->
                     <p class='card-text text-danger'>$discountPercentage%</p>
@@ -321,7 +351,10 @@ switch ($currentPage) {
                         $discountedPriceHTML
                         <div class='d-flex flex-wrap'>
                             <button class='btn btn-primary me-2'>Aanpassen</button>
-                            <button class='btn btn-danger'>Verwijderen</button>
+                            <form method='POST'>
+                                <input type='hidden' name='deleteDishID' value='".$dish[ConfigData::$dbKeys['dishes']['id']]."'>
+                                <input type='submit' class='btn btn-danger' value='Verwijderen'>
+                            </form>
                         </div>
                     </div>
                 </div>

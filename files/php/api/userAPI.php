@@ -598,7 +598,7 @@ if (!empty($uri) && !empty($method)) {
                                 catch (Exception $e) {
                                     Functions::setHTTPResponseCode(403);
                                     Functions::returnJson([
-                                        'error' => 'Something went wrong'
+                                        'error' => 'Something went wrong',
                                     ]);
                                     exit();
                                 }
@@ -617,6 +617,7 @@ if (!empty($uri) && !empty($method)) {
                             Functions::setHTTPResponseCode(403);
                             Functions::returnJson([
                                 'error' => 'Something went wrong',
+                                $e
                             ]);
                             exit();
                         }
@@ -820,6 +821,58 @@ if (!empty($uri) && !empty($method)) {
                         ]);
                         exit();
                     }
+                }
+                break;
+            case '/deleteDish':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $roleID = filter_var($_POST['roleID'], FILTER_SANITIZE_NUMBER_INT);
+                    $dishID = filter_var($_POST['dishID'], FILTER_SANITIZE_NUMBER_INT);
+
+                    # SQL
+                    $query = "DELETE FROM dishes WHERE dishID = ?";
+
+                    // ==== Start of Program ====
+                    # Check if the user's role is allowed to delete dishes
+                    if (Functions::checkRolePermission($roleID, ConfigData::$employeeRoles['deleteitem'])) {
+                        Functions::setHTTPResponseCode(409);
+                        Functions::returnJson([
+                            'error' => 'Role not allowed to delete dishes'
+                        ]);
+                        exit();
+                    }
+                    else {
+                        try {
+                            # Delete the dish
+                            PizzariaSopranosDB::pdoSqlReturnTrue($query, [$dishID]);
+
+                            # Return API status
+                            Functions::setHTTPResponseCode(200);
+                            Functions::returnJson([
+                                'status' => 'success',
+                            ]);
+                        }
+                        catch (Exception $e) {
+                            Functions::setHTTPResponseCode(403);
+                            Functions::returnJson([
+                                'error' => 'Something went wrong'
+                            ]);
+                            exit();
+                        }
+                    }
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
                 }
                 break;
             default:

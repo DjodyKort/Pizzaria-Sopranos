@@ -41,17 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // ==== Start of Case ====
             # Processing the POST request and media via the api
             $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/deleteDish', ConfigData::$userAPIAccessToken, $arrPushedDishData);
-            Functions::pre($arrAPIReturn);
             if ($arrAPIReturn[0] != 200) {
                 Functions::echoByStatusCode($arrAPIReturn[0]);
-//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             else {
                 # Header message
                 $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is verwijderd!</div>";
 
                 # Redirecting to the menu page
-//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             break;
 
@@ -75,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             # Media
             $tempPath = $_FILES['nameMainMedia']['tmp_name'];
-            $filePath = Functions::dynamicPathFromIndex()."files/images/dishes/$_POST[nameName]";
+            $filePath = Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath.$_POST['nameName'];
 
             # Arrays
             $arrPushedDishData = [
@@ -87,10 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     ConfigData::$dbKeys[$strTableName]['price'] => $_POST['namePrice'],
                     ConfigData::$dbKeys[$strTableName]['discountPercentage'] => $_POST['nameDiscountPercentage'],
                     ConfigData::$dbKeys[$strTableName]['ratingSpicy'] => $_POST['nameSpicyRating'],
-
                 ],
                 ConfigData::$dbTables['media'] => [
                     # File info
+                    'fileFolderName' => $_POST['nameName'],
                     'fileName' => $_FILES['nameMainMedia']['name'],
                     'mediaGroup' => $_FILES['nameMainMedia']['type'],
                 ],
@@ -99,12 +98,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // ==== Start of Case ====
             # Processing the POST request and media via the api
             $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addDish', ConfigData::$userAPIAccessToken, $arrPushedDishData);
-            Functions::pre($arrAPIReturn);
 
             # Moving the file to the right folder
             if ($arrAPIReturn[0] != 200) {
                 Functions::echoByStatusCode($arrAPIReturn[0]);
-//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['additem']."");
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['additem']."");
             }
             else {
                 # Creating the folder if it doesn't exist
@@ -119,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is toegevoegd!</div>";
 
                 # Redirecting to the menu page
-//                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             break;
 
@@ -315,7 +313,7 @@ switch ($currentPage) {
             # filePaths
             $thumbPath = '';
             if (!empty($media)) {
-                $thumbPath = Functions::dynamicPathFromIndex()."files/images/dishes/".$dish[ConfigData::$dbKeys['dishes']['name']]."/{$media[0]['fileName']}";
+                $thumbPath = Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath.$dish[ConfigData::$dbKeys['dishes']['name']]."/{$media[0]['fileName']}";
             }
 
             # Discounted price

@@ -5,6 +5,8 @@
 class ConfigData {
     // ======== Declaring Variables ========
     # ==== Strings ====
+    # Paths
+    public static string $dishMediaPath = 'files/images/dishes/';
     # Authentication
     public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
 
@@ -12,7 +14,8 @@ class ConfigData {
     # == Database variables ==
     # Mime types
     public static array $mimeTypes = [
-        'image/jpeg' => '.jpg',
+        'image/jpeg' => '.jpeg',
+        'image/jpg' => '.jpg',
         'image/png' => '.png',
         'image/gif' => '.gif',
         'image/webp' => '.webp',
@@ -157,6 +160,7 @@ class ConfigData {
             'dishID' => 'dishID',
             'mediaStatus' => 'mediaStatus',
             'mediaGroup' => 'mediaGroup',
+            'fileFolderName' => 'fileFolderName',
             'fileExtension' => 'fileExtension',
             'fileName' => 'fileName',
             'mediaOrder' => 'mediaOrder',

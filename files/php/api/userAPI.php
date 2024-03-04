@@ -570,7 +570,7 @@ if (!empty($uri) && !empty($method)) {
 
                     # SQL
                     $queryAddDish = "INSERT INTO dishes (".implode(', ', $arrKeys).") VALUES (".implode(', ', array_fill(0, count($arrKeys), '?')).")";
-                    $queryAddDishMedia = "INSERT INTO $strMediaTableName ($arrMediaKeyNames[dishID], $arrMediaKeyNames[mediaStatus], $arrMediaKeyNames[mediaGroup], $arrMediaKeyNames[fileExtension], $arrMediaKeyNames[fileName], $arrMediaKeyNames[mediaOrder]) VALUES (?, ?, ?, ?, ?, ?)";
+                    $queryAddDishMedia = "INSERT INTO $strMediaTableName ($arrMediaKeyNames[dishID], $arrMediaKeyNames[mediaStatus], $arrMediaKeyNames[mediaGroup], $arrMediaKeyNames[fileExtension], $arrMediaKeyNames[fileFolderName], $arrMediaKeyNames[fileName], $arrMediaKeyNames[mediaOrder]) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                     // ==== Start of Program ====
                     # Check if the user's role is allowed to add dishes
@@ -588,7 +588,7 @@ if (!empty($uri) && !empty($method)) {
                             $dishID = PizzariaSopranosDB::pdoSqlReturnLastID($queryAddDish, array_values($arrDishData));
 
                             # Insert the media
-                            PizzariaSopranosDB::pdoSqlReturnTrue($queryAddDishMedia, [$dishID, 1, $arrMediaKeys['mediaGroup'], $fileExtension, $arrMediaKeys['fileName'], 0]);
+                            PizzariaSopranosDB::pdoSqlReturnTrue($queryAddDishMedia, [$dishID, 1, $arrMediaKeys['mediaGroup'], $fileExtension, $arrMediaKeys['fileFolderName'], $arrMediaKeys['fileName'], 0]);
 
                             # Insert the default topping relations
                             foreach ($defaultToppings as $toppingID) {
@@ -834,10 +834,10 @@ if (!empty($uri) && !empty($method)) {
                     # == Strings ==
                     # POST Variables
                     $roleID = filter_var($_POST['roleID'], FILTER_SANITIZE_NUMBER_INT);
-                    $dishID = filter_var($_POST['dishID'], FILTER_SANITIZE_NUMBER_INT);
+                    $dishID = filter_var($_POST[ConfigData::$dbKeys[ConfigData::$dbTables['dishes']]['id']], FILTER_SANITIZE_NUMBER_INT);
 
                     # SQL
-                    $query = "DELETE FROM dishes WHERE dishID = ?";
+                    $queryDeleteDish = "DELETE FROM ".ConfigData::$dbTables['dishes']." WHERE dishID = ?";
 
                     // ==== Start of Program ====
                     # Check if the user's role is allowed to delete dishes
@@ -850,8 +850,8 @@ if (!empty($uri) && !empty($method)) {
                     }
                     else {
                         try {
-                            # Delete the dish
-                            PizzariaSopranosDB::pdoSqlReturnTrue($query, [$dishID]);
+                            # Trying to delete the dish
+                            PizzariaSopranosDB::pdoSqlReturnTrue($queryDeleteDish, [$dishID]);
 
                             # Return API status
                             Functions::setHTTPResponseCode(200);

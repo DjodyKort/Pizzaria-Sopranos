@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 # Arrays
                 $arrPushedUserData = [
                     'userID' => $_SESSION['userID'],
-                    'users' => [
+                    ConfigData::$dbTables['users'] => [
                         'name' => $_POST['nameName'],
                         'email' => $_POST['nameEmail'],
                         'birthDate' => $_POST['nameBirthDate'],
@@ -295,7 +295,7 @@ switch ($currentPage) {
                                 <a class='d-flex align-items-center text-decoration-none text-black' href='./userSettings.php?page=createBAddress' >
                                     <!-- Round button with plus inside -->
                                     <button class='p-0 buttonNoOutline'>
-                                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
+                                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/ images/plus-circle.svg' alt='Error: Plus button not found'>
                                     </button>
                                 
                                     <!-- Text -->
@@ -314,19 +314,19 @@ switch ($currentPage) {
         break;
     case 'createFAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddAddress('Factuuradres toevoegen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres toevoegen');
         break;
     case 'changeFAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlChangeAddress(ConfigData::$dbTables['addresses'] ,'Bezorgadres wijzigen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres wijzigen' ,ConfigData::$dbTables['addresses']);
         break;
     case 'createBAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddAddress('Bezorgadres toevoegen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres toevoegen');
         break;
     case 'changeBAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlChangeAddress(ConfigData::$dbTables['billingAddresses'] ,'Factuuradres wijzigen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres wijzigen', ConfigData::$dbTables['billingAddresses']);
         break;
     case 'orders':
         // ==== Start of switch case ====

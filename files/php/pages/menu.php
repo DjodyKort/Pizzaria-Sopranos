@@ -11,7 +11,7 @@ $tableToppings = 'toppings';
 
 // ============ Start of Program ============
 # Header
-ob_start();
+
 Functions::htmlHeader(320);
 //sql statement for menu1 
 $result = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableDishes");
@@ -463,7 +463,6 @@ else if (!isset($_GET['pizzaID'])) {
 
 # Footer
 Functions::htmlFooter();
-ob_end_flush();
 ?>
 
 <script>

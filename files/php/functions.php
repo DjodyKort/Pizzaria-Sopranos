@@ -3,6 +3,21 @@
 class Functions {
     // ======== Functions ========
     # ==== API (PHP) ====
+    public static function checkRolePermission($roleID, $permission): bool {
+        // ======== Declaring Variables ========
+        # ConfigData
+        $permissionKey = ConfigData::$dbKeys['employeeRoles']['permissions'];
+
+        # SQL
+        $queryGetRolePermissions = "SELECT $permissionKey FROM ".ConfigData::$dbTables['employeeRoles']." WHERE ".ConfigData::$dbKeys['employeeRoles']['id']." = ?";
+
+        # Arrays
+        $arrRolePermissions = PizzariaSopranosDB::pdoSqlReturnArray($queryGetRolePermissions, [$roleID])[0][$permissionKey];
+
+        // ======== Start of Program ========
+        # Check if the role has the permission
+        return in_array($permission, explode(',', $arrRolePermissions));
+    }
     public static function checkAccessToken($authToken): void {
         $boolAccessGranted = Functions::isEqual($authToken, ConfigData::$userAPIAccessToken);
         if (!$boolAccessGranted) {
@@ -161,6 +176,25 @@ class Functions {
 
 
     # ==== PHP ====
+    public static function moveFileToFolder($file, $folder): void {
+        // ======== Declaring Variables ========
+        # Strings
+        $strFileName = $file['name'];
+        $strFileTmpName = $file['tmp_name'];
+
+        // ======== Start of Program ========
+        // Move the file to the folder
+        move_uploaded_file($strFileTmpName, $folder.$strFileName);
+    }
+    public static function replaceExtension($strFileName, $strNewExtension): string {
+        // ======== Declaring Variables ========
+        # Strings
+        $strExtension = pathinfo($strFileName, PATHINFO_EXTENSION);
+        $strFileName = str_replace('.'.$strExtension, '', $strFileName);
+
+        // ======== Start of Program ========
+        return $strFileName.'.'.$strNewExtension;
+    }
     public static function pathToURL($file, $protocol = 'https://'): string {
         // ======== Declaring Variables ========
         # ==== Strings ====
@@ -217,6 +251,41 @@ class Functions {
     }
 
     # ==== HTML ====
+    # Global
+    public static function htmlNumberPad($strIdInput): string {
+        // ======== Declaring Variables ========
+        # ==== Strings ====
+        # Numberpad info
+        $backButtonValue = '⌫';
+        $strClearButtonValue = 'C';
+
+        # HTML
+        $strHTML = "<div class='container p-0'><div class='row'>";
+
+        # Arrays
+        $arrNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+
+        // ======== Start of Program ========
+        // Create the number pad with the numbers
+        for ($i = 0; $i < 9; $i++) {
+            if ($i % 3 == 0) {
+                $strHTML .= "</div><div class='row mt-3'>"; // End of row and start of new row with margin-top
+            }
+            // Add number button with increased font size and padding
+            $strHTML .= "<div class='col-4 col-sm-4 col-md-4'><button class='btn btn-primary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='addValueToPasscodeInput(\"$strIdInput\", this.innerHTML)'>{$arrNumbers[$i]}</button></div>";
+        }
+
+        // Add the last row with 'Back', '0' and 'Clear' buttons
+        $strHTML .= "</div><div class='row mt-3'>
+            <div class='col-4 col-sm-4 col-md-4'><button class='btn btn-secondary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='removeLastValueFromPasscodeInput(\"$strIdInput\")'>$backButtonValue</button></div>
+            <div class='col-4 col-sm-4 col-md-4'><button class='btn btn-primary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='addValueToPasscodeInput(\"$strIdInput\", this.innerHTML)'>{$arrNumbers[9]}</button></div>
+            <div class='col-4 col-sm-4 col-md-4'><button class='btn btn-secondary numberButton w-100 py-2' style='font-size: 1.5em;' onclick='clearPasscodeInput(\"$strIdInput\")'>$strClearButtonValue</button></div>
+        </div></div>"; // End of row and container
+
+        // Return the number pad
+        return $strHTML;
+}
+
     # Normal functions
     public static function pre($data): void {
         echo "<pre>";
@@ -228,6 +297,7 @@ class Functions {
     public static function htmlHeader(string $logoHeight): void {
         // ======== Declaring Variables ========
         # Sessions
+        ob_start();
         session_start();
 
         # ==== HTML ====
@@ -246,9 +316,14 @@ class Functions {
             $_SESSION['total'] = 0;
         }
 
-
         if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
-            $accountButtons = "<a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
+            // Checking if the user is normal user or employee
+            if (isset($_SESSION['role'])) {
+                $accountButtons = "<a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php'><h4>{$_SESSION['name']}</h4></a>";
+            }
+            else {
+                $accountButtons = "<a class='text-decoration-none' href='".self::dynamicPathFromIndex()."files/php/pages/userSettings.php'><h4>{$_SESSION['name']}</h4></a>";
+            }
         }
         else {
             $accountButtons = "
@@ -259,6 +334,12 @@ class Functions {
         }
 
         // ======== Start of Program ========
+        # Checking if on employeePanel account page or not
+        if (!isset($_GET['page']) or $_GET['page'] != ConfigData::$employeePanelPages['account']) {
+            # Putting the logged in on false
+            $_SESSION['employeePasscodeLoggedIn'] = false;
+        }
+
         # Check if user is logged in or not
         if (!isset($_SESSION['loggedIn']) or !$_SESSION['loggedIn']) {
             # Check if on index
@@ -309,14 +390,19 @@ class Functions {
 
     # Global footer
     public static function htmlFooter(): void {
+        // ======== Start of Program ========
+        # Footer echo
         echo("
                 <div class='mt-5'></div>
                 </body>
             </html>
         ");
+
+        # Sessions
+        ob_end_flush();
     }
 
-    # ==== Accounts page ====
+    # == Accounts page ==
     # Account navbar
     public static function htmlAccountNavbar(): string {
         // ======== Declaring Variables ========
@@ -346,6 +432,250 @@ class Functions {
 
         return $string;
     }
+    public static function htmlEmployeeNavbar(): string {
+        // ======== Declaring Variables ========
+        # Strings
+        $currentPage = $_GET['page'] ?? '';
+
+        // ======== Start of Program ========
+        $string = "<div class='container-fluid'><div class='row'><div class='col-12 d-flex justify-content-center'>";
+
+        foreach(ConfigData::$employeeSettingLinks as $key => $value) {
+            // Check if logout
+            if ($key == 'logout') {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php?page=logout' class='buttonUserSettings textLogout btn me-2'><p class='mb-0'>$value</p></a>";
+                continue;
+            }
+
+            // Check if current page
+            if ($key == $currentPage or ($key == 'account' and $currentPage == '')) {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php?page=$key' class='buttonUserSettings buttonUserSettingsActive btn me-2'>$value</a>";
+            }
+            else {
+                $string .= "<a href='".self::dynamicPathFromIndex()."files/php/pages/employeePanel.php?page=$key' class='buttonUserSettings btn me-2'>$value</a>";
+            }
+        }
+
+        $string .= "</div></div></div>";
+
+        return $string;
+    }
+
+    # == Dishes ==
+    # Adding or changing dishes
+    public static function htmlAddOrChangeDishes($strTitle, $strTableName=''): string {
+        // ==== Declaring Variables ====
+        # == Dynamic variables ==
+        if (!empty($strTableName)) {
+            # == Strings ==
+            # SQL
+            $getDishSQL = "SELECT * FROM $strTableName WHERE ".ConfigData::$dbKeys['dishes']['id']." = ?;";
+            $getDishDefaultToppingsSQL = "SELECT ".ConfigData::$dbKeys['defaultToppingRelations']['toppingID']." FROM ".ConfigData::$dbTables['defaultToppingRelations']." WHERE ".ConfigData::$dbKeys['defaultToppingRelations']['dishID']." = ?;";
+            $getDishMedia = "SELECT ".ConfigData::$dbKeys['media']['fileFolderName'].", ".ConfigData::$dbKeys['media']['fileName']." FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['id']." = ?;";
+
+            # == Arrays ==
+            $arrDish = PizzariaSopranosDB::pdoSqlReturnArray($getDishSQL, [$_GET['idDish']])[0];
+            $arrDefaultToppingsIds = PizzariaSopranosDB::pdoSqlReturnArray($getDishDefaultToppingsSQL, [$_GET['idDish']]);
+            # Making the array with the default toppings
+            $arrDefaultToppingsIds = array_column($arrDefaultToppingsIds, ConfigData::$dbKeys['defaultToppingRelations']['toppingID']);
+
+            $arrMediaInfo = PizzariaSopranosDB::pdoSqlReturnArray($getDishMedia, [$arrDish[ConfigData::$dbKeys['dishes']['id']]])[0];
+
+            # == Strings ==
+            # Dish information
+            $dishID = $arrDish[ConfigData::$dbKeys['dishes']['id']];
+            $dishName = $arrDish[ConfigData::$dbKeys['dishes']['name']];
+            $dishPrice = $arrDish[ConfigData::$dbKeys['dishes']['price']];
+            $dishDiscountPercentage = $arrDish[ConfigData::$dbKeys['dishes']['discountPercentage']];
+            $dishSpicyRating = $arrDish[ConfigData::$dbKeys['dishes']['ratingSpicy']];
+            $dishMediaFileName = $arrMediaInfo[ConfigData::$dbKeys['media']['fileName']];
+            $dishMediaFilePath = Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath.$arrMediaInfo[ConfigData::$dbKeys['media']['fileFolderName']].'/'.$dishMediaFileName;
+
+            # == HTML ==
+            # Image HTML
+            $htmlImagePreview = "<img class='mb-3' width='400px' id='idImgPreview' src='$dishMediaFilePath' alt='Preview' style='display: block;'/>";
+            # Required HTML
+            $htmlRequired = '';
+        }
+        else {
+            # == Strings ==
+            # Dish information
+            $dishID = '';
+            $dishName = '';
+            $dishPrice = '';
+            $dishDiscountPercentage = '';
+            $dishSpicyRating = '';
+            $dishMediaFileName = '';
+            $dishMediaFilePath = '';
+
+            # == Arrays ==
+            $arrDefaultToppingsIds = [];
+
+            # == HTML ==
+            # Image HTML
+            $htmlImagePreview = "<img class='mb-3' width='400px' id='idImgPreview' src='' alt='Preview' style='display: none;'/>";
+            # Required HTML
+            $htmlRequired = 'required';
+        }
+
+        # == Strings ==
+        # HTML
+        $returnHTML = '';
+
+        # SQL
+        $getAllToppingsSQL = "SELECT * FROM ".ConfigData::$dbTables['toppings'].";";
+
+        # == Arrays ==
+        # Toppings
+        $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray($getAllToppingsSQL);
+
+        # == HTML ==
+        # Default topping selector
+        $selectDefaultToppingsHTML = "<div class='mb-3'> <h5>Standaard toppings</h5>";
+        foreach ($arrToppings as $topping) {
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # Topping information
+            $toppingID = $topping[ConfigData::$dbKeys['toppings']['id']];
+            $toppingName = $topping[ConfigData::$dbKeys['toppings']['name']];
+            $toppingPrice = $topping[ConfigData::$dbKeys['toppings']['price']];
+
+            # HTML
+            $htmlToppingSelected = in_array($toppingID, $arrDefaultToppingsIds) ? 'checked' : '';
+
+            // ==== Start of Loop ====
+            $selectDefaultToppingsHTML .= "
+                <input type='checkbox' class='form-check-input' name='defaultToppings[$toppingID]' id='idDefaultToppings$toppingID' value='$toppingID' $htmlToppingSelected>
+                <label class='form-check-label' for='idDefaultToppings$toppingID'>$toppingName</label> <br/>
+            ";
+        }
+        $selectDefaultToppingsHTML .= "</div>";
+
+        // ==== Start of Case ====
+        # Making the form to add an item
+        $returnHTML .= "
+        <div class='container p-0'>
+            <div class='row justify-content-center'>
+                <div class='col-7 mb-4'>
+                    <h4>$strTitle</h4>
+                </div>
+                <div class='col-7'>
+                <form method='POST' enctype='multipart/form-data'>
+                    <!-- Dish Name -->
+                    <label for='idName' class='form-label'>Item naam</label>
+                    <input type='text' class='form-control mb-3' name='nameName' id='idName' value='$dishName' required>
+                    
+                    <!-- Dish Price -->
+                    <label for='idPrice' class='form-label'>Prijs</label>
+                    <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='namePrice' id='idPrice' value='$dishPrice' required>
+                    
+                    <!-- Discount in percentage -->
+                    <div class='container p-0'>
+                        <div class='row'>
+                            <div class='col-6'>
+                                <label for='idDiscountPercentage' class='form-label'>Korting in %</label>
+                                <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='nameDiscountPercentage' id='idDiscountPercentage' value='$dishDiscountPercentage' required>
+                            </div>
+                            <div class='col-6'>
+                                <label for='idDiscountPrice' class='form-label'>Korting in €</label>
+                                <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='nameDiscountPrice' id='idDiscountPrice' $htmlRequired>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Spicy rating (1-5) -->
+                    <label for='idSpicyRating' class='form-label'>Pittigheid (1-5)</label><br/>
+                    <span id='idSpicyValue'></span>
+                    <input type='range' class='form-range mb-3' name='nameSpicyRating' id='idSpicyRating' min='1' max='5' value='$dishSpicyRating' required>
+                    
+                    <!-- Media picker (Hoofdfoto) -->
+                    <label for='idMainMedia' class='form-label'>Hoofdfoto</label>
+                    <input type='file' class='form-control mb-3' name='nameMainMedia' id='idMainMedia' $htmlRequired>
+                    
+                    <!-- Hidden field to store the current media file name -->
+                    <input type='hidden' name='currentMediaFileName' value='$dishMediaFileName'>
+                    
+                    <!-- Image element for preview -->
+                    $htmlImagePreview
+                    
+                    <!-- Selecting the default toppings for the dish -->
+                    $selectDefaultToppingsHTML
+                    
+                    <!-- Submit button -->
+                    <button class='btn btn-primary w-100'>Toevoegen</button>
+                </form>
+                </div>
+            </div>
+        </div>
+        ";
+
+        # Scripts
+        $returnHTML .= "<script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>";
+
+        # Return the HTML
+        return $returnHTML;
+    }
+
+    # == Toppings ==
+    public static function htmlAddOrChangeToppings($strTitle, $strTableName=''): string
+    {
+        // ==== Declaring Variables ====
+        # == Dynamic variables ==
+        if (!empty($strTableName)) {
+            # == Strings ==
+            # SQL
+            $getToppingSQL = "SELECT * FROM $strTableName WHERE " . ConfigData::$dbKeys['toppings']['id'] . " = ?;";
+
+            # == Arrays ==
+            $arrTopping = PizzariaSopranosDB::pdoSqlReturnArray($getToppingSQL, [$_GET['idTopping']])[0];
+
+            # == Strings ==
+            # Topping information
+            $toppingID = $arrTopping[ConfigData::$dbKeys['toppings']['id']];
+            $toppingName = $arrTopping[ConfigData::$dbKeys['toppings']['name']];
+            $toppingPrice = $arrTopping[ConfigData::$dbKeys['toppings']['price']];
+        }
+        else {
+            # == Strings ==
+            # Topping information
+            $toppingID = '';
+            $toppingName = '';
+            $toppingPrice = '';
+        }
+
+        # == Strings ==
+        # HTML
+        $returnHTML = '';
+
+        # == HTML ==
+        # Making the form to add an item
+        $returnHTML .= "
+        <div class='container p-0'>
+            <div class='row justify-content-center'>
+                <div class='col-7 mb-4'>
+                    <h4>$strTitle</h4>
+                </div>
+                <div class='col-7'>
+                <form method='POST'>
+                    <!-- Topping Name -->
+                    <label for='idName' class='form-label'>Topping naam</label>
+                    <input type='text' class='form-control mb-3' name='nameName' id='idName' value='$toppingName' required>
+                    
+                    <!-- Topping Price -->
+                    <label for='idPrice' class='form-label'>Prijs</label>
+                    <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='namePrice' id='idPrice' value='$toppingPrice' required>
+                    
+                    <!-- Submit button -->
+                    <button class='btn btn-primary w-100'>Toevogen</button>
+                </form>
+                </div>
+            </div>
+        </div>
+        ";
+
+        # Return the HTML
+        return $returnHTML;
+    }
 
     # == Addresses ==
     # Showing addresses
@@ -359,7 +689,7 @@ class Functions {
                         <p class='m-0 ms-1'>Nog niet ingevuld</p>
                     </div>
                     <div class='col-6 d-flex flex-column align-items-end'>
-                        <a class='text-decoration-none' href='".Functions::dynamicPathFromIndex()."/files/php/pages/userSettings.php?page=createFAddress'>
+                        <a class='text-decoration-none' href='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=createFAddress'>
                             <button class='btn btn-outline-danger'>Aanmaken</button>
                         </a>
                     </div>
@@ -465,31 +795,40 @@ class Functions {
         }
     }
 
-    # Changing addresses
-    public static function htmlChangeAddress($strTableName, $strTitle): string
-    {
+    # Adding or changing addresses
+    public static function htmlAddOrChangeAddress($strTitle, $strTableName=''): string {
         // ======== Declaring Variables ========
-        # ==== Ints ====
-        $intID = $_GET['idAddress'] ?? 0;
+        if (!empty($strTableName)) {
+            # ==== Ints ====
+            $intID = $_GET['idAddress'] ?? 0;
 
-        # ==== Arrays ====
-        # API
-        $neededAddressData = [
-            'userID' => $_SESSION['userID'],
-            $strTableName => $intID
-        ];
-        $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/getAddress', ConfigData::$userAPIAccessToken, $neededAddressData);
+            # ==== Arrays ====
+            # API
+            $neededAddressData = [
+                'userID' => $_SESSION['userID'],
+                $strTableName => $intID
+            ];
+            $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/getAddress', ConfigData::$userAPIAccessToken, $neededAddressData);
 
-        # Address
-        $arrAddress = $arrAPIReturn[1]['data'][0];
+            # Address
+            $arrAddress = $arrAPIReturn[1]['data'][0];
 
-        # ==== Strings ====
-        # Static
-        $strStreetName = $arrAddress['streetName'];
-        $strHouseNumber = $arrAddress['houseNumber'];
-        $strHouseNumberAddition = $arrAddress['houseNumberAddition'];
-        $strPostalCode = $arrAddress['postalCode'];
-        $strCity = $arrAddress['city'];
+            # ==== Strings ====
+            # Static
+            $strStreetName = $arrAddress['streetName'];
+            $strHouseNumber = $arrAddress['houseNumber'];
+            $strHouseNumberAddition = $arrAddress['houseNumberAddition'];
+            $strPostalCode = $arrAddress['postalCode'];
+            $strCity = $arrAddress['city'];
+        }
+        else {
+            $intID = 0;
+            $strStreetName = '';
+            $strHouseNumber = '';
+            $strHouseNumberAddition = '';
+            $strPostalCode = '';
+            $strCity = '';
+        }
 
         // ======== Start of Program ========
         return "
@@ -524,40 +863,5 @@ class Functions {
             </div>
         </div>                           
        ";
-    }
-
-
-    public static function htmlAddAddress($strTitle): string {
-        return "
-        <div class='container'>
-            <div class='row'>
-                <h4>$strTitle</h4>
-                <div class='container m-0 col-12 col-lg-11 col-md-11'>
-                    <form method='POST'>
-                        <div class='row'>
-                            <div class='col-12 col-lg-6 col-md-6'>
-                                <label for='nameStreetName'>Straatnaam: </label>
-                                <input class='form-control' type='text' id='idStreetName' name='nameStreetName' placeholder='Straatnaam'>
-                                <br/>
-                                <label for='nameHouseNumber'>Huisnummer: </label>
-                                <input class='form-control' type='text' id='idHouseNumber' name='nameHouseNumber' placeholder='Huisnummer'>
-                                <br/>
-                                <label for='nameHouseNumberAddition'>Huisnummer toevoeging: </label>
-                                <input class='form-control' type='text' id='idHouseNumberAddition' name='nameHouseNumberAddition' placeholder='Huisnummer toevoeging'>
-                                <br/>
-                                <label for='namePostalCode'>Postcode: </label>
-                                <input class='form-control' type='text' id='idPostalCode' name='namePostalCode' placeholder='Postcode'>
-                                <br/>
-                                <label for='nameCity'>Plaats: </label>
-                                <input class='form-control' type='text' id='idCity' name='nameCity' placeholder='Plaats'>
-                                <br/>
-                                <input class='btn btn-outline-danger' type='submit' value='Aanmaken'>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        ";
     }
 }

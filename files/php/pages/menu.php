@@ -15,14 +15,95 @@ ob_start();
 Functions::htmlHeader(320);
 //sql statement for menu1 
 $result = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableDishes");
+if (isset($_GET['checkout'])) {
+    if($_GET['checkout'] == 'true' && !empty($_SESSION['cart'])){
+        //bootstrap 
+        echo("<div class='container'>
+        <div class='row justify-content-center'>
+            <div class='col-10   border border-dark rounded'>
+                <div class='container-fluid mt-4'>
+                    <div class='row'>
+                        <div class='col-12 row justify-content-center' id='targetDiv'>");
+                        for ($i = 0; $i <= count($_SESSION['cart']) - 1; $i++) {
+                            // set pizza name in cart
+                            echo("
+                                <div class='list-group-item'>
+                                    <p class='mb-1 ' >" . $_SESSION['cart'][$i]['Pizza'] . " - " . $_SESSION['cart'][$i]['Size'] . "</p>
+                            ");
+                            
+                            // set Dish total per pizza
+                            echo("
+                                <p class='mb-1'>Pizza Price: €{$_SESSION['cart'][$i]['DishTotal']}</p>
+                                <form method='post' class='form-inline'>
+                                    <button type='submit' class='btn btn-primary' name='update'>Wijzigen</button>
+                                    <button type='submit' class='btn btn-danger' name='delete'>Verwijderen</button>
+                                    <input type='hidden' name='arrayKey' value='$i'>
+                                </form>
+                            ");
+                        }
+                        
+                        // print full price
+                        echo("
+                            <p>Total Price: €" . $_SESSION['total'] . "</p>
+                            </div>
+                            </div>
+                            <div class='d-grid gap-2 col-12 mx-auto'>
+                                <form method='post' class='w-100'>
+                                <div class='row'>
+                                    <div class='col-6'>
+                                        <button type='submut' class='btn btn-outline-danger w-100' name='goBack'>Ga Terug</button>
+                                    </div>
+                                    <div class='col-6'>
+                                        <button type='submit' class='btn btn-outline-success w-100' name='finalizeOrder'>Betalen</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        ");
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-if (!isset($_GET['pizzaID'])) {
-    
+            if(isset($_POST['finalizeOrder'])){
+                header("Location: ./order.php");
+            }
+        
+            //delete key from array and update total correspondingly 
+            if(isset($_POST['delete'])){
+                if(isset($_POST['arrayKey'])){
+                    $_SESSION['total'] -= $_SESSION['cart'][$_POST['arrayKey']]['DishTotal'];
+                    //delete the array key
+                    unset($_SESSION['cart'][$_POST['arrayKey']]);
+                    // reorder the array keys so they start at 0
+                    $_SESSION['cart'] = array_values($_SESSION['cart']);
+                    header("Refresh:0");
+                }
+            }
+            //Go to the update page
+            if(isset($_POST['update'])){
+                if(isset($_POST['arrayKey'])){
+                    header("Location: ./menu.php?pizzaID=".$_SESSION['cart'][$_POST['arrayKey']]['Id']."&arrayKey=".$_POST['arrayKey']."&changeCheckout=true");
+                }
+            }
+            //go back to previous page
+            if(isset($_POST['goBack'])){
+                header("Location: ./menu.php");
+            }
+            
+        }
+    }else{
+        header("Location: menu.php");
+    }
+}
+else if (!isset($_GET['pizzaID'])) {
+
     //Bootstrap boiler
     echo("
         <div class='container-fluid'>
         <div class='row'>
-        <div class='col-8'>   
+        <div class='col-8' id='targetDiv'>   
         <form method='post'>
         <div class='row'>
     ");
@@ -30,7 +111,7 @@ if (!isset($_GET['pizzaID'])) {
     //Generate the data from the database to show all pizza's
     foreach ($result as $row) {
         echo ("
-            <div class='col-4 col '>
+            <div class='col-4 col'>
                     <img src='" . Functions::dynamicPathFromIndex() . "/files/images/pizza.png' class='img-thumbnail' alt='Pizza Image' style='max-width: 100%; height: auto;'>
                     <br/><label>" . $row['name'] . "</label>
                     <input type='submit' name='menu" . $row['dishID'] . "' value='Bestellen'>
@@ -46,7 +127,7 @@ if (!isset($_GET['pizzaID'])) {
         </div>
     ");
 
-    //Porcess pizza submit button
+    //Process pizza submit button
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         foreach ($result as $row) {
             if (isset($_POST['menu' . $row['dishID']])) {
@@ -64,51 +145,23 @@ if (!isset($_GET['pizzaID'])) {
         
     }else{
         //start cart bootstrap
-        echo("<div class='col-4'>");
-        for ($i = 0; $i <= count($_SESSION['cart']) - 1; $i++) {
-
-            //set pizza name in cart
-            echo("
-                <div class='list-group-item'>
-                <p class='mb-1'>" . $_SESSION['cart'][$i]['Pizza'] . " - " . $_SESSION['cart'][$i]['Size'] . "</p>
-            ");
-        
-            //set Dishtotal per pizza
-            echo("
-                <p class='mb-1'>Pizza Price: €" . $_SESSION['cart'][$i]['DishTotal'] . "</p>
-                <form method='post' class='form-inline'>
-                    <button type='submit' class='btn  mr-1' name='update'>Wijzigen</button>
-                    <button type='submit' class='btn ' name='delete'>Verwijderen</button>
-                    <input type='hidden' name='arrayKey' value='" . $i . "'>
-                </form>
-            ");
-        }
-        //print full price
         echo("
-            <p>Total Price: €" . $_SESSION['total'] . "</p>
+        <div class='col-4 ' id='triggerDiv'>
+            <div class=' d-sm-block' >
+                <form method='post' class='w-100'>
+                    <button type='submit' class='btn btn-outline-success w-100'  name='finalizeOrder'>Winkelwagen</button>
+                </form>
             </div>
+        </div>
         ");
         
-       //Exit bootstrap
-        echo("</div></div>");
-
-        //delete key from array and update total correspondingly 
-        if(isset($_POST['delete'])){
-            if(isset($_POST['arrayKey'])){
-                $_SESSION['total'] -= $_SESSION['cart'][$_POST['arrayKey']]['DishTotal'];
-                //delete the array key
-                unset($_SESSION['cart'][$_POST['arrayKey']]);
-                //order the array keys so they start at 0
-                $_SESSION['cart'] = array_values($_SESSION['cart']);
-                header("Refresh:0");
+        //check if a post request is made
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            if(isset($_POST['finalizeOrder'])){
+                header("Location: ./menu.php?checkout=true");
             }
         }
-        //Go to the update page
-        if(isset($_POST['update'])){
-            if(isset($_POST['arrayKey'])){
-                header("Location: ./menu.php?pizzaID=".$_SESSION['cart'][$_POST['arrayKey']]['Id']."&arrayKey=".$_POST['arrayKey']."");
-            }
-        }
+        
     }
 
     $_SESSION['boolPreventHeader'] = true;
@@ -164,7 +217,7 @@ if (!isset($_GET['pizzaID'])) {
                 <p>Ingredients</p>
                 <table>
                 <tbody id='tbody'>");
-    
+        
         for ($i = 0; $i < count($_SESSION['cart'][$_GET['arrayKey']]['Toppings']); $i++) {
             echo ("
                 <tr>
@@ -400,8 +453,11 @@ if (!isset($_GET['pizzaID'])) {
                 "Toppings" => $toppingData
             );
         }
-        
-        header("Location: menu.php");
+        if(isset($_GET['changeCheckout']) && $_GET['changeCheckout'] == 'true'){
+            header("Location: menu.php?checkout=true");
+        }else{
+            header("Location: menu.php");
+        }
     }
 }
 
@@ -541,4 +597,37 @@ ob_end_flush();
     function updateHidden(){
         document.getElementById("money").value = parseFloat(total).toFixed(2); 
     }
+
+    
+</script>
+<script>
+    function updateClasses() {
+      var triggerDiv = document.getElementById('triggerDiv');
+      var targetDiv = document.getElementById('targetDiv');
+
+      // Check if the window width is greater than or equal to a specific size (e.g., 576 pixels)
+      if (window.matchMedia('(min-width: 576px)').matches) {
+        // Change the class of the target div to col-12
+        targetDiv.classList.remove('col-12');
+        targetDiv.classList.add('col-8');
+        triggerDiv.classList.add('col-4');
+        triggerDiv.classList.remove('col-md-6');
+        triggerDiv.classList.remove('offset-md-3');
+        
+        
+      } else {
+        // Change the class of the target div to col-8
+        targetDiv.classList.remove('col-8');
+        targetDiv.classList.add('col-12');
+        triggerDiv.classList.remove('col-4');
+        triggerDiv.classList.add('col-md-6');
+        triggerDiv.classList.add('offset-md-3');
+      }
+    }
+
+    // Initial call to set classes based on window size on page load
+    updateClasses();
+
+    // Add an event listener for window resize
+    window.addEventListener('resize', updateClasses);
 </script>

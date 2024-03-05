@@ -274,7 +274,6 @@ switch ($currentPage) {
             # Adresses
             $arrBillingAddresses = $arrAPIReturn[1]['data']['billingAddresses'];
             $arrAddresses = $arrAPIReturn[1]['data']['addresses'];
-
             # HTML
             $htmlBillingAddresses = Functions::htmlShowBillingAddresses($arrBillingAddresses);
             $htmlAddresses = Functions::htmlShowAddresses($arrAddresses);
@@ -330,6 +329,82 @@ switch ($currentPage) {
         $mainPage = Functions::htmlChangeAddress(ConfigData::$dbTables['billingAddresses'] ,'Factuuradres wijzigen');
         break;
     case 'orders':
+        // ==== Start of switch case ====
+        //declair vars
+        $mainPage = '';
+        $tableOrders = 'orders';
+        $tableOrderDishes = 'orderDishes';
+        $tableAddresses = 'addresses';
+
+        if(!isset($_GET['orderID'])){
+            // Get data from db
+            $query = "SELECT orders.*, addresses.* 
+            FROM $tableOrders AS orders 
+            JOIN $tableAddresses AS addresses ON orders.addressID = addresses.addressID 
+            WHERE orders.userID = {$_SESSION['userID']} AND addresses.userID = {$_SESSION['userID']}
+            ORDER BY orders.dateOrdered DESC";
+
+            $result = PizzariaSopranosDB::pdoSqlReturnArray($query);
+            foreach($result as $row){
+                $checkOrder = '';
+                if($row['orderStatus'] == true){
+                    $checkOrder = "<div class='green row'>";
+                }else{
+                    $checkOrder = "<div class='row'>";
+                }
+
+                //set the main page
+                $mainPage .= "<hr/>
+                <a href='./userSettings.php?page=orders&orderID={$row['orderID']}' class='link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' > 
+                $checkOrder
+                    <div class='col-3'>
+                    </div>
+                    <div class='col-9'> 
+                    
+                    <h4>Soprano's</h4>
+                    <p>{$row['dateOrdered']}</p>
+                    <p> 
+                    bezorgt naar {$row['streetName']} {$row['houseNumber']}, <br/>
+                    {$row['city']} {$row['postalCode']} 
+                    </p>
+                    <p> </p>
+                    </div>
+                </div>
+                </a>
+                ";
+            }
+        }else{
+            //Get data from db
+
+            $query = "SELECT orderDishes.*, dishes.name
+            FROM $tableOrderDishes AS orderDishes 
+            JOIN dishes ON orderDishes.dishID = dishes.dishID 
+            WHERE orderDishes.orderID = {$_GET['orderID']}";
+            $resultOrdersDishes = PizzariaSopranosDB::pdoSqlReturnArray($query);
+            // Rest of the code for processing the resultOrdersDishes
+
+            $mainPage .= 
+            "<div class='row'>
+                <div class='col-12 offset-md-2'> 
+                    <h4>
+
+                    <h5>{$resultOrdersDishes[0]['name']}</h5>
+                    <p> 
+                    {$resultOrdersDishes[0]['toppings']}
+                    </p>
+                    <p> </p>
+                    <a href='./userSettings.php?page=orders'><button class='btn btn-primary' >Terug </button>
+                </div>
+                
+            </div>";
+        
+        }
+                
+
+                
+            
+            
+            
         break;
     default:
         // ==== Declaring Variables ====

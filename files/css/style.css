@@ -12,8 +12,10 @@ body {
 /* ==== PC ==== */
 @media (min-width: 750px) {
     .buttonIndex {
-        width: 200px;  /* adjust as needed */
-        height: 100px; /* adjust as needed */
+        width: 200px;
+        /* adjust as needed */
+        height: 100px;
+        /* adjust as needed */
     }
 }
 
@@ -28,6 +30,7 @@ body {
     /* ==== Spacing ==== */
     padding: 6px;
 }
+
 .buttonIndexSubmit p {
     /* ==== Coloring ==== */
     color: white;
@@ -37,6 +40,7 @@ body {
     font-weight: bolder;
 
 }
+
 .buttonIndexSubmit:hover {
     background-color: #E73126;
     box-shadow: 0px 10px 10px rgb(190, 53, 67);
@@ -56,6 +60,7 @@ body {
     /* ==== Spacing ==== */
     padding: 12px;
 }
+
 .buttonIndex:hover {
     /* ==== Styling ==== */
     border: black 1px solid;
@@ -69,14 +74,13 @@ body {
     background-color: #4CAF50;
     color: white;
 }
+
 .buttonIndexActive:hover {
     background-color: #4CAF50;
     color: white;
 }
 
-.divTextIndexFields {
-
-}
+.divTextIndexFields {}
 
 /* ============ userSettings page ============ */
 /* ==== Global ==== */
@@ -107,6 +111,7 @@ body {
     justify-content: center;
     padding: 12px;
 }
+
 .buttonUserSettings:hover {
     /* ==== Coloring ==== */
     background-color: #b6d7a8;
@@ -121,6 +126,7 @@ body {
     /* ==== Sizing ==== */
     font-size: calc(50% + 0.5vw + 0.5vh);
 }
+
 .textLogout:hover {
     /* ==== Coloring ==== */
     color: #DA4856;
@@ -129,6 +135,11 @@ body {
 
 .buttonUserSettingsActive {
     background-color: #b6d7a8;
+}
+
+.green {
+    background-color: #b6d7a8;
+
 }
 
 .addressText {
@@ -142,6 +153,7 @@ body {
     /* Coloring */
     color: #a8989c;
 }
+
 .pRegisterText {
     /* Coloring & Decoration*/
     color: red;

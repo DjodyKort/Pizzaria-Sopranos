@@ -53,6 +53,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             break;
+        case ConfigData::$employeePanelPages['toppings']:
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # POST
+            $_POST['deleteToppingID'] = $_POST['deleteToppingID'] ?? '';
+
+            # API
+            $arrPushedToppingData = [
+                'roleID' => $_SESSION['role'],
+                ConfigData::$dbKeys[ConfigData::$dbTables['toppings']]['id'] => $_POST['deleteToppingID'],
+            ];
+
+            // ==== Start of Case ====
+            # Processing the POST request
+            $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/deleteTopping', ConfigData::$userAPIAccessToken, $arrPushedToppingData);
+            if ($arrAPIReturn[0] != 200) {
+                Functions::echoByStatusCode($arrAPIReturn[0]);
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['toppings']."");
+            }
+            else {
+                # Header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is verwijderd!</div>";
+
+                # Redirecting to the menu page
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['toppings']."");
+            }
+            break;
 
         # Form pages (adding the data)
         case ConfigData::$employeePanelPages['additem']:
@@ -116,6 +143,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 # Redirecting to the menu page
                 header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+            }
+            break;
+        case ConfigData::$employeePanelPages['addtopping']:
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # ConfigData strings
+            $employeeID = ConfigData::$dbKeys['employeeUsers']['id'];
+            $roleID = ConfigData::$dbKeys['employeeUsers']['roleID'];
+            $strTableName = ConfigData::$dbTables['toppings'];
+
+            # POST
+            $_POST['nameName'] = $_POST['nameName'] ?? '';
+            $_POST['namePrice'] = $_POST['namePrice'] ?? '';
+
+            # == Arrays ==
+            $arrPushedToppingData = [
+                $employeeID => $_SESSION[$employeeID],
+                $roleID => $_SESSION['role'],
+                ConfigData::$dbTables['toppings'] => [
+                    ConfigData::$dbKeys[$strTableName]['name'] => $_POST['nameName'],
+                    ConfigData::$dbKeys[$strTableName]['price'] => $_POST['namePrice'],
+                ],
+            ];
+
+            // ==== Start of Case ====
+            # Processing the POST request
+            $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addTopping', ConfigData::$userAPIAccessToken, $arrPushedToppingData);
+            if ($arrAPIReturn[0] != 200) {
+                Functions::echoByStatusCode($arrAPIReturn[0]);
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['addtopping']."");
+            }
+            else {
+                # Header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is toegevoegd!</div>";
+
+                # Redirecting to the menu page
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['toppings']."");
             }
             break;
 
@@ -195,6 +259,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
             }
             break;
+        case ConfigData::$employeePanelPages['edittopping']:
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # ConfigData strings
+            $employeeID = ConfigData::$dbKeys['employeeUsers']['id'];
+            $roleID = ConfigData::$dbKeys['employeeUsers']['roleID'];
+            $strTableName = ConfigData::$dbTables['toppings'];
+
+            # POST
+            $_POST['nameName'] = $_POST['nameName'] ?? '';
+            $_POST['namePrice'] = $_POST['namePrice'] ?? '';
+
+            # == Arrays ==
+            $arrPushedToppingData = [
+                $employeeID => $_SESSION[$employeeID],
+                $roleID => $_SESSION['role'],
+                ConfigData::$dbTables['toppings'] => [
+                    ConfigData::$dbKeys[$strTableName]['id'] => $_GET['idTopping'],
+                    ConfigData::$dbKeys[$strTableName]['name'] => $_POST['nameName'],
+                    ConfigData::$dbKeys[$strTableName]['price'] => $_POST['namePrice'],
+                ],
+            ];
+
+            // ==== Start of Case ====
+            # Processing the POST request
+            $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/updateTopping', ConfigData::$userAPIAccessToken, $arrPushedToppingData);
+            if ($arrAPIReturn[0] != 200) {
+                Functions::echoByStatusCode($arrAPIReturn[0]);
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['edittopping']."&idTopping=".$_GET['idTopping']."");
+            }
+            else {
+                # Header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is aangepast!</div>";
+
+                # Redirecting to the menu page
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['toppings']."");
+            }
+            break;
 
         # Actual pages
         case ConfigData::$employeePanelPages['account']:
@@ -268,11 +370,19 @@ switch ($currentPage) {
         // ==== Start of Case ====
         $mainPage = Functions::htmlAddOrChangeDishes('Item toevoegen');
         break;
+    case ConfigData::$employeePanelPages['addtopping']:
+        // ==== Start of Case ====
+        $mainPage = Functions::htmlAddOrChangeToppings('Item toevoegen');
+        break;
 
     # Form pages (updating the data)
     case ConfigData::$employeePanelPages['edititem']:
         // ==== Start of Case ====
         $mainPage = Functions::htmlAddOrChangeDishes('Item aanpassen', ConfigData::$dbTables['dishes']);
+        break;
+    case ConfigData::$employeePanelPages['edittopping']:
+        // ==== Start of Case ====
+        $mainPage = Functions::htmlAddOrChangeToppings('Item aanpassen', ConfigData::$dbTables['toppings']);
         break;
 
     # Actual pages
@@ -300,7 +410,6 @@ switch ($currentPage) {
         ";
 
         // ==== Start of Case ====
-
         foreach ($dishes as $dish) {
             // ==== Declaring Variables ====
             # SQL (Dish media)
@@ -385,16 +494,23 @@ switch ($currentPage) {
         # == HTML ==
         # Add item button
         $mainPage = "
-        <button class='p-0 button buttonNoOutline d-flex'>
-            <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
-            <h4 class='m-0 ms-1 align-self-center'>Item toevoegen</h4>
-        </button>
+        <a class='text-decoration-none' href='./employeePanel.php?page=".ConfigData::$employeePanelPages['addtopping']."'>
+            <button class='p-0 button buttonNoOutline d-flex'>
+                <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
+                <h4 class='m-0 ms-1 align-self-center'>Item toevoegen</h4>
+            </button>
+        </a>
         <hr/>
         ";
 
         // ==== Start of Case ====
         # Just one big list without any images and the change / delete buttons
         foreach ($toppings as $topping) {
+            // ==== Declaring Variables ====
+            # == Ints ==
+            $toppingID = $topping[ConfigData::$dbKeys['toppings']['id']];
+
+            // ==== Start of Loop ====
             $mainPage .= "
             <div class='row mb-3'>
                 <div class='col-12 col-sm-6 col-md-4'>
@@ -405,8 +521,13 @@ switch ($currentPage) {
                 </div>
                 <div class='col-12 col-sm-12 col-md-6'>
                     <div class='d-flex justify-content-end'>
-                        <button class='btn btn-primary me-2'>Aanpassen</button>
-                        <button class='btn btn-danger'>Verwijderen</button>
+                        <a href='./employeePanel.php?page=".ConfigData::$employeePanelPages['edittopping']."&idTopping=$toppingID'>
+                            <button class='btn btn-primary me-2'>Aanpassen</button>
+                        </a>
+                        <form method='POST'>
+                            <input type='hidden' name='deleteToppingID' value='$toppingID'>
+                            <button class='btn btn-danger'>Verwijderen</button>
+                        </form>
                     </div>
                 </div>
             </div>

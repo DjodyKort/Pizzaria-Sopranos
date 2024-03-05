@@ -462,7 +462,7 @@ class Functions {
     }
 
     # == Dishes ==
-    # Changing dishes
+    # Adding or changing dishes
     public static function htmlAddOrChangeDishes($strTitle, $strTableName=''): string {
         // ==== Declaring Variables ====
         # == Dynamic variables ==
@@ -611,6 +611,67 @@ class Functions {
 
         # Scripts
         $returnHTML .= "<script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>";
+
+        # Return the HTML
+        return $returnHTML;
+    }
+
+    # == Toppings ==
+    public static function htmlAddOrChangeToppings($strTitle, $strTableName=''): string
+    {
+        // ==== Declaring Variables ====
+        # == Dynamic variables ==
+        if (!empty($strTableName)) {
+            # == Strings ==
+            # SQL
+            $getToppingSQL = "SELECT * FROM $strTableName WHERE " . ConfigData::$dbKeys['toppings']['id'] . " = ?;";
+
+            # == Arrays ==
+            $arrTopping = PizzariaSopranosDB::pdoSqlReturnArray($getToppingSQL, [$_GET['idTopping']])[0];
+
+            # == Strings ==
+            # Topping information
+            $toppingID = $arrTopping[ConfigData::$dbKeys['toppings']['id']];
+            $toppingName = $arrTopping[ConfigData::$dbKeys['toppings']['name']];
+            $toppingPrice = $arrTopping[ConfigData::$dbKeys['toppings']['price']];
+        }
+        else {
+            # == Strings ==
+            # Topping information
+            $toppingID = '';
+            $toppingName = '';
+            $toppingPrice = '';
+        }
+
+        # == Strings ==
+        # HTML
+        $returnHTML = '';
+
+        # == HTML ==
+        # Making the form to add an item
+        $returnHTML .= "
+        <div class='container p-0'>
+            <div class='row justify-content-center'>
+                <div class='col-7 mb-4'>
+                    <h4>$strTitle</h4>
+                </div>
+                <div class='col-7'>
+                <form method='POST'>
+                    <!-- Topping Name -->
+                    <label for='idName' class='form-label'>Topping naam</label>
+                    <input type='text' class='form-control mb-3' name='nameName' id='idName' value='$toppingName' required>
+                    
+                    <!-- Topping Price -->
+                    <label for='idPrice' class='form-label'>Prijs</label>
+                    <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='namePrice' id='idPrice' value='$toppingPrice' required>
+                    
+                    <!-- Submit button -->
+                    <button class='btn btn-primary w-100'>Toevogen</button>
+                </form>
+                </div>
+            </div>
+        </div>
+        ";
 
         # Return the HTML
         return $returnHTML;

@@ -631,6 +631,69 @@ if (!empty($uri) && !empty($method)) {
                 }
 
                 break;
+            # Toppings
+            case '/addTopping':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $employeeID = filter_var($_POST['employeeID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['employeeID']);
+                    $roleID = filter_var($_POST['roleID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['roleID']);
+                    $strTableName = array_key_first($_POST);
+
+                    # == Arrays ==
+                    # Topping data
+                    $arrKeys = array_keys($_POST[$strTableName]);
+                    $arrToppingData = $_POST[$strTableName];
+
+                    # SQL
+                    $queryAddTopping = "INSERT INTO toppings (".implode(', ', $arrKeys).") VALUES (".implode(', ', array_fill(0, count($arrKeys), '?')).")";
+
+                    // ==== Start of Program ====
+                    # Check if the user's role is allowed to add toppings
+                    if (Functions::checkRolePermission($roleID, ConfigData::$employeeRoles['additem'])) {
+                        Functions::setHTTPResponseCode(409);
+                        Functions::returnJson([
+                            'error' => 'Role not allowed to add toppings'
+                        ]);
+                        exit();
+                    }
+                    else {
+                        try {
+                            # Insert the topping
+                            $toppingID = PizzariaSopranosDB::pdoSqlReturnLastID($queryAddTopping, array_values($arrToppingData));
+
+                            # Return API status
+                            Functions::setHTTPResponseCode(200);
+                            Functions::returnJson([
+                                'status' => 'success',
+                                'data' => [
+                                    'toppingID' => $toppingID,
+                                ]
+                            ]);
+                        }
+                        catch (Exception $e) {
+                            Functions::setHTTPResponseCode(403);
+                            Functions::returnJson([
+                                'error' => 'Something went wrong',
+                            ]);
+                            exit();
+                        }
+                    }
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
+
 
             // ==== Updating data ====
             # Users / Employees
@@ -779,7 +842,6 @@ if (!empty($uri) && !empty($method)) {
                     }
                 }
                 break;
-
             # Dishes
             case '/updateDish':
                 // ======== POST ========
@@ -866,8 +928,68 @@ if (!empty($uri) && !empty($method)) {
                     }
                 }
                 break;
+            # Toppings
+            case '/updateTopping':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $employeeID = filter_var($_POST['employeeID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['employeeID']);
+                    $roleID = filter_var($_POST['roleID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['roleID']);
+                    $strTableName = array_key_first($_POST);
+
+                    # == Arrays ==
+                    # Topping data
+                    $arrKeys = array_keys($_POST[$strTableName]);
+                    $arrToppingData = $_POST[$strTableName];
+
+                    # SQL
+                    $queryUpdateTopping = "UPDATE toppings SET ".implode(' = ?, ', $arrKeys)." = ? WHERE toppingID = ?";
+
+                    // ==== Start of Program ====
+                    # Check if the user's role is allowed to update toppings
+                    if (Functions::checkRolePermission($roleID, ConfigData::$employeeRoles['edititem'])) {
+                        Functions::setHTTPResponseCode(409);
+                        Functions::returnJson([
+                            'error' => 'Role not allowed to update toppings'
+                        ]);
+                        exit();
+                    }
+                    else {
+                        try {
+                            # Update the topping
+                            PizzariaSopranosDB::pdoSqlReturnTrue($queryUpdateTopping, array_merge(array_values($arrToppingData), [$arrToppingData[ConfigData::$dbKeys[$strTableName]['id']]]));
+
+                            # Return API status
+                            Functions::setHTTPResponseCode(200);
+                            Functions::returnJson([
+                                'status' => 'success',
+                            ]);
+                        }
+                        catch (Exception $e) {
+                            Functions::setHTTPResponseCode(403);
+                            Functions::returnJson([
+                                'error' => 'Something went wrong',
+                            ]);
+                            exit();
+                        }
+                    }
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
 
             // ==== Deleting data ====
+            # Addresses
             case '/deleteAddress':
                 // ======== POST ========
                 if ($method == 'POST') {
@@ -910,6 +1032,7 @@ if (!empty($uri) && !empty($method)) {
                     }
                 }
                 break;
+            # Dishes
             case '/deleteDish':
                 // ======== POST ========
                 if ($method == 'POST') {
@@ -939,6 +1062,59 @@ if (!empty($uri) && !empty($method)) {
                         try {
                             # Trying to delete the dish
                             PizzariaSopranosDB::pdoSqlReturnTrue($queryDeleteDish, [$dishID]);
+
+                            # Return API status
+                            Functions::setHTTPResponseCode(200);
+                            Functions::returnJson([
+                                'status' => 'success',
+                            ]);
+                        }
+                        catch (Exception $e) {
+                            Functions::setHTTPResponseCode(403);
+                            Functions::returnJson([
+                                'error' => 'Something went wrong'
+                            ]);
+                            exit();
+                        }
+                    }
+                }
+                else {
+                    Functions::setHTTPResponseCode(418);
+                    Functions::returnJson([
+                        'error' => 'Invalid method'
+                    ]);
+                }
+                break;
+            # Toppings
+            case '/deleteTopping':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $roleID = filter_var($_POST['roleID'], FILTER_SANITIZE_NUMBER_INT);
+                    $toppingID = filter_var($_POST[ConfigData::$dbKeys[ConfigData::$dbTables['toppings']]['id']], FILTER_SANITIZE_NUMBER_INT);
+
+                    # SQL
+                    $queryDeleteTopping = "DELETE FROM ".ConfigData::$dbTables['toppings']." WHERE toppingID = ?";
+
+                    // ==== Start of Program ====
+                    # Check if the user's role is allowed to delete toppings
+                    if (Functions::checkRolePermission($roleID, ConfigData::$employeeRoles['deleteitem'])) {
+                        Functions::setHTTPResponseCode(409);
+                        Functions::returnJson([
+                            'error' => 'Role not allowed to delete toppings'
+                        ]);
+                        exit();
+                    }
+                    else {
+                        try {
+                            # Trying to delete the topping
+                            PizzariaSopranosDB::pdoSqlReturnTrue($queryDeleteTopping, [$toppingID]);
 
                             # Return API status
                             Functions::setHTTPResponseCode(200);

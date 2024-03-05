@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             break;
 
-        # Form pages (updating the data)
+        # Form pages (adding the data)
         case ConfigData::$employeePanelPages['additem']:
             // ==== Declaring Variables ====
             # == Strings ==
@@ -67,16 +67,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST['nameName'] = $_POST['nameName'] ?? '';
             $_POST['namePrice'] = $_POST['namePrice'] ?? '';
             $_POST['nameDiscountPercentage'] = $_POST['nameDiscountPercentage'] ?? '';
-            $_POST['nameDiscountPrice'] = $_POST['nameDiscountPrice'] ?? '';
             $_POST['nameSpicyRating'] = $_POST['nameSpicyRating'] ?? '';
-
             $_POST['defaultToppings'] = $_POST['defaultToppings'] ?? '';
 
             # Media
             $tempPath = $_FILES['nameMainMedia']['tmp_name'];
             $filePath = Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath.$_POST['nameName'];
 
-            # Arrays
+            # == Arrays ==
             $arrPushedDishData = [
                 $employeeID => $_SESSION[$employeeID],
                 $roleID => $_SESSION['role'],
@@ -96,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ];
 
             // ==== Start of Case ====
-            # Processing the POST request and media via the api
+            # Processing the POST request
             $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addDish', ConfigData::$userAPIAccessToken, $arrPushedDishData);
 
             # Moving the file to the right folder
@@ -115,6 +113,83 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 # Header message
                 $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is toegevoegd!</div>";
+
+                # Redirecting to the menu page
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
+            }
+            break;
+
+        # Form pages (updating the data)
+        case ConfigData::$employeePanelPages['edititem']:
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # ConfigData strings
+            $employeeID = ConfigData::$dbKeys['employeeUsers']['id'];
+            $roleID = ConfigData::$dbKeys['employeeUsers']['roleID'];
+            $strTableName = ConfigData::$dbTables['dishes'];
+
+            # POST
+            $_POST['nameName'] = $_POST['nameName'] ?? '';
+            $_POST['namePrice'] = $_POST['namePrice'] ?? '';
+            $_POST['nameDiscountPercentage'] = $_POST['nameDiscountPercentage'] ?? '';
+            $_POST['nameSpicyRating'] = $_POST['nameSpicyRating'] ?? '';
+            $_POST['defaultToppings'] = $_POST['defaultToppings'] ?? '';
+
+            # Media
+            if (!empty($_POST['currentMediaFileName']) && !empty($_FILES['nameMainMedia']['name']) && $_POST['currentMediaFileName'] != $_FILES['nameMainMedia']['name']) {
+                $boolIsMediaUpdated = true;
+                $tempPath = $_FILES['nameMainMedia']['tmp_name'];
+                $filePath = Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath.$_POST['nameName'];
+            }
+            else {
+                $boolIsMediaUpdated = false;
+                $tempPath = '';
+                $filePath = '';
+            }
+
+            # == Arrays ==
+            $arrPushedDishData = [
+                $employeeID => $_SESSION[$employeeID],
+                $roleID => $_SESSION['role'],
+                ConfigData::$dbTables['defaultToppingRelations'] => $_POST['defaultToppings'],
+                ConfigData::$dbTables['dishes'] => [
+                    ConfigData::$dbKeys[$strTableName]['id'] => $_GET['idDish'],
+                    ConfigData::$dbKeys[$strTableName]['name'] => $_POST['nameName'],
+                    ConfigData::$dbKeys[$strTableName]['price'] => $_POST['namePrice'],
+                    ConfigData::$dbKeys[$strTableName]['discountPercentage'] => $_POST['nameDiscountPercentage'],
+                    ConfigData::$dbKeys[$strTableName]['ratingSpicy'] => $_POST['nameSpicyRating'],
+                ],
+                ConfigData::$dbTables['media'] => [
+                    # File info
+                    'isMediaUpdated' => $boolIsMediaUpdated,
+                    'fileFolderName' => $_POST['nameName'],
+                    'fileName' => $_FILES['nameMainMedia']['name'],
+                    'mediaGroup' => $_FILES['nameMainMedia']['type'],
+                ],
+            ];
+
+            // ==== Start of Case ====
+            # Processing the POST request
+            $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/updateDish', ConfigData::$userAPIAccessToken, $arrPushedDishData);
+
+            # Moving the file to the right folder if there is an update of media
+            if ($arrAPIReturn[0] != 200) {
+                Functions::echoByStatusCode($arrAPIReturn[0]);
+                header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['edititem']."&idDish=".$_GET['idDish']."");
+            }
+            else {
+                if ($boolIsMediaUpdated) {
+                    # Creating the folder if it doesn't exist
+                    if (!file_exists($filePath)) {
+                        mkdir($filePath, 0777, true);
+                    }
+
+                    # Moving the file
+                    move_uploaded_file($tempPath, $filePath.'/'.$_FILES['nameMainMedia']['name']);
+                }
+
+                # Header message
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Item is aangepast!</div>";
 
                 # Redirecting to the menu page
                 header("Location: ./employeePanel.php?page=".ConfigData::$employeePanelPages['menu']."");
@@ -188,92 +263,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 # Dynamic HTML
 $mainPage = '';
 switch ($currentPage) {
-    # Form pages (updating the data)
+    # Form pages (adding the data)
     case ConfigData::$employeePanelPages['additem']:
-        // ==== Declaring Variables ====
-        # == Strings ==
-        # SQL
-        $getAllToppingsSQL = "SELECT * FROM ".ConfigData::$dbTables['toppings'].";";
-
-        # == Arrays ==
-        # Toppings
-        $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray($getAllToppingsSQL);
-
-        # == HTML ==
-        # Default topping selector
-        $selectDefaultToppingsHTML = "<div class='mb-3'> <h5>Standaard toppings</h5>";
-        foreach ($arrToppings as $topping) {
-            // ==== Declaring Variables ====
-            $toppingID = $topping[ConfigData::$dbKeys['toppings']['id']];
-            $toppingName = $topping[ConfigData::$dbKeys['toppings']['name']];
-            $toppingPrice = $topping[ConfigData::$dbKeys['toppings']['price']];
-
-            // ==== Start of Loop ====
-            $selectDefaultToppingsHTML .= "
-                <input type='checkbox' class='form-check-input' name='defaultToppings[$toppingID]' id='idDefaultToppings$toppingID' value='$toppingID'>
-                <label class='form-check-label' for='idDefaultToppings$toppingID'>$toppingName</label> <br/>
-            ";
-        }
-        $selectDefaultToppingsHTML .= "</div>";
-
         // ==== Start of Case ====
-        # Making the form to add an item
-        $mainPage = "
-        <div class='container p-0'>
-            <div class='row justify-content-center'>
-                <div class='col-7 mb-4'>
-                    <h4>Item toevoegen</h4>
-                </div>
-                <div class='col-7'>
-                <form method='POST' enctype='multipart/form-data'>
-                    <!-- Dish Name -->
-                    <label for='idName' class='form-label'>Item naam</label>
-                    <input type='text' class='form-control mb-3' name='nameName' id='idName' required>
-                    
-                    <!-- Dish Price -->
-                    <label for='idPrice' class='form-label'>Prijs</label>
-                    <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='namePrice' id='idPrice' required>
-                    
-                    <!-- Discount in percentage -->
-                    <div class='container p-0'>
-                        <div class='row'>
-                            <div class='col-6'>
-                                <label for='idDiscountPercentage' class='form-label'>Korting in %</label>
-                                <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='nameDiscountPercentage' id='idDiscountPercentage' required>
-                            </div>
-                            <div class='col-6'>
-                                <label for='idDiscountPrice' class='form-label'>Korting in €</label>
-                                <input type='number' pattern='[0-9]+([\.,][0-9]+)?' step='0.01' class='form-control mb-3' name='nameDiscountPrice' id='idDiscountPrice' required>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Spicy rating (1-5) -->
-                    <label for='idSpicyRating' class='form-label'>Pittigheid (1-5)</label><br/>
-                    <span id='idSpicyValue'></span>
-                    <input type='range' class='form-range mb-3' name='nameSpicyRating' id='idSpicyRating' min='1' max='5' required>
-                    
-                    <!-- Media picker (Hoofdfoto) -->
-                    <label for='idMainMedia' class='form-label'>Hoofdfoto</label>
-                    <input type='file' class='form-control mb-3' name='nameMainMedia' id='idMainMedia' required>
-                    
-                    <!-- Image element for preview -->
-                    <img class='mb-3' id='idImgPreview' src='' alt='Preview' style='display: none;'/>
-                    
-                    <!-- Selecting the default toppings for the dish -->
-                    $selectDefaultToppingsHTML
-                    
-                    <!-- Submit button -->
-                    <button class='btn btn-primary w-100'>Toevoegen</button>
-                </form>
-                </div>
-            </div>
-        </div>
-        ";
+        $mainPage = Functions::htmlAddOrChangeDishes('Item toevoegen');
+        break;
 
-        # Scripts
-        $mainPage .= "<script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>";
-
+    # Form pages (updating the data)
+    case ConfigData::$employeePanelPages['edititem']:
+        // ==== Start of Case ====
+        $mainPage = Functions::htmlAddOrChangeDishes('Item aanpassen', ConfigData::$dbTables['dishes']);
         break;
 
     # Actual pages
@@ -348,7 +347,9 @@ switch ($currentPage) {
                         <p class='card-text'>€ ".$dish[ConfigData::$dbKeys['dishes']['price']]."</p>
                         $discountedPriceHTML
                         <div class='d-flex flex-wrap'>
-                            <button class='btn btn-primary me-2'>Aanpassen</button>
+                            <a href='./employeePanel.php?page=".ConfigData::$employeePanelPages['edititem']."&idDish=".$dish[ConfigData::$dbKeys['dishes']['id']]."'>
+                                <button class='btn btn-primary me-2'>Aanpassen</button>
+                            </a>
                             <form method='POST'>
                                 <input type='hidden' name='deleteDishID' value='".$dish[ConfigData::$dbKeys['dishes']['id']]."'>
                                 <input type='submit' class='btn btn-danger' value='Verwijderen'>

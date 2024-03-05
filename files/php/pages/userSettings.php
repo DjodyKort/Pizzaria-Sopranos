@@ -315,19 +315,19 @@ switch ($currentPage) {
         break;
     case 'createFAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddAddress('Factuuradres toevoegen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres toevoegen');
         break;
     case 'changeFAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlChangeAddress(ConfigData::$dbTables['addresses'] ,'Bezorgadres wijzigen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres wijzigen' ,ConfigData::$dbTables['addresses']);
         break;
     case 'createBAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddAddress('Bezorgadres toevoegen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres toevoegen');
         break;
     case 'changeBAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlChangeAddress(ConfigData::$dbTables['billingAddresses'] ,'Factuuradres wijzigen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres wijzigen', ConfigData::$dbTables['billingAddresses']);
         break;
     case 'orders':
         break;

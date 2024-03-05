@@ -780,6 +780,93 @@ if (!empty($uri) && !empty($method)) {
                 }
                 break;
 
+            # Dishes
+            case '/updateDish':
+                // ======== POST ========
+                if ($method == 'POST') {
+                    // ==== Checking access ====
+                    Functions::checkAccessToken($headers['Authorization']);
+                    Functions::checkPostData($_POST);
+
+                    // ==== Declaring Variables ====
+                    # == Strings ==
+                    # POST Variables
+                    $employeeID = filter_var($_POST['employeeID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['employeeID']);
+                    $roleID = filter_var($_POST['roleID'], FILTER_SANITIZE_NUMBER_INT); unset($_POST['roleID']);
+                    $defaultToppings = $_POST[ConfigData::$dbTables['defaultToppingRelations']]; unset($_POST[ConfigData::$dbTables['defaultToppingRelations']]);
+
+                    $strTableName = array_key_first($_POST);
+                    $strMediaTableName = array_key_last($_POST);
+
+                    # == Arrays ==
+                    # Configdata
+                    $arrMediaKeyNames = ConfigData::$dbKeys[$strMediaTableName];
+
+                    # Dish data
+                    $arrKeys = array_keys($_POST[$strTableName]);
+                    $arrDishData = $_POST[$strTableName];
+
+                    # Media data
+                    $arrMediaKeys = $_POST[$strMediaTableName];
+
+                    # SQL
+                    $queryUpdateDish = "UPDATE dishes SET ".implode(' = ?, ', $arrKeys)." = ? WHERE dishID = ?";
+                    $queryUpdateDishMedia = "UPDATE $strMediaTableName SET $arrMediaKeyNames[mediaStatus] = ?, $arrMediaKeyNames[mediaGroup] = ?, $arrMediaKeyNames[fileExtension] = ?, $arrMediaKeyNames[fileFolderName] = ?, $arrMediaKeyNames[fileName] = ?, $arrMediaKeyNames[mediaOrder] = ? WHERE $arrMediaKeyNames[dishID] = ?";
+
+                    // ==== Start of Program ====
+                    # Check if the user's role is allowed to update dishes
+                    if (Functions::checkRolePermission($roleID, ConfigData::$employeeRoles['edititem'])) {
+                        Functions::setHTTPResponseCode(409);
+                        Functions::returnJson([
+                            'error' => 'Role not allowed to update dishes'
+                        ]);
+                        exit();
+                    }
+                    else {
+                        try {
+                            // ==== Start of Loop ====
+                            # Update the dish
+                            PizzariaSopranosDB::pdoSqlReturnTrue($queryUpdateDish, array_merge(array_values($arrDishData), [$arrDishData[ConfigData::$dbKeys[$strTableName]['id']]]));
+
+                            # Update the media
+                            if ($arrMediaKeys['isMediaUpdated']) {
+                                PizzariaSopranosDB::pdoSqlReturnTrue($queryUpdateDishMedia, [1, $arrMediaKeys['mediaGroup'], $arrMediaKeys['fileExtension'], $arrMediaKeys['fileFolderName'], $arrMediaKeys['fileName'], 0, $arrDishData[ConfigData::$dbKeys[$strTableName]['id']]]);
+                            }
+
+                            # Delete the default topping relations and insert the new ones
+                            PizzariaSopranosDB::pdoSqlReturnTrue("DELETE FROM defaultToppingRelations WHERE dishID = ?", [$arrDishData[ConfigData::$dbKeys[$strTableName]['id']]]);
+                            foreach ($defaultToppings as $toppingID) {
+                                try {
+                                    PizzariaSopranosDB::pdoSqlReturnTrue("INSERT INTO defaultToppingRelations (dishID, toppingID) VALUES (?, ?)", [$arrDishData[ConfigData::$dbKeys[$strTableName]['id']], $toppingID]);
+                                }
+                                catch (Exception $e) {
+                                    Functions::setHTTPResponseCode(403);
+                                    Functions::returnJson([
+                                        'error' => 'Something went wrong',
+                                    ]);
+                                    exit();
+                                }
+                            }
+
+                            # Return API status
+                            Functions::setHTTPResponseCode(200);
+                            Functions::returnJson([
+                                'status' => 'success',
+                            ]);
+
+                        }
+                        catch (Exception $e) {
+                            Functions::setHTTPResponseCode(403);
+                            Functions::returnJson([
+                                'error' => 'Something went wrong',
+                                $e
+                            ]);
+                            exit();
+                        }
+                    }
+                }
+                break;
+
             // ==== Deleting data ====
             case '/deleteAddress':
                 // ======== POST ========

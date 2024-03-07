@@ -8,6 +8,7 @@ require_once('../classes.php');
 // ============ Start of Program ============
 # Header
 Functions::htmlHeader(300);
+Functions::toIndexIfLoggedIn();
 
 # POST Request
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

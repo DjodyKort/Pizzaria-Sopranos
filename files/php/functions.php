@@ -129,6 +129,22 @@ class Functions {
     }
 
     # ==== PHP (efficiency) ====
+    public static function toIndexIfLoggedIn(): void {
+        if (isset($_SESSION['loggedIn']) and $_SESSION['loggedIn']) {
+            header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+        }
+    }
+    public static function toIndexIfNotEmployee(): void {
+        if (!isset($_SESSION['role'])) {
+            header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+        }
+    }
+    public static function toIndexIfNotUser(): void {
+        if ((!isset($_SESSION['loggedIn']) and !$_SESSION['loggedIn']) or isset($_SESSION['role'])) {
+            header("Location: ".Functions::dynamicPathFromIndex()."index.php");
+        }
+    }
+
     public static function addAddressToDB($currentPage, $arrPushedUserData): void {
         $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
 

@@ -10,6 +10,7 @@ $currentPage = $_GET['page'] ?? '';
 // ============ Start of Program ============
 # Header
 Functions::htmlHeader(300);
+Functions::toIndexIfNotUser();
 
 # Logout button
 if (isset($_GET['page'])){

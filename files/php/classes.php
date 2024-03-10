@@ -6,6 +6,7 @@ class ConfigData {
     // ======== Declaring Variables ========
     # ==== Strings ====
     # Paths
+    public static string $defaultMediaPath = 'files/images/';
     public static string $dishMediaPath = 'files/images/dishes/';
     # Authentication
     public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
@@ -91,6 +92,8 @@ class ConfigData {
         'orders' => 'orders',
         'toppings' => 'toppings',
         'users' => 'users',
+        'dishSizes' => 'dishSizes',
+        'dishSauces' => 'dishSauces',
     ];
     # Database keys
     public static array $dbKeys = [
@@ -203,6 +206,22 @@ class ConfigData {
             'email' => 'email',
             'birthDate' => 'birthDate',
         ],
+        'dishSizes' => [
+            'id' => 'sizeID',
+            'name' => 'sizeName',
+            'price' => 'sizePrice',
+        ],
+        'dishSauces' => [
+            'id' => 'sauceID',
+            'name' => 'sauceName',
+            'price' => 'saucePrice',
+        ],
+    ];
+
+    # == Main menu ==
+    public static array $mainMenuPages = [
+        'customizedish' => 'customizeDish',
+        'cart' => 'cart',
     ];
 
     # == User settings ==

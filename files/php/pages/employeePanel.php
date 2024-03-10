@@ -451,7 +451,7 @@ switch ($currentPage) {
             $mainPage .= "
             <div class='col-lg-4 col-md-12 col-sm-12'>
                 <div class='card mb-4'>
-                    <img class='card-img-top' src='$thumbPath' alt='Dish Image'>
+                    <img class='card-img-top' src='$thumbPath' alt='Dish Image' style='height: 350px; object-fit: cover;'>
                     <div class='card-body'>
                         <h5 class='card-title'>".$dish[ConfigData::$dbKeys['dishes']['name']]."</h5>
                         <p class='card-text'>€ ".$dish[ConfigData::$dbKeys['dishes']['price']]."</p>

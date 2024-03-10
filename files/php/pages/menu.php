@@ -1,61 +1,282 @@
 <?php
 // ============ Imports ============
-# Internally
 require_once('../functions.php');
 require_once('../classes.php');
 
 // ============ Declaring Variables ============
-$tableDishes = 'dishes';
-$tableDefaultToppings = 'defaultToppingRelations';
-$tableToppings = 'toppings';
+# Strings
+$currentPage = $_GET['page'] ?? '';
 
 // ============ Start of Program ============
 # Header
+Functions::htmlHeader(340);
 
-Functions::htmlHeader(320);
-//sql statement for menu1 
-$result = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableDishes");
-if (isset($_GET['checkout'])) {
-    if($_GET['checkout'] == 'true' && !empty($_SESSION['cart'])){
-        //bootstrap 
-        echo("<div class='container'>
-        <div class='row justify-content-center'>
-            <div class='col-10   border border-dark rounded'>
-                <div class='container-fluid mt-4'>
-                    <div class='row'>
-                        <div class='col-12 row justify-content-center' id='targetDiv'>");
-                        for ($i = 0; $i <= count($_SESSION['cart']) - 1; $i++) {
-                            // set pizza name in cart
-                            echo("
-                                <div class='list-group-item'>
-                                    <p class='mb-1 ' >" . $_SESSION['cart'][$i]['Pizza'] . " - " . $_SESSION['cart'][$i]['Size'] . "</p>
-                            ");
-                            
-                            // set Dish total per pizza
-                            echo("
-                                <p class='mb-1'>Pizza Price: €{$_SESSION['cart'][$i]['DishTotal']}</p>
-                                <form method='post' class='form-inline'>
-                                    <button type='submit' class='btn btn-primary' name='update'>Wijzigen</button>
-                                    <button type='submit' class='btn btn-danger' name='delete'>Verwijderen</button>
-                                    <input type='hidden' name='arrayKey' value='$i'>
-                                </form>
-                            ");
-                        }
-                        
-                        // print full price
-                        echo("
-                            <p>Total Price: €" . $_SESSION['total'] . "</p>
+# Dynamic POST Requests
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // ======== Start of POST Request ========
+    switch ($currentPage) {
+        # Customize dish
+        case ConfigData::$mainMenuPages['customizedish']:
+            // ==== Declaring Variables ====
+            # == GET ==
+            $dishID = $_GET['dishID'] ?? '';
+            $cartItemIndex = $_GET['cartItemIndex'] ?? '';
+
+            # == POST ==
+            $size = $_POST['size'] ?? '';
+            $sauce = $_POST['sauce'] ?? '';
+            $arrToppings = $_POST['nameToppingSlider'] ?? '';
+
+            # == Strings ==
+            # SQL
+            $queryGetDishData = "SELECT * FROM ".ConfigData::$dbTables['dishes']." WHERE ".ConfigData::$dbKeys['dishes']['id']." = ?";
+            $queryGetDishToppings = "SELECT * FROM ".ConfigData::$dbTables['toppings']." WHERE ".ConfigData::$dbKeys['toppings']['id']." IN (".implode(',', array_fill(0, count($arrToppings), '?')).")";
+            $queryGetDishSizes = "SELECT * FROM ".ConfigData::$dbTables['dishSizes']." WHERE ".ConfigData::$dbKeys['dishSizes']['id']." = ?";
+            $queryGetDishSauces = "SELECT * FROM ".ConfigData::$dbTables['dishSauces']." WHERE ".ConfigData::$dbKeys['dishSauces']['id']." = ?";
+
+            # == Arrays ==
+            $arrayKeys = array_keys($arrToppings);
+            $arrDishData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishData, [$dishID]);
+            $arrToppingsData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishToppings, $arrayKeys);
+            $arrSizeData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSizes, [$size]);
+            $arrSauceData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSauces, [$sauce]);
+
+            // ==== Start of Program ====
+            # Calculating the total price
+            $intTotalPrice = $arrDishData[0][ConfigData::$dbKeys['dishes']['price']];
+
+            # Adding the price of the size to the total price
+            $intTotalPrice += $arrSizeData[0][ConfigData::$dbKeys['dishSizes']['price']];
+
+            # Adding the price of the sauce
+            $intTotalPrice += $arrSauceData[0][ConfigData::$dbKeys['dishSauces']['price']];
+
+            # Adding the price of the toppings
+            foreach ($arrToppings as $topping) {
+                // ==== Declaring Variables ====
+                # == Ints ==
+                $toppingAmount = $topping;
+                $toppingPrice = $arrToppingsData[array_search($topping, $arrayKeys)][ConfigData::$dbKeys['toppings']['price']];
+
+                // ==== Start of Program ====
+                $intTotalPrice += $toppingAmount * $toppingPrice;
+            }
+
+            # Making the order and adding it to the cart
+            $arrOrder = [
+                'dishID' => $dishID,
+                'name' => $arrDishData[0][ConfigData::$dbKeys['dishes']['name']],
+                'size' => $size,
+                'sauce' => $sauce,
+                'toppings' => array_filter($arrToppings),
+                'dishTotal' => $intTotalPrice
+            ];
+
+            # Adding the order to the cart
+            if ($cartItemIndex == "") {
+                $_SESSION['cart'][] = $arrOrder;
+            }
+            else {
+                $_SESSION['cart'][$cartItemIndex] = $arrOrder;
+            }
+
+            # Redirecting back to the menu
+            header("Location: ./menu.php");
+            break;
+
+        # Cart
+        case ConfigData::$mainMenuPages['cart']:
+            // ==== Declaring Variables ====
+            # == Strings ==
+            # SQL
+
+
+            # == POST ==
+            break;
+
+        default:
+            // ==== Declaring Variables ====
+            # Strings
+            $removeCartItemIndex = $_POST['removeCartItem'] ?? '';
+
+            // ==== Start of Program ===
+            # Removing the item from the cart
+            if (isset($removeCartItemIndex)) {
+                unset($_SESSION['cart'][$removeCartItemIndex]);
+                $_SESSION['cart'] = array_values($_SESSION['cart']);
+            }
+            break;
+    }
+}
+
+# Dynamic HTML
+$mainPage = '';
+switch ($currentPage) {
+    # Customize dish
+    case ConfigData::$mainMenuPages['customizedish']:
+        // ==== Declaring Variables ====
+        # == GET ==
+        $dishID = $_GET['dishID'] ?? '';
+        $cartItemIndex = $_GET['cartItemIndex'] ?? '';
+
+        # == Strings ==
+        # ConfigData
+        $strDefaultMediaPath = Functions::dynamicPathFromIndex().ConfigData::$defaultMediaPath;
+
+        # SQL
+        $queryGetDishData = "SELECT * FROM ".ConfigData::$dbTables['dishes']." WHERE ".ConfigData::$dbKeys['dishes']['id']." = ?";
+        $queryGetDishMedia = "SELECT * FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['dishID']." = ?";
+        $queryGetDefaultToppings = "SELECT ".ConfigData::$dbKeys['defaultToppingRelations']['toppingID']." FROM ".ConfigData::$dbTables['defaultToppingRelations']." WHERE ".ConfigData::$dbKeys['defaultToppingRelations']['dishID']." = ?;";
+        $queryGetToppings = "SELECT * FROM ".ConfigData::$dbTables['toppings'];
+        $queryGetDishSizes = "SELECT * FROM ".ConfigData::$dbTables['dishSizes'];
+        $queryGetDishSauces = "SELECT * FROM ".ConfigData::$dbTables['dishSauces'];
+
+        # == Arrays ==
+        $arrDishData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishData, [$dishID]);
+        $arrDishMedia = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishMedia, [$dishID]);
+        $arrDefaultToppingsIds = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDefaultToppings, [$dishID]); $arrDefaultToppingsIds = array_column($arrDefaultToppingsIds, ConfigData::$dbKeys['defaultToppingRelations']['toppingID']);
+        $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray($queryGetToppings);
+        $arrDishSizes = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSizes);
+        $arrDishSauces = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSauces);
+
+        # == HTML ==
+        $htmlSizeSelector = "";
+        foreach ($arrDishSizes as $index => $size) {
+            // ==== Declaring Variables ====
+            # == Dynamic Strings ==
+            if ($cartItemIndex == "") {
+                $checked = array_key_first($arrDishSizes) == $index ? "checked" : "";
+            }
+            else {
+                // ==== Declaring Variables ====
+                # == Strings ==
+                # SQL
+                $queryGetCartItemSize = "SELECT ".ConfigData::$dbKeys['dishSizes']['id']." FROM ".ConfigData::$dbTables['dishSizes']." WHERE ".ConfigData::$dbKeys['dishSizes']['id']." = ?";
+
+                # == Arrays ==
+                $arrCartItemSize = PizzariaSopranosDB::pdoSqlReturnArray($queryGetCartItemSize, [$_SESSION['cart'][$cartItemIndex]['size']])[0];
+
+                // ==== Start of IF ====
+                $checked = $size[ConfigData::$dbKeys['dishSizes']['id']] == $arrCartItemSize[ConfigData::$dbKeys['dishSizes']['id']] ? "checked" : "";
+            }
+
+            # == Strings ==
+
+            $strSizeID = $size[ConfigData::$dbKeys['dishSizes']['id']];
+            $strSizeName = $size[ConfigData::$dbKeys['dishSizes']['name']];
+            $strSizePrice = $size[ConfigData::$dbKeys['dishSizes']['price']];
+
+            // ==== Start of Program ====
+            $htmlSizeSelector .= "
+            <div class='form-check form-check-inline'>
+                <input class='form-check form-check-input' type='radio' name='size' id='size$strSizeName' value='$strSizeID' $checked>
+                <label class='form-check form-check-label' for='size{$strSizeName}'>$strSizeName - €{$strSizePrice}</label>
+            </div>
+            ";
+        }
+        $htmlSauceSelector = "";
+        foreach ($arrDishSauces as $index => $sauce) {
+            // ==== Declaring Variables ====
+            # == Dynamic Strings ==
+            if ($cartItemIndex == "") {
+                $checked = array_key_first($arrDishSizes) == $index ? "checked" : "";
+            }
+            else {
+                // ==== Declaring Variables ====
+                # == Strings ==
+                # SQL
+                $queryGetCartItemSauce = "SELECT ".ConfigData::$dbKeys['dishSauces']['id']." FROM ".ConfigData::$dbTables['dishSauces']." WHERE ".ConfigData::$dbKeys['dishSauces']['id']." = ?";
+
+                # == Arrays ==
+                $arrCartItemSauce = PizzariaSopranosDB::pdoSqlReturnArray($queryGetCartItemSauce, [$_SESSION['cart'][$cartItemIndex]['sauce']])[0];
+
+                // ==== Start of IF ====
+                $checked = $sauce[ConfigData::$dbKeys['dishSauces']['id']] == $arrCartItemSauce[ConfigData::$dbKeys['dishSauces']['id']] ? "checked" : "";
+            }
+
+            # == Strings ==
+            $strSauceID = $sauce[ConfigData::$dbKeys['dishSauces']['id']];
+            $strSauceName = $sauce[ConfigData::$dbKeys['dishSauces']['name']];
+            $strSaucePrice = $sauce[ConfigData::$dbKeys['dishSauces']['price']];
+
+            // ==== Start of Program ====
+            $htmlSauceSelector .= "
+            <div class='form-check form-check-inline'>
+                <input class='form-check form-check-input' type='radio' name='sauce' id='sauce$strSauceName' value='$strSauceID' $checked>
+                <label class='form-check form-check-label' for='sauce$strSauceName'>$strSauceName</label>
+            </div>
+            ";
+        }
+        $htmlToppingSelector = "";
+        foreach ($arrToppings as $topping) {
+            // ==== Declaring Variables ====
+            # == Strings ==
+            $strToppingName = $topping[ConfigData::$dbKeys['toppings']['name']];
+            $strToppingPrice = $topping[ConfigData::$dbKeys['toppings']['price']];
+
+            # == Ints ==
+            $inToppingID = $topping[ConfigData::$dbKeys['toppings']['id']];
+            $intToppingMaxAmount = $topping[ConfigData::$dbKeys['toppings']['maxAmount']];
+
+            # Based on if the topping is a default topping or not, the amount of toppings will be different
+            if ($cartItemIndex == "") {
+                $intCurrentToppingAmount = in_array($topping[ConfigData::$dbKeys['toppings']['id']], $arrDefaultToppingsIds) ? 1 : 0;
+            } else {
+                $intCurrentToppingAmount = $_SESSION['cart'][$cartItemIndex]['toppings'][$inToppingID] ?? 0;
+            }
+
+            // ==== Start of Program ====
+            $htmlToppingSelector .= "
+            <div class='topping'>
+                <div class='container-fluid'>
+                    <div class='row mb-2'>
+                        <div class='col-6'>
+                            <label for='idToppingSlider{$inToppingID}'>$strToppingName <br/> €$strToppingPrice</label>
+                        </div>
+                        <div class='col-1'>
+                            <p id='idToppingAmount{$inToppingID}'>$intCurrentToppingAmount</p>
+                        </div>
+                        <div class='col-5'>
+                            <input type='range' min='0' max='$intToppingMaxAmount' value='$intCurrentToppingAmount' class='slider' name='nameToppingSlider[$inToppingID]' id='idToppingSlider{$inToppingID}'><br/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                rangeSliderValueListener('idToppingSlider{$inToppingID}', 'idToppingAmount{$inToppingID}');
+            </script>
+            ";
+        }
+
+        $htmlCartIndex = $cartItemIndex == "" ? "<input type='hidden' name='cartItemIndex' value='$cartItemIndex'>" : "";
+
+        // ==== Start of Program ====
+        # Script loading
+        echo("<script src='".Functions::dynamicPathFromIndex()."files/js/menuPage2.js'></script>");
+
+        # Making the customizer
+        $mainPage .= "
+        <div class='container'>
+            <div class='row justify-content-center'>
+                <div class='col-10 border border-dark rounded'>
+                    <div class='container-fluid mt-3 mb-3'>
+                        <div class='row'>
+                            <div class='col-md-6'>
+                                <img class='img-fluid border border-black' src='".Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath.$arrDishMedia[0][ConfigData::$dbKeys['media']['fileFolderName']].'/'.$arrDishMedia[0][ConfigData::$dbKeys['media']['fileName']]."' alt='".$arrDishData[0][ConfigData::$dbKeys['dishes']['name']]."''>
                             </div>
-                            </div>
-                            <div class='d-grid gap-2 col-12 mx-auto'>
-                                <form method='post' class='w-100'>
-                                <div class='row'>
-                                    <div class='col-6'>
-                                        <button type='submut' class='btn btn-outline-danger w-100' name='goBack'>Ga Terug</button>
-                                    </div>
-                                    <div class='col-6'>
-                                        <button type='submit' class='btn btn-outline-success w-100' name='finalizeOrder'>Betalen</button>
-                                    </div>
+                            <div class='col-md-6'>
+                                <form method='POST'>
+                                    <b><p>Pizza Bodem</p></b>
+                                    $htmlSizeSelector
+                                    <hr/>
+                                    <b><p>Saus</p></b>
+                                    $htmlSauceSelector
+                                    <hr/>
+                                    <b><p>Standaard Toppings</p></b>
+                                    $htmlToppingSelector
+                                    
+                                    $htmlCartIndex
+                                    <input class='btn btn-primary w-100' type='submit' value='Toevoegen aan winkelwagen'>
                                 </form>
                             </div>
                         </div>
@@ -63,570 +284,224 @@ if (isset($_GET['checkout'])) {
                 </div>
             </div>
         </div>
-        ");
-        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        ";
 
-            if(isset($_POST['finalizeOrder'])){
-                header("Location: ./order.php");
-            }
-        
-            //delete key from array and update total correspondingly 
-            if(isset($_POST['delete'])){
-                if(isset($_POST['arrayKey'])){
-                    $_SESSION['total'] -= $_SESSION['cart'][$_POST['arrayKey']]['DishTotal'];
-                    //delete the array key
-                    unset($_SESSION['cart'][$_POST['arrayKey']]);
-                    // reorder the array keys so they start at 0
-                    $_SESSION['cart'] = array_values($_SESSION['cart']);
-                    header("Refresh:0");
+        break;
+
+    # Cart
+    case ConfigData::$mainMenuPages['cart']:
+        // ==== Declaring Variables ====
+        # == Strings ==
+
+        // ==== Start of Case ===
+        # Making the total price & order button
+        $mainPage .= "
+        <div class='row'>
+            <div class='col-12 mb-4'>
+                <div class='container-fluid p-0'>
+                    <div class='row mb-3'>
+                        <div class='col-12'>
+                            <p class='card-text text-right'><strong>Totaal:</strong> €".array_sum(array_column($_SESSION['cart'], 'dishTotal'))."</p>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-6'>
+                        <form method='POST'>
+                            <input class='btn btn-primary w-100' type='submit' value='Betalen'>
+                        </form>
+                    </div>
+                </div>
+                <hr>
+            </div>
+        </div>
+        ";
+        # Making the cart items
+        $mainPage .= Functions::makeCartItems();
+        break;
+    default:
+        // ==== Declaring Variables ====
+        # == Strings ==
+        # ConfigData
+        $strDefaultMediaPath = Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath;
+
+        # SQL
+        $queryGetAllDishes = "SELECT * FROM ".ConfigData::$dbTables['dishes'];
+        $queryGetDishMedia = "SELECT * FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['dishID']." = ?";
+
+        # == Arrays ==
+        $arrAllDishes = PizzariaSopranosDB::pdoSqlReturnArray($queryGetAllDishes);
+
+        // ==== Start of Program ===
+        # Making cards for the dishes (4 per row, 3 per row on mobile)
+        foreach ($arrAllDishes as $index => $dish) {
+            // ==== Declaring Variables ====
+            # == Arrays ==
+            $arrDishMedia = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishMedia, [$dish[ConfigData::$dbKeys['dishes']['id']]]);
+
+            # == Strings ==
+            # Media Path
+            $strMediaPath = $strDefaultMediaPath.$arrDishMedia[0][ConfigData::$dbKeys['media']['fileFolderName']].'/'.$arrDishMedia[0][ConfigData::$dbKeys['media']['fileName']];
+
+            # == HTML ==
+            # Spicy rating
+            $htmlSpiceRating = "";
+            for ($i = 1; $i < 6; $i++) {
+                if ($i <= $dish[ConfigData::$dbKeys['dishes']['ratingSpicy']]) {
+                    $htmlSpiceRating .= "<img src='".Functions::dynamicPathFromIndex()."files/images/pepper-hot-solid.svg' alt='Spicy' style='width: 20px; height: 20px;'>";
+                }
+                else {
+                    $htmlSpiceRating .= "<img src='".Functions::dynamicPathFromIndex()."files/images/pepper-hot-regular.svg' alt='Spicy' style='width: 20px; height: 20px;'>";
                 }
             }
-            //Go to the update page
-            if(isset($_POST['update'])){
-                if(isset($_POST['arrayKey'])){
-                    header("Location: ./menu.php?pizzaID=".$_SESSION['cart'][$_POST['arrayKey']]['Id']."&arrayKey=".$_POST['arrayKey']."&changeCheckout=true");
-                }
+
+            // ==== Start of Program ===
+            # Checking counter to check if new row is needed
+            if ($index % 4 == 0) {
+                $mainPage .= "<div class='row'>";
             }
-            //go back to previous page
-            if(isset($_POST['goBack'])){
-                header("Location: ./menu.php");
+            # Making the card
+            $mainPage .= "
+            <div class='col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12'>
+                <div class='card mb-3'>
+                    <img src='$strMediaPath' class='card-img-top' alt='".$dish[ConfigData::$dbKeys['dishes']['name']]."' style='height: 350px; object-fit: cover;'>
+                    <div class='card-body'>
+                        <h5 class='card-title'>".$dish[ConfigData::$dbKeys['dishes']['name']]."</h5>
+                        <div class='container-fluid p-0'>
+                            <div class='row mb-3'>
+                                <!-- Spicy Rating -->
+                                <div class='col-8'>
+                                    $htmlSpiceRating
+                                </div>
+                                
+                                <!-- Price -->
+                                <div class='col-4'>
+                                    <p class='card-text text-right'>€".$dish[ConfigData::$dbKeys['dishes']['price']]."</p>
+                                </div>
+                            </div>
+                            <div class='row mb-2'>
+                                <!-- Order button -->
+                                <div class='col-12'>
+                                    <a href='./menu.php?page=".ConfigData::$mainMenuPages['customizedish']."&dishID=".$dish[ConfigData::$dbKeys['dishes']['id']]."' class='btn btn-primary w-100'>
+                                        Bestellen
+                                    </a>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ";
+            # Checking counter to check if new row is needed
+            if ($index % 4 == 3) {
+                $mainPage .= "</div>";
             }
-            
         }
-    }else{
-        header("Location: menu.php");
-    }
+        break;
 }
-else if (!isset($_GET['pizzaID'])) {
 
-    //Bootstrap boiler
-    echo("
-        <div class='container-fluid'>
-        <div class='row'>
-        <div class='col-8' id='targetDiv'>   
-        <form method='post'>
-        <div class='row'>
-    ");
+# Shopping Cart section
+$shoppingCart = "";
+if (isset($_SESSION['cart'])) {
+    // ==== Declaring Variables ====
+    # == Strings ==
+    $strDefaultMediaPath = Functions::dynamicPathFromIndex().ConfigData::$dishMediaPath;
 
-    //Generate the data from the database to show all pizza's
-    foreach ($result as $row) {
-        echo ("
-            <div class='col-4 col'>
-                    <img src='" . Functions::dynamicPathFromIndex() . "/files/images/pizza.png' class='img-thumbnail' alt='Pizza Image' style='max-width: 100%; height: auto;'>
-                    <br/><label>" . $row['name'] . "</label>
-                    <input type='submit' name='menu" . $row['dishID'] . "' value='Bestellen'>
-                    <input type='hidden' name='pizzaID" . $row['dishID'] . "' value='" . $row['dishID'] . "'>
-                
+    // ==== Start of Program ===
+    # Making the shopping cart div
+    $shoppingCart .= "<div class='container-fluid' style='height: 500px; overflow-y: auto'>";
+
+    # Making the total price & order button
+    $shoppingCart .= "
+    <div class='row'>
+        <div class='col-12 mb-4'>
+            <h5 class='card-title text-center'>Totaal Prijs</h5>
+            <div class='container-fluid p-0'>
+                <div class='row mb-3'>
+                    <div class='col-12'>
+                        <p class='card-text text-right'><strong>Totaal:</strong> €".array_sum(array_column($_SESSION['cart'], 'dishTotal'))."</p>
+                    </div>
+                </div>
             </div>
-        ");
-    }
-    //exit divs till first row
-    echo("
-        </div>
-        </form>
-        </div>
-    ");
-
-    //Process pizza submit button
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        foreach ($result as $row) {
-            if (isset($_POST['menu' . $row['dishID']])) {
-                $pizzaID = $_POST['pizzaID' . $row['dishID']];
-                if ($_SESSION['boolPreventHeader']) {
-                    $_SESSION['boolPreventHeader'] = false;
-                    header("Location: ./menu.php?pizzaID=$pizzaID");
-                }
-            }
-        }
-    }
-
-    //check if the cart is empty to show all pizza's in current session
-    if (empty($_SESSION['cart'])) {
-        
-    }else{
-        //start cart bootstrap
-        echo("
-        <div class='col-4 ' id='triggerDiv'>
-            <div class=' d-sm-block' >
-                <form method='post' class='w-100'>
-                    <button type='submit' class='btn btn-outline-success w-100'  name='finalizeOrder'>Winkelwagen</button>
-                </form>
+            <div class='row'>
+                <div class='col-12'>
+                    <a href='./menu.php?page=".ConfigData::$mainMenuPages['cart']."' class='btn btn-primary w-100'>
+                        Winkelwagen
+                    </a>
+                </div>
             </div>
+            <hr>
         </div>
-        ");
-        
-        //check if a post request is made
-        if($_SERVER['REQUEST_METHOD'] == 'POST'){
-            if(isset($_POST['finalizeOrder'])){
-                header("Location: ./menu.php?checkout=true");
-            }
-        }
-        
-    }
+    </div>
+    ";
 
-    $_SESSION['boolPreventHeader'] = true;
+    # Making the cart items
+    $shoppingCart .= Functions::makeCartItems();
 
-} else {
-    //Get value
-    $pizzaID = $_GET['pizzaID'];
+    # Closing the shopping cart div
+    $shoppingCart .= "</div>";
+}
 
-    //get the topping data from the database
-    $arrayToppings = PizzariaSopranosDB::pdoSqlReturnArray("SELECT t.name , t.price
-        FROM $tableDefaultToppings dt
-        JOIN $tableToppings t ON dt.toppingID = t.toppingID
-        WHERE dt.dishID = $pizzaID
-    ");
-
-    //intialize var's
-    $arrToppings = array();
-    $arrMoney = array();
-    $money = 0;
-    
-    //bootstrap boiler + part of form
+# Body
+if (!isset($_SESSION['cart']) or empty($_SESSION['cart'])) {
     echo("
-        <div class='container'>
+    <div class='container-fluid'>
         <div class='row justify-content-center'>
-        <div class='col-10   border border-dark rounded'>
-        <div class='container-fluid mt-4'>
-        <div class='row'>
-        <div class='col-md-6'>
-            <img src='" . Functions::dynamicPathFromIndex() . "/files/images/QuattroFormaggi.jpeg' class='img-fluid' alt='Image'>
+            <!-- Menu Section -->
+            <div class='col-md-10'>
+                <h2 class='text-center'>Menu</h2> <hr/>
+                $mainPage
+            </div>
         </div>
-        <div class='col-md-6'>
-        <form method='post'>
-        <p>Pizza Bottom</p>
+    </div>
     ");
-
-    //Update page for updating the pizza
-    if (isset($_GET['arrayKey'])) {
-        // Display form for updating with existing data
-        echo ("
-                <div class='form-group'>
-                    <select id='sizeSelector' onchange='updatePrice()' name='size' class='form-control' >
-                        <option value='0'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size'] == 'Normaal' ? " selected" : "") . ">Normaal</option>
-                        <option value='2'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'Groot' ? " selected" : "") . ">Groot + €2</option>
-                        <option value='4'" . ($_SESSION['cart'][$_GET['arrayKey']]['Size']== 'XXL' ? " selected" : "") . ">XXL + €4</option>
-                    </select>
-                </div>
-                <div class='form-group'>
-                <select name='Sauce' class='form-control'>
-                    <option value='Tomato'" . ($_SESSION['cart'][$_GET['arrayKey']]['Sauce'] == 'Tomato' ? " selected" : "") . ">tomato</option>
-                    <option value='BBQ'" . ($_SESSION['cart'][$_GET['arrayKey']]['Sauce'] == 'BBQ' ? " selected" : "") . ">bbq</option>
-                </select>
-                </div>
-                <p>Ingredients</p>
-                <table>
-                <tbody id='tbody'>");
-        
-        for ($i = 0; $i < count($_SESSION['cart'][$_GET['arrayKey']]['Toppings']); $i++) {
-            echo ("
-                <tr>
-                    <td>
-                        <img src='../../images/minus.png' height='25px' alt='reduction' style='cursor: pointer;' onclick='reduction(`" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . '`,' . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['price'] . " )'>
-                    </td>
-                    <td>
-                        <p style='margin: 5px 0 5px 15px;' >" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "</p> 
-                    </td>
-                    <td>
-                        <p id='counter" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' style='margin: 5px 15px;'>" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "</p>
-                        <input type='hidden' name='toppingQuantities[]' id='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "'>
-                        <input type='hidden' name='selectedToppings[]' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "'>
-                        <input type='hidden' id='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' name='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . ($_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['orignal'] == 'true' ? "true" : "false") . "'>
-                        <input type='hidden' id='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' name='amount" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . "' value='" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['quantity'] . "'>
-                    </td>
-                    <td>
-                        <img src='../../images/plus.png' height='25px' alt='Increment' style='cursor: pointer;' onclick='increment(`" . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['name'] . '`,' . $_SESSION['cart'][$_GET['arrayKey']]['Toppings'][$i]['price'] . " )'>
-                    <td>
-                </tr>");
-        }
-    }
-    //page for adding pizza to the cart
-    else{
-            echo ("
-        
-            <select id='sizeSelector' onchange='updatePrice()' name='size' >
-                <option value='0'>Normaal</option>
-                <option value='2'>Groot + €2</option>
-                <option value='4'>XXL + €4</option>
-            </select>
-            <select name = 'Sauce'>
-                <option value='Tomato'>tomato</option>
-                <option value='BBQ'>bbq</option>
-            </select><br/>
-            <p>Ingredients</p>
-            <table>
-            <tbody id='tbody'>");
-        for ($i = 0; $i <= count($arrayToppings) - 1; $i++) {
-            echo ("
-                <tr>
-                    <td>
-                        <img src='../../images/minus.png' height='25px' alt='reduction' style='cursor: pointer;' onclick='reduction(`".$arrayToppings[$i]['name'] .'`,'.$arrayToppings[$i]['price']." )'>
-                    </td>
-                    <td>
-                        <p style='margin: 5px 0 5px 15px;' >" . $arrayToppings[$i]['name'] . "</p> 
-                    </td>
-                    <td>
-                        <p id='counter".$arrayToppings[$i]['name']."' style='margin: 5px 15px;'>1</p>
-                        <input type='hidden' name='toppingQuantities[]' id='amount".$arrayToppings[$i]['name']."' value='1'>
-                        <input type='hidden' name='selectedToppings[]' value='".$arrayToppings[$i]['name']."'>
-                        <input type='hidden' id='".$arrayToppings[$i]['name']."' name='".$arrayToppings[$i]['name']."' value='true'>
-                        <input type='hidden' id='amount".$arrayToppings[$i]['name']."' name='amount".$arrayToppings[$i]['name']."' value='1'>
-                    </td>
-                    <td>
-                        <img src='../../images/plus.png' height='25px' alt='Increment' style='cursor: pointer;' onclick='increment(`".$arrayToppings[$i]['name'] .'`,'.$arrayToppings[$i]['price'].")'>
-                    <td>
-                </tr>");
-        }
-        
-        
-    }
-    //exit table
-    echo ("
-        </tbody>
-        </table>
-        <div class='scrollable-table' style='max-height: 200px; overflow-y: auto;'>
-        <table> 
-    ");
-    //get price of the pizza from database
-    $arrMoney = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `price` FROM $tableDishes WHERE `dishID` = $pizzaID");
-    $money += $arrMoney[0]['price'];
-    //get all toppings from the database
-    $arrToppings = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM $tableToppings ORDER BY `name` ASC");
-    
-    //go trough all the toppings and make them addable
-    foreach ($arrToppings as $index => $topping) {
-        if ($index < 3) {
-            // Display the first 3 toppings directly
-            echo("
-                <tr>
-                    <td>
-                    ".$topping['name']."
-                    </td>
-                    <td colspan='4'>
-                        <img src='../../images/plus.png' height='25px' alt='Add Topping' style='cursor: pointer;' onclick='addNewTopping(`".$topping['name']."` , ".$topping['price'].")'>
-                    </td>
-                </tr>
-            ");
-        } else {
-            // Display a dropdown for additional toppings
-            echo("
-                <tr class='additional-toppings' style='display: none;'>
-                    <td>
-                        ".$topping['name']."
-                    </td>
-                    <td colspan='4'>
-                        <img src='../../images/plus.png' height='25px' alt='Add Topping' style='cursor: pointer;' onclick='addNewTopping(`".$topping['name']."` , ".$topping['price'].")'>
-                    </td>
-                </tr>
-            ");
-        }
-    }
-
-    //button for showing all the toppings Caps at 3
-    echo("
-        <tr id='toggleRow'>
-        <td colspan='5' >
-            <button onclick='toggleAdditionalToppings()' name='buttonAdditonalToppings' type='button' class='btn btn-secondary'>Show More Toppings</button>
-        </td>
-        </tr>
-        </table>
-        </div>
-    ");
-
-    //Check if the page is for update or create and handle the request.
-    if(!isset($_GET['arrayKey'])){
+}
+else {
+    if ($currentPage == ConfigData::$mainMenuPages['cart']) {
         echo("
-            <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$money."' onclick='updateHidden();' class='btn btn-primary'>
-            <input type='hidden' id='money' name='money' value='".floatval($money)."' />
-        ");
-    }else{
-        echo("    
-            <input type='submit' name='submitPizza' id='submitButton' value='Add to Cart Amount €".$_SESSION['cart'][$_GET['arrayKey']]['DishTotal']."' onclick='updateHidden();' class='btn btn-primary'>
-            <input type='hidden' id='money' name='money' value='".floatval($_SESSION['cart'][$_GET['arrayKey']]['DishTotal'])."' />
+        <div class='container-fluid'>
+            <div class='row justify-content-center'>
+                <!-- Menu Section -->
+                <div class='col-md-3'>
+                    <h4 class='text-center'>Winkelwagen</h4>
+                    $mainPage
+                </div>
+            </div>
+        </div>
         ");
     }
-
-    //exit bootstrap div's
-    echo("
-        <div class='mt-2'>
-        </div>
-        </form>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
+    elseif ($currentPage == ConfigData::$mainMenuPages['customizedish']) {
+        echo("
+        <div class='container-fluid'>
+            <div class='row justify-content-center'>
+                <!-- Menu Section -->
+                <div class='col-md-10'>
+                    <h2 class='text-center'>Menu</h2> <hr/>
+                    $mainPage
+                </div>
         </div>
         ");
-
-    if(isset($_POST['submitPizza'])){
-        $selectedToppings = $_POST['selectedToppings'];
-        $toppingQuantities = $_POST['toppingQuantities'];
-        $pizzaName = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `name` FROM $tableDishes WHERE `dishID` = " . $_GET['pizzaID']);
-        // Loop through the selected toppings and their quantities
-        $priceTopping = 0;
-        $dishTotal = 0;
-        for ($i = 0; $i < count($selectedToppings); $i++) {
-            $toppingName = $selectedToppings[$i];
-            $quantity = $toppingQuantities[$i];
-            
-            //check if html page wasnt changed by user
-            $arrCheck = PizzariaSopranosDB::pdoSqlReturnArray("SELECT `name` , `price` FROM $tableToppings WHERE `name` = '$toppingName'");
-            if(empty($arrCheck)){
-                $toppingName = '';
-            }
-            //check if quantity is in between the bounds
-            if($quantity > 3){
-                $quantity = 1;
-            }
-            
-            
-            // Add the topping data to the array
-            if(!empty($toppingName)){
-                
-                //check if its a standard topping and if its quantity > then 1
-                $found = false;
-                foreach ($arrayToppings as $topping) {
-                    if ($topping['name'] === $toppingName) {
-                        $found = true;
-                        break;
-                    }
-                    
-                }
-                //check if the standard toppings are 1 or less 
-                if($found && $quantity <= 1){
-                    $priceTopping = $arrCheck[0]['price'];
-                }//if its more then 1 do quantity - 1 so the total
-                else if($found && $quantity >= 1){
-                    $priceTopping = ($quantity - 1) * $arrCheck[0]['price'];
-                    $dishTotal += $priceTopping;
-                }//do standard calculation for toppings
-                else{
-                    $priceTopping = $quantity * $arrCheck[0]['price'];
-                    $dishTotal += $priceTopping;
-                }
-                
-                $toppingData[] = array(
-                    'name' => $toppingName,
-                    'quantity' => $quantity,
-                    'price' => $priceTopping,
-                    'orignal' => $_POST[$toppingName]
-                );
-            }
-        }
-        //set size
-        $size = '';
-        $dishTotal += $_POST['size'];
-        if($_POST['size'] == 0){
-            $size = 'Normaal';
-        }
-        else if($_POST['size'] == 2){
-            $size = 'Groot';
-        }else{
-            $size = 'XXL';
-        }
-        $dishTotal += $money;
-        if(!isset($_GET['arrayKey'])){
-            $_SESSION['total'] += $dishTotal;
-            //put data into current SESSION var
-            $_SESSION['cart'][] = array(
-                "Pizza" => $pizzaName[0]['name'],
-                "Id" => $_GET['pizzaID'],
-                "Size" => $size,
-                "Sauce" => $_POST['Sauce'],
-                "DishTotal" => $dishTotal,
-                "Toppings" => $toppingData
-            );
-        }else{
-            //echo($_SESSION['cart'][$_GET['arrayKey']]['DishTotal'] > "<br/>");
-            $_SESSION['total'] -= $_SESSION['cart'][$_GET['arrayKey']]['DishTotal'];
-            //echo($_SESSION['total']);
-            $_SESSION['total'] += $dishTotal;
-            //echo($_SESSION['total']);
-            $_SESSION['cart'][$_GET['arrayKey']] = array(
-                "Pizza" => $pizzaName[0]['name'],
-                "Id" => $_GET['pizzaID'],
-                "Size" => $size,
-                "Sauce" => $_POST['Sauce'],
-                "DishTotal" => $dishTotal,
-                "Toppings" => $toppingData
-            );
-        }
-        if(isset($_GET['changeCheckout']) && $_GET['changeCheckout'] == 'true'){
-            header("Location: menu.php?checkout=true");
-        }else{
-            header("Location: menu.php");
-        }
+    }
+    else {
+        echo("
+        <div class='container-fluid'>
+            <div class='row justify-content-center'>
+                <!-- Menu Section -->
+                <div class='col-lg-9 col-md-8 col-sm-12 pe-4'>
+                    <h2 class='text-center'>Menu</h2> <hr/>
+                    $mainPage
+                </div>
+        
+                <!-- Shopping Cart Section -->
+                <div class='col-lg-3 col-md-4 col-sm-12'> <!-- Change here -->
+                    <h2 class='text-center'>Winkelwagen</h2> <hr/>
+                    $shoppingCart
+                </div>
+            </div>
+        </div>
+        ");
     }
 }
 
 # Footer
 Functions::htmlFooter();
-?>
-
-<script>
-    //change from int to long
-    var total = parseFloat(document.getElementById("money").value);
-    // Function to increment the counter
-    function increment(topping, toppingPrice) {
-        var currentCounter = parseInt(document.getElementById('counter' + topping).innerText);
-        var inputHidden = document.getElementById(topping).value;
-
-        if (inputHidden === "true" && (currentCounter === 0)) {
-            // Do not update the total price, but still increment the counter
-            var newCounter = currentCounter + 1;
-            document.getElementById('counter' + topping).innerText = newCounter;
-            document.getElementById('amount' + topping).value = newCounter;
-            return;
-        }
-
-        if (currentCounter < 3) {
-            var newCounter = currentCounter + 1;
-            document.getElementById('counter' + topping).innerText = newCounter;
-            document.getElementById('amount' + topping).value = newCounter;
-            total += toppingPrice;
-
-            var roundedNumber = parseFloat(total).toFixed(2);
-            document.getElementById("submitButton").value = 'Add to Cart Amount €' + roundedNumber;
-        }
-    }
-
-
-
-    // Function to add a new topping row
-    function addNewTopping(topping, toppingPrice) {
-        var table = document.querySelector('table');
-        var counterElement = document.getElementById('counter' + topping);
-        if (!counterElement) {
-            var newRow = document.createElement('tr');
-            newRow.innerHTML = `
-            <tr>
-                <td>
-                    <img src='../../images/minus.png' height='25px' alt='reduction' style='cursor: pointer;' onclick='reduction("${topping}" , ${toppingPrice})'>
-                </td>
-                <td>
-                    <p style='margin: 5px 0 5px 15px;'>${topping}</p> 
-                </td>
-                <td>
-                    <p id='counter${topping}' style='margin: 5px 15px;'>0</p>
-                    <input type='hidden' name='toppingQuantities[]' id='amount${topping}' value='0'>
-                    <input type='hidden' name='selectedToppings[]' value='${topping}'>
-                    <input type='hidden' id='${topping}' value='false'>
-                    <input type='hidden' id='amount${topping}' name='amount${topping}' value='1'>
-                </td>
-                <td>
-                    <img src='../../images/plus.png' height='25px' alt='Increment' style='cursor: pointer;' onclick='increment("${topping}" , ${toppingPrice})'>
-                </td>
-            </tr>`;
-            var tbody = table.querySelector('tbody');
-            tbody.appendChild(newRow)
-            increment(topping, toppingPrice)
-        } else if (counterElement) {    
-            var currentCounterElement = document.getElementById('counter' + topping);
-            var currentCounter = parseInt(currentCounterElement.innerText);
-            increment(topping, toppingPrice);
-        }
-    }
-
-
-    //function for reducing the amount of an counter
-    function reduction(topping, toppingPrice) {
-        var currentCounterElement = document.getElementById('counter' + topping);
-        var currentCounter = parseInt(currentCounterElement.innerText);
-        var inputHidden = document.getElementById(topping).value;
-        if (inputHidden === "true" && currentCounter === 0) {
-        // Do not update the total price or decrement the counter below 0
-            return;
-        }
-        if (inputHidden === "true" && (currentCounter === 0 || currentCounter === 1)) {
-            // Do not update the total price, but still decrement the counter
-            var newCounter = currentCounter - 1;
-            currentCounterElement.innerText = newCounter;
-            document.getElementById('amount' + topping).value = newCounter;
-            return;
-        }
-
-        if (currentCounter > 0) {
-            var newCounter = currentCounter - 1;
-            currentCounterElement.innerText = newCounter;
-            document.getElementById('amount' + topping).value = newCounter;
-            total -= toppingPrice;
-
-            var roundedNumber = parseFloat(total).toFixed(2);
-            document.getElementById("submitButton").value = 'Add to Cart Amount €' + roundedNumber;
-
-            if (newCounter === 0 && inputHidden == 'false') {
-                var rowToRemove = currentCounterElement.parentNode.parentNode;
-                rowToRemove.parentNode.removeChild(rowToRemove);
-            }
-        }
-    }
-
-
-    var sizeSelector = document.getElementById('sizeSelector');
-    var previousSizeValue = sizeSelector.options[sizeSelector.selectedIndex].value;
-
-     function updatePrice() {
-        var selectedValue = sizeSelector.options[sizeSelector.selectedIndex].value;
-        console.log(total);
-        // Subtract the cost of the previous size
-        total -= parseFloat(previousSizeValue);
-
-        // Add the cost of the new size
-        total += parseFloat(selectedValue);
-
-        // Update the displayed total
-        var roundedNumber = parseFloat(total).toFixed(2);
-        
-        document.getElementById("submitButton").value = 'Add to Cart Amount €' + roundedNumber;
-
-        // Update the previous size value for the next change
-        previousSizeValue = selectedValue;
-    }
-
-    function toggleAdditionalToppings() {
-        var additionalToppings = document.getElementsByClassName('additional-toppings');
-
-        for (var i = 0; i < additionalToppings.length; i++) {
-            additionalToppings[i].style.display = (additionalToppings[i].style.display === 'none') ? 'table-row' : 'none';
-        }
-    }
-
-    function updateHidden(){
-        document.getElementById("money").value = parseFloat(total).toFixed(2); 
-    }
-
-    
-</script>
-<script>
-    function updateClasses() {
-      var triggerDiv = document.getElementById('triggerDiv');
-      var targetDiv = document.getElementById('targetDiv');
-
-      // Check if the window width is greater than or equal to a specific size (e.g., 576 pixels)
-      if (window.matchMedia('(min-width: 576px)').matches) {
-        // Change the class of the target div to col-12
-        targetDiv.classList.remove('col-12');
-        targetDiv.classList.add('col-8');
-        triggerDiv.classList.add('col-4');
-        triggerDiv.classList.remove('col-md-6');
-        triggerDiv.classList.remove('offset-md-3');
-        
-        
-      } else {
-        // Change the class of the target div to col-8
-        targetDiv.classList.remove('col-8');
-        targetDiv.classList.add('col-12');
-        triggerDiv.classList.remove('col-4');
-        triggerDiv.classList.add('col-md-6');
-        triggerDiv.classList.add('offset-md-3');
-      }
-    }
-
-    // Initial call to set classes based on window size on page load
-    updateClasses();
-
-    // Add an event listener for window resize
-    window.addEventListener('resize', updateClasses);
-</script>

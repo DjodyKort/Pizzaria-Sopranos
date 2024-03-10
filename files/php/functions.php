@@ -267,6 +267,104 @@ class Functions {
     }
 
     # ==== HTML ====
+    # Shopping cart
+    public static function makeCartItems(): string {
+        // ==== Start of Program ===
+        if (!isset($_SESSION['cart']) or empty($_SESSION['cart'])) {
+            return "";
+        }
+        else {
+            # Making the shopping cart
+            foreach ($_SESSION['cart'] as $cartItemIndex => $cartItem) {
+                // ==== Declaring Variables ====
+                # == Strings ==
+                # Item info
+                $strDishID = $cartItem['dishID'];
+
+                # SQL
+                $queryGetDishMedia = "SELECT * FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['dishID']." = ?";
+                $queryGetDishSizeData = "SELECT * FROM ".ConfigData::$dbTables['dishSizes']." WHERE ".ConfigData::$dbKeys['dishSizes']['id']." = ?";
+                $queryGetDishSauceData = "SELECT * FROM ".ConfigData::$dbTables['dishSauces']." WHERE ".ConfigData::$dbKeys['dishSauces']['id']." = ?";
+
+                # == Arrays ==
+                $arrDishMedia = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishMedia, [$strDishID]);
+                $arrSizeData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSizeData, [$cartItem['size']])[0];
+                $arrSauceData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSauceData, [$cartItem['sauce']])[0];
+
+                # == HTML ==
+                # Toppings
+                $htmlToppings = "";
+                foreach ($cartItem['toppings'] as $toppingID => $toppingAmount) {
+                    // ==== Declaring Variables ====
+                    # == Arrays ==
+                    $arrToppingData = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM ".ConfigData::$dbTables['toppings']." WHERE ".ConfigData::$dbKeys['toppings']['id']." = ?", [$toppingID]);
+
+                    # == Strings ==
+                    $strToppingName = $arrToppingData[0][ConfigData::$dbKeys['toppings']['name']];
+                    $strToppingPrice = $arrToppingData[0][ConfigData::$dbKeys['toppings']['price']];
+
+                    // ==== Start of Program ===
+                    $htmlToppings .= "<p><i>x$toppingAmount</i> $strToppingName - €".($toppingAmount * $strToppingPrice)."</p>";
+                }
+
+                // ==== Start of Loop ===
+                return "
+            <div class='row'>
+                <div class='col-12'>
+                    <div class='card mb-3'>
+                        <div class='card-body'>
+                            <h5 class='card-title text-center'>".$cartItem['name']."</h5>
+                            <hr/>
+                            <div class='container-fluid p-0'>
+                                <div class='row mb-3'>
+                                    <div class='col-6'>
+                                        <!-- Size -->
+                                        <p class='card-text'><strong>Grootte:</strong> ".$arrSizeData[ConfigData::$dbKeys['dishSizes']['name']]."</p>
+                                    </div>
+                                    <div class='col-6'>
+                                        <!-- Sauce -->
+                                        <p class='card-text text-right'><strong>Saus:</strong> ".$arrSauceData[ConfigData::$dbKeys['dishSauces']['name']]."</p>
+                                    </div>
+                                </div>
+                                <div class='row mb-2'>
+                                    <!-- Toppings -->
+                                    <div class='col-12'>
+                                        <p><strong>Toppings:</strong></p>
+                                        $htmlToppings
+                                    </div>
+                                </div>
+                                <div class='row mb-2'>
+                                    <!-- Price -->
+                                    <div class='col-12'>
+                                        <p class='card-text text-right'><strong>Prijs:</strong> €".$cartItem['dishTotal']."</p>
+                                    </div>
+                                </div>
+                            </div> <hr/>
+                            
+                            <!-- Edit & Remove buttons -->
+                            <div class='container-fluid'>
+                                <div class='row'>
+                                    <div class='col-6'>
+                                        <a href='./menu.php?page=".ConfigData::$mainMenuPages['customizedish']."&dishID=$strDishID&cartItemIndex=$cartItemIndex' class='btn btn-primary w-100'>
+                                            Aanpassen
+                                        </a>
+                                    </div>
+                                    <div class='col-6'>
+                                        <form method='POST' action='./menu.php'>
+                                            <input type='hidden' name='removeCartItem' value='$cartItemIndex'>
+                                            <input type='submit' class='btn btn-danger w-100' value='Verwijderen'>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ";
+            }
+        }
+    }
     # Global
     public static function htmlNumberPad($strIdInput): string {
         // ======== Declaring Variables ========

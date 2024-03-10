@@ -270,41 +270,45 @@ class Functions {
     # Shopping cart
     public static function makeCartItems(): string {
         // ==== Start of Program ===
-        # Making the shopping cart
-        foreach ($_SESSION['cart'] as $cartItemIndex => $cartItem) {
-            // ==== Declaring Variables ====
-            # == Strings ==
-            # Item info
-            $strDishID = $cartItem['dishID'];
-
-            # SQL
-            $queryGetDishMedia = "SELECT * FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['dishID']." = ?";
-            $queryGetDishSizeData = "SELECT * FROM ".ConfigData::$dbTables['dishSizes']." WHERE ".ConfigData::$dbKeys['dishSizes']['id']." = ?";
-            $queryGetDishSauceData = "SELECT * FROM ".ConfigData::$dbTables['dishSauces']." WHERE ".ConfigData::$dbKeys['dishSauces']['id']." = ?";
-
-            # == Arrays ==
-            $arrDishMedia = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishMedia, [$strDishID]);
-            $arrSizeData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSizeData, [$cartItem['size']])[0];
-            $arrSauceData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSauceData, [$cartItem['sauce']])[0];
-
-            # == HTML ==
-            # Toppings
-            $htmlToppings = "";
-            foreach ($cartItem['toppings'] as $toppingID => $toppingAmount) {
+        if (!isset($_SESSION['cart']) or empty($_SESSION['cart'])) {
+            return "";
+        }
+        else {
+            # Making the shopping cart
+            foreach ($_SESSION['cart'] as $cartItemIndex => $cartItem) {
                 // ==== Declaring Variables ====
-                # == Arrays ==
-                $arrToppingData = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM ".ConfigData::$dbTables['toppings']." WHERE ".ConfigData::$dbKeys['toppings']['id']." = ?", [$toppingID]);
-
                 # == Strings ==
-                $strToppingName = $arrToppingData[0][ConfigData::$dbKeys['toppings']['name']];
-                $strToppingPrice = $arrToppingData[0][ConfigData::$dbKeys['toppings']['price']];
+                # Item info
+                $strDishID = $cartItem['dishID'];
 
-                // ==== Start of Program ===
-                $htmlToppings .= "<p><i>x$toppingAmount</i> $strToppingName - €".($toppingAmount * $strToppingPrice)."</p>";
-            }
+                # SQL
+                $queryGetDishMedia = "SELECT * FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['dishID']." = ?";
+                $queryGetDishSizeData = "SELECT * FROM ".ConfigData::$dbTables['dishSizes']." WHERE ".ConfigData::$dbKeys['dishSizes']['id']." = ?";
+                $queryGetDishSauceData = "SELECT * FROM ".ConfigData::$dbTables['dishSauces']." WHERE ".ConfigData::$dbKeys['dishSauces']['id']." = ?";
 
-            // ==== Start of Loop ===
-            return "
+                # == Arrays ==
+                $arrDishMedia = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishMedia, [$strDishID]);
+                $arrSizeData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSizeData, [$cartItem['size']])[0];
+                $arrSauceData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSauceData, [$cartItem['sauce']])[0];
+
+                # == HTML ==
+                # Toppings
+                $htmlToppings = "";
+                foreach ($cartItem['toppings'] as $toppingID => $toppingAmount) {
+                    // ==== Declaring Variables ====
+                    # == Arrays ==
+                    $arrToppingData = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM ".ConfigData::$dbTables['toppings']." WHERE ".ConfigData::$dbKeys['toppings']['id']." = ?", [$toppingID]);
+
+                    # == Strings ==
+                    $strToppingName = $arrToppingData[0][ConfigData::$dbKeys['toppings']['name']];
+                    $strToppingPrice = $arrToppingData[0][ConfigData::$dbKeys['toppings']['price']];
+
+                    // ==== Start of Program ===
+                    $htmlToppings .= "<p><i>x$toppingAmount</i> $strToppingName - €".($toppingAmount * $strToppingPrice)."</p>";
+                }
+
+                // ==== Start of Loop ===
+                return "
             <div class='row'>
                 <div class='col-12'>
                     <div class='card mb-3'>
@@ -358,6 +362,7 @@ class Functions {
                 </div>
             </div>
             ";
+            }
         }
     }
     # Global

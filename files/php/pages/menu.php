@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // ==== Declaring Variables ====
             # == Strings ==
             # SQL
-            $
+
 
             # == POST ==
             break;
@@ -470,24 +470,36 @@ else {
         </div>
         ");
     }
+    elseif ($currentPage == ConfigData::$mainMenuPages['customizedish']) {
+        echo("
+        <div class='container-fluid'>
+            <div class='row justify-content-center'>
+                <!-- Menu Section -->
+                <div class='col-md-10'>
+                    <h2 class='text-center'>Menu</h2> <hr/>
+                    $mainPage
+                </div>
+        </div>
+        ");
+    }
     else {
         echo("
-    <div class='container-fluid'>
-        <div class='row justify-content-center'>
-            <!-- Menu Section -->
-            <div class='col-lg-9 col-md-8 col-sm-12 pe-4'>
-                <h2 class='text-center'>Menu</h2> <hr/>
-                $mainPage
-            </div>
-    
-            <!-- Shopping Cart Section -->
-            <div class='col-lg-3 col-md-4 col-sm-12'> <!-- Change here -->
-                <h2 class='text-center'>Winkelwagen</h2> <hr/>
-                $shoppingCart
+        <div class='container-fluid'>
+            <div class='row justify-content-center'>
+                <!-- Menu Section -->
+                <div class='col-lg-9 col-md-8 col-sm-12 pe-4'>
+                    <h2 class='text-center'>Menu</h2> <hr/>
+                    $mainPage
+                </div>
+        
+                <!-- Shopping Cart Section -->
+                <div class='col-lg-3 col-md-4 col-sm-12'> <!-- Change here -->
+                    <h2 class='text-center'>Winkelwagen</h2> <hr/>
+                    $shoppingCart
+                </div>
             </div>
         </div>
-    </div>
-    ");
+        ");
     }
 }
 

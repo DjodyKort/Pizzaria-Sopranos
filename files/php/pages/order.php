@@ -14,39 +14,52 @@ $tableOrderDishes = 'orderDishes';
 Functions::htmlHeader(320);
 
 # POST Request
-
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
     //check if chosenAddress is clicked
     $dateTime = date('Y-m-d, H:i');
+
+    // Calculating totalPrice
+    $totalPrice = 0;
+    foreach ($_SESSION['cart'] as $pizza) {
+        $totalPrice += $pizza['dishTotal'];
+    }
     if(isset($_POST['chosenAddress']) && $_SESSION['loggedIn']){
         # SQL
         
-        $query = "INSERT INTO $tableOrders (userID, orderStatus, addressID, billingAddressID, isGuest, dateOrdered) VALUES (?, ?, ?, ?, ?, ?)";
-        $arrPrepare = [$_SESSION['userID'], 0, $_POST['addressId'], $_POST['billingAddressId'], 0 , $dateTime ];
+        $query = "INSERT INTO $tableOrders (userID, orderStatus, addressID, billingAddressID, isGuest, dateOrdered, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $arrPrepare = [$_SESSION['userID'], 0, $_POST['addressId'], $_POST['billingAddressId'], 0 , $dateTime, $totalPrice];
         
         # Praepare
         $result = PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPrepare);
     }else{
         # SQL
-        $query = "INSERT INTO $tableOrders (orderStatus, isGuest, streetName, houseNumber, houseNumberAddition, postalCode, city, dateOrdered) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        $arrPrepare = [0, 1, $_POST['nameStreetName'], $_POST['nameHouseNumber'], $_POST['nameHouseNumberAddition'], $_POST['namePostalCode'], $_POST['nameCity'] , date('Y-m-d H:i')];
+        $query = "INSERT INTO $tableOrders (orderStatus, isGuest, streetName, houseNumber, houseNumberAddition, postalCode, city, dateOrdered, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $arrPrepare = [0, 1, $_POST['nameStreetName'], $_POST['nameHouseNumber'], $_POST['nameHouseNumberAddition'], $_POST['namePostalCode'], $_POST['nameCity'], date('Y-m-d H:i'), $totalPrice];
         # Praepare
         $result = PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPrepare);
-    
     }
     # SQL
     $query = "SELECT orderID FROM $tableOrders ORDER BY orderID DESC LIMIT 1";
     $result = PizzariaSopranosDB::pdoSqlReturnArray($query);
-
+    Functions::pre($_SESSION['cart']);
     foreach ($_SESSION['cart'] as $pizza) {
         $query = "INSERT INTO $tableOrderDishes (orderID, dishID, toppings) VALUES (?, ?, ?)";
         $toppingString = '';
 
-        foreach ($pizza['Toppings'] as $topping) {
-            $toppingString .= $topping['name'] . ', ';
+        foreach ($pizza['toppings'] as $toppingID => $toppingAmount) {
+            // ==== Declare Variables ====
+            # == Strings ==
+            # SQL
+            $queryGetToppingInfo = "SELECT * FROM toppings WHERE toppingID = ?";
+
+            # == Arrays ==
+            $arrToppingInfo = PizzariaSopranosDB::pdoSqlReturnArray($queryGetToppingInfo, [$toppingID])[0];
+
+            // ==== Start of Loop ====
+            $toppingString .= "{$arrToppingInfo['name']} x{$toppingAmount}, ";
         }
 
-        $arrPrepare = [$result[0]['orderID'], $pizza['Id'], rtrim($toppingString, ', ')];
+        $arrPrepare = [$result[0]['orderID'], $pizza['dishID'], rtrim($toppingString, ', ')];
 
         // Prepare and execute the SQL query inside the loop
         PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPrepare);

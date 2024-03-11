@@ -9,7 +9,7 @@ $currentPage = $_GET['page'] ?? '';
 
 // ============ Start of Program ============
 # Header
-Functions::htmlHeader(340);
+Functions::htmlHeader(320);
 
 # Dynamic POST Requests
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -91,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             # SQL
 
 
-            # == POST ==
+            // ==== Start of Program ===
+            header("Location: ./order.php");
             break;
 
         default:

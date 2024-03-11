@@ -11,7 +11,4 @@ function rangeSliderValueListener(strRangeSliderID, strOutputID) {
     });
 }
 
-// ============ Event Listeners ============
-// Image preview
-
 // ============ Start of Main ============

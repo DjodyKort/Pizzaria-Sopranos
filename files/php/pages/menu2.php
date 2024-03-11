@@ -97,7 +97,6 @@ if (isset($_GET['checkout'])) {
     }
 }
 else if (!isset($_GET['pizzaID'])) {
-
     //Bootstrap boiler
     echo("
         <div class='container-fluid'>

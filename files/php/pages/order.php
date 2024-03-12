@@ -41,7 +41,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     # SQL
     $query = "SELECT orderID FROM $tableOrders ORDER BY orderID DESC LIMIT 1";
     $result = PizzariaSopranosDB::pdoSqlReturnArray($query);
-    Functions::pre($_SESSION['cart']);
     foreach ($_SESSION['cart'] as $pizza) {
         $query = "INSERT INTO $tableOrderDishes (orderID, dishID, toppings) VALUES (?, ?, ?)";
         $toppingString = '';

@@ -296,7 +296,7 @@ switch ($currentPage) {
                                 <a class='d-flex align-items-center text-decoration-none text-black' href='./userSettings.php?page=createBAddress' >
                                     <!-- Round button with plus inside -->
                                     <button class='p-0 buttonNoOutline'>
-                                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/ images/plus-circle.svg' alt='Error: Plus button not found'>
+                                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
                                     </button>
                                 
                                     <!-- Text -->
@@ -315,19 +315,19 @@ switch ($currentPage) {
         break;
     case 'createFAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres toevoegen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres toevoegen', 'Toevoegen');
         break;
     case 'changeFAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres wijzigen' ,ConfigData::$dbTables['addresses']);
+        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres wijzigen', 'Wijzigen', ConfigData::$dbTables['addresses']);
         break;
     case 'createBAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres toevoegen');
+        $mainPage = Functions::htmlAddOrChangeAddress('Bezorgadres toevoegen', 'Toevoegen');
         break;
     case 'changeBAddress':
         // ==== Start of switch case ====
-        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres wijzigen', ConfigData::$dbTables['billingAddresses']);
+        $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres wijzigen', 'Wijzigen', ConfigData::$dbTables['billingAddresses']);
         break;
     case 'orders':
         // ==== Start of switch case ====
@@ -386,7 +386,7 @@ switch ($currentPage) {
 
             $mainPage .= 
             "<div class='row'>
-                <div class='col-12 offset-md-2'> 
+                <div class='col-12'> 
                     <h4>
 
                     <h5>{$resultOrdersDishes[0]['name']}</h5>
@@ -400,12 +400,6 @@ switch ($currentPage) {
             </div>";
         
         }
-                
-
-                
-            
-            
-            
         break;
     default:
         // ==== Declaring Variables ====

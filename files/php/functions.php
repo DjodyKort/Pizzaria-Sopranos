@@ -910,7 +910,7 @@ class Functions {
     }
 
     # Adding or changing addresses
-    public static function htmlAddOrChangeAddress($strTitle, $strTableName=''): string {
+    public static function htmlAddOrChangeAddress($strTitle, $strButtonSubmitName, $strTableName=''): string {
         // ======== Declaring Variables ========
         if (!empty($strTableName)) {
             # ==== Ints ====
@@ -969,7 +969,7 @@ class Functions {
                                 <input class='form-control' type='text' id='idCity' name='nameCity' value='$strCity'>
                                 <br/>
                                 <input type='hidden' name='idAddress' value='$intID'>
-                                <input class='btn btn-outline-danger' type='submit' value='Wijzigen'>
+                                <input class='btn btn-outline-danger' type='submit' value='$strButtonSubmitName'>
                             </div>
                         </div>
                     </form>

@@ -55,7 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
             $arrToppingInfo = PizzariaSopranosDB::pdoSqlReturnArray($queryGetToppingInfo, [$toppingID])[0];
 
             // ==== Start of Loop ====
-            $toppingString .= "{$arrToppingInfo['name']} x{$toppingAmount}, ";
+            $toppingString .= "{$toppingAmount}x $arrToppingInfo[name], ";
         }
 
         $arrPrepare = [$result[0]['orderID'], $pizza['dishID'], rtrim($toppingString, ', ')];
@@ -63,7 +63,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         // Prepare and execute the SQL query inside the loop
         PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPrepare);
     }
-
 }
 #begin bootstrap for page
 echo ("<div class='container'>
@@ -92,10 +91,9 @@ if (isset($_SESSION['loggedIn'])) {
             <div class='col-5'>
                 <input type='hidden' value='{$row['addressID']}' name='addressId'>       
                 <input type='hidden' value='{$row['billingAddressID']}' name='billingAddressId'>         
-                <button type='submit' class='btn btn-outline-success w-100' name='chosenAddress'>Kies Address</button>
+                <button type='submit' class='btn btn-outline-success w-100' name='chosenAddress'>Kies Adres</button>
             </div>
         </div>
-        
         <br/>
         ");
     }

@@ -10,6 +10,7 @@ $currentPage = $_GET['page'] ?? '';
 // ============ Start of Program ============
 # Header
 Functions::htmlHeader(340);
+Functions::toIndexIfNotEmployee();
 
 # Logout button
 if (isset($_GET['page'])){
@@ -450,7 +451,7 @@ switch ($currentPage) {
             $mainPage .= "
             <div class='col-lg-4 col-md-12 col-sm-12'>
                 <div class='card mb-4'>
-                    <img class='card-img-top' src='$thumbPath' alt='Dish Image'>
+                    <img class='card-img-top' src='$thumbPath' alt='Dish Image' style='height: 350px; object-fit: cover;'>
                     <div class='card-body'>
                         <h5 class='card-title'>".$dish[ConfigData::$dbKeys['dishes']['name']]."</h5>
                         <p class='card-text'>€ ".$dish[ConfigData::$dbKeys['dishes']['price']]."</p>
@@ -634,13 +635,16 @@ switch ($currentPage) {
 
         break;
 
-    case ConfigData::$employeePanelPages['orders']:
+        
+
+    default:
+        // ==== Declaring Variables ====
         $mainPage = "";
         $tableOrders = 'orders';
         $tableOrderDishes = 'orderDishes';
         $tableAddresses = 'addresses';
 
-        // Get data from db based on the order status
+        // Get data from db
         $query = "";
         if(isset($_GET['orderStatus']) && $_GET['orderStatus'] == 1){
             $query = "SELECT * FROM $tableOrders 
@@ -651,16 +655,17 @@ switch ($currentPage) {
             WHERE orderStatus = 0 
             ORDER BY orderStatus ASC";
         }
+        
+        
         $result = PizzariaSopranosDB::pdoSqlReturnArray($query);
 
-        //starting HTML Output
         $mainPage .= "<div class='container-fluid'>";
-
         foreach($result as $row){
-            //setting orderID
             $orderID = $row['orderID'];
-            $paymentMethod = $row['paymentMethod'];
-            //setting Address variables
+            $streetName = $row['streetName'];
+            $houseNumber = $row['houseNumber'];
+            $postalCode = $row['postalCode'];
+            $city = $row['city'];
             if(!$row['isGuest']){
                 $query = "SELECT * FROM $tableAddresses WHERE userID = {$row['userID']}";
                 $resultAddresses = PizzariaSopranosDB::pdoSqlReturnArray($query);
@@ -668,13 +673,8 @@ switch ($currentPage) {
                 $houseNumber = $resultAddresses[0]['houseNumber'];
                 $postalCode = $resultAddresses[0]['postalCode'];
                 $city = $resultAddresses[0]['city'];
-            }else{
-                $streetName = $row['streetName'];
-                $houseNumber = $row['houseNumber'];
-                $postalCode = $row['postalCode'];
-                $city = $row['city'];
             }
-            //Add a button per order to show the dishes that are in the order
+            // Add a row to the table for each order
             $mainPage .= "
             <div class='accordion' id='orders' >
                 <div class='accordion-item'>
@@ -696,7 +696,6 @@ switch ($currentPage) {
                                         </tr>
                                     </thead>";
 
-                //when the accordion is clicked, show the dishes that are in the order
                 $query = "SELECT orderDishes.*, dishes.name
                 FROM $tableOrderDishes AS orderDishes 
                 JOIN dishes ON orderDishes.dishID = dishes.dishID 
@@ -713,12 +712,11 @@ switch ($currentPage) {
                     ";
                 }
                 
-                //buttons for deleting and finishing the order
+
                 $mainPage .= "
                 </table>
                     </div>
                         <div class='col-4 col'>
-                            <p>Payment Method: $paymentMethod</p>
                             <p>{$row['totalPrice']}</p>
                             <form method='POST'>
                                 <input type='hidden' name='orderID' value='{$row['orderID']}' />
@@ -729,33 +727,13 @@ switch ($currentPage) {
                             $mainPage .="    
                             </form>
                         </div>
-                        <div class='col-9'> 
-                        
-                        <h4>Soprano's</h4>
-                        <p>{$row['dateOrdered']}</p>
-                        <p> 
-                        bezorgt naar {$row['streetName']} {$row['houseNumber']}, <br/>
-                        {$row['city']} {$row['postalCode']} 
-                        </p>
-                    </a>
-                
-                ";
-
-                    if($row['orderStatus'] == false){
-                        $mainPage  .= "
-                        <form method='post'>
-                            <button class='btn btn-primary' name='buttonOrderFinished' >Order Klaar </button>
-                            <input type='hidden' name='orderID' value='{$row['orderID']}'>
-                        </form>
-                        ";
-                    }
-                    $mainPage .="
                     </div>
                 </div>
-                </a>
-                ";
+            </div>
+        </div>
+            ";
+        }
 
-        //Create button for showing the orders that are finished or those that need working on
         $mainPage .= "
         <div class='row mt-4'>
             <div class='col-6'>";
@@ -763,33 +741,13 @@ switch ($currentPage) {
         if (isset($_GET['orderStatus']) && $_GET['orderStatus'] == '1') {
             $mainPage .= "<a href='./employeePanel.php?page=orders&orderStatus=0'><button class='btn btn-primary'>Huidige Bestellingen</button></a>";
         }else{
-            //Get data from db
-
-            $query = "SELECT orderDishes.*, dishes.name
-            FROM $tableOrderDishes AS orderDishes 
-            JOIN dishes ON orderDishes.dishID = dishes.dishID 
-            WHERE orderDishes.orderID = {$_GET['orderID']}";
-            $resultOrdersDishes = PizzariaSopranosDB::pdoSqlReturnArray($query);
-            // Rest of the code for processing the resultOrdersDishes
-            $mainPage .= 
-            "<div class='row'>
-                <div class='col-12 offset-md-2'> 
-                    <h4>
-
-                    <h5>{$resultOrdersDishes[0]['name']}</h5>
-                    <p> 
-                    {$resultOrdersDishes[0]['toppings']}
-                    </p>
-                    <a href='./employeePanel.php?page=orders'><button class='btn btn-primary' >Terug </button></a>
-                </div>
-            </div>";
-        
+            $mainPage .= "<a href='./employeePanel?page=orders&orderStatus=1'><button class='btn btn-primary'>Afgeronde bestellingen</button>";
         }
-        break;
+        $mainPage .= "
+            </div>
+        </div>";
 
-        //SQl statements for updating the order status and deleting the order
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
-
             //update order status
             if(isset($_POST['orderID']) && isset($_POST['buttonOrderFinished'])){
                 $query = "UPDATE orders SET orderStatus = 1 WHERE orderID = {$_POST['orderID']}";
@@ -803,6 +761,8 @@ switch ($currentPage) {
                 PizzariaSopranosDB::pdoSqlReturnTrue($query);
                 header("Location: ./employeePanel.php?page=orders");
             }
+
+
         }
         break;
 }

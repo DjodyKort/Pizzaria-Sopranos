@@ -659,6 +659,10 @@ switch ($currentPage) {
         
         $result = PizzariaSopranosDB::pdoSqlReturnArray($query);
 
+        if(empty($result)){
+            $mainPage = "Er zijn geen bestellingen gevonden";
+        }
+
         $mainPage .= "<div class='container-fluid'>";
         foreach($result as $row){
             $orderID = $row['orderID'];

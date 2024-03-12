@@ -330,75 +330,89 @@ switch ($currentPage) {
         $mainPage = Functions::htmlAddOrChangeAddress('Factuuradres wijzigen', 'Wijzigen', ConfigData::$dbTables['billingAddresses']);
         break;
     case 'orders':
-        // ==== Start of switch case ====
-        //declair vars
-        $mainPage = '';
+        $mainPage = "";
         $tableOrders = 'orders';
         $tableOrderDishes = 'orderDishes';
         $tableAddresses = 'addresses';
 
-        if(!isset($_GET['orderID'])){
-            // Get data from db
-            $query = "SELECT orders.*, addresses.* 
-            FROM $tableOrders AS orders 
-            JOIN $tableAddresses AS addresses ON orders.addressID = addresses.addressID 
-            WHERE orders.userID = {$_SESSION['userID']} AND addresses.userID = {$_SESSION['userID']}
-            ORDER BY orders.dateOrdered DESC";
-
-            $result = PizzariaSopranosDB::pdoSqlReturnArray($query);
-            foreach($result as $row){
-                $checkOrder = '';
-                if($row['orderStatus'] == true){
-                    $checkOrder = "<div class='green row'>";
-                }else{
-                    $checkOrder = "<div class='row'>";
-                }
-
-                //set the main page
-                $mainPage .= "<hr/>
-                <a href='./userSettings.php?page=orders&orderID={$row['orderID']}' class='link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' > 
-                $checkOrder
-                    <div class='col-3'>
-                    </div>
-                    <div class='col-9'> 
-                    
-                    <h4>Soprano's</h4>
-                    <p>{$row['dateOrdered']}</p>
-                    <p> 
-                    bezorgt naar {$row['streetName']} {$row['houseNumber']}, <br/>
-                    {$row['city']} {$row['postalCode']} 
-                    </p>
-                    <p> </p>
-                    </div>
-                </div>
-                </a>
-                ";
-            }
-        }else{
-            //Get data from db
-
-            $query = "SELECT orderDishes.*, dishes.name
-            FROM $tableOrderDishes AS orderDishes 
-            JOIN dishes ON orderDishes.dishID = dishes.dishID 
-            WHERE orderDishes.orderID = {$_GET['orderID']}";
-            $resultOrdersDishes = PizzariaSopranosDB::pdoSqlReturnArray($query);
-            // Rest of the code for processing the resultOrdersDishes
-
-            $mainPage .= 
-            "<div class='row'>
-                <div class='col-12'> 
-                    <h4>
-
-                    <h5>{$resultOrdersDishes[0]['name']}</h5>
-                    <p> 
-                    {$resultOrdersDishes[0]['toppings']}
-                    </p>
-                    <p> </p>
-                    <a href='./userSettings.php?page=orders'><button class='btn btn-primary' >Terug </button>
-                </div>
-                
-            </div>";
+        // Get data from db
+        $query = "SELECT * FROM $tableOrders 
+        WHERE userID = {$_SESSION['userID']} 
+        ORDER BY orderStatus ASC";
         
+        $result = PizzariaSopranosDB::pdoSqlReturnArray($query);
+
+        if(empty($result)){
+            $mainPage = "Er zijn geen bestellingen gevonden";
+            break;
+        }
+        
+
+        $mainPage .= "<div class='container-fluid'>";
+        foreach($result as $row){
+            $orderID = $row['orderID'];
+            $streetName = $row['streetName'];
+            $houseNumber = $row['houseNumber'];
+            $postalCode = $row['postalCode'];
+            $city = $row['city'];
+            if(!$row['isGuest']){
+                $query = "SELECT * FROM $tableAddresses WHERE userID = {$row['userID']}";
+                $resultAddresses = PizzariaSopranosDB::pdoSqlReturnArray($query);
+                $streetName = $resultAddresses[0]['streetName'];
+                $houseNumber = $resultAddresses[0]['houseNumber'];
+                $postalCode = $resultAddresses[0]['postalCode'];
+                $city = $resultAddresses[0]['city'];
+            }
+            // Add a row to the table for each order
+            $mainPage .= "
+            <div class='accordion' id='orders' >
+                <div class='accordion-item'>
+                    <h2 class='accordion-header'>
+                        <button class='accordion-button' type='button' data-bs-toggle='collapse' data-bs-target='#collapse{$row['orderID']}' aria-expanded='true' aria-controls='collapseOne'>
+                           $orderID Address:   $streetName $houseNumber $postalCode $city
+                        </button>
+                    </h2>
+                
+                <div id='collapse{$row['orderID']}' class='accordion-collapse collapse' data-bs-parent='#orders'>
+                    <div class='accordion-body'>
+                        <div class='row'>
+                            <div class='col-8 col'>
+                                <table class='table' >
+                                    <thead>
+                                        <tr>
+                                            <th scope='col'>Pizza Naam</th>
+                                            <th scope='col'>Toppings</th>
+                                        </tr>
+                                    </thead>";
+
+                $query = "SELECT orderDishes.*, dishes.name
+                FROM $tableOrderDishes AS orderDishes 
+                JOIN dishes ON orderDishes.dishID = dishes.dishID 
+                WHERE orderDishes.orderID = {$row['orderID']}";
+                $resultOrdersDishes = PizzariaSopranosDB::pdoSqlReturnArray($query);
+                foreach($resultOrdersDishes as $rowOrderDishes){
+                    $mainPage .= "
+                    <tbody>
+                        <tr>
+                            <td>{$rowOrderDishes['name']}</td>
+                            <td>{$rowOrderDishes['toppings']}</td>
+                        </tr>
+                    </tbody>
+                    ";
+                }
+                
+
+                $mainPage .= "
+                </table>
+                    </div>
+                    <div class='col-4 col'>
+                    <p>Payment method: {$row['paymentMethod']}</p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            ";
         }
         break;
     default:

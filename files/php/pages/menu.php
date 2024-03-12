@@ -427,7 +427,7 @@ if (isset($_SESSION['cart'])) {
             <div class='row'>
                 <div class='col-12'>
                     <a href='./menu.php?page=".ConfigData::$mainMenuPages['cart']."' class='btn btn-primary w-100'>
-                        Winkelwagen
+                        Naar winkelwagen
                     </a>
                 </div>
             </div>

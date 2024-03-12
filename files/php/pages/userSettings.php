@@ -296,7 +296,7 @@ switch ($currentPage) {
                                 <a class='d-flex align-items-center text-decoration-none text-black' href='./userSettings.php?page=createBAddress' >
                                     <!-- Round button with plus inside -->
                                     <button class='p-0 buttonNoOutline'>
-                                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/ images/plus-circle.svg' alt='Error: Plus button not found'>
+                                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
                                     </button>
                                 
                                     <!-- Text -->

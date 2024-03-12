@@ -55,7 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         default:
             echo($_POST['chosenAddress']);
             //check if chosenAddress is clicked
-            $dateTime = date('Y-m-d, H:i');
+            $dateTime = date('Y-m-d H:i:s');
 
             // Calculating totalPrice
             $totalPrice = 0;

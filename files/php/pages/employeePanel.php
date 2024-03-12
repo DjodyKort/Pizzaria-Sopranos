@@ -635,8 +635,6 @@ switch ($currentPage) {
 
         break;
 
-        
-
     default:
         // ==== Declaring Variables ====
         $mainPage = "";
@@ -786,6 +784,7 @@ echo("
 ");
 
 # Scripts
-echo("
-    <script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>
-");
+echo("<script src='".Functions::dynamicPathFromIndex()."files/js/employeePanel.js'></script>");
+
+# Footer
+Functions::htmlFooter();

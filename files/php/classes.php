@@ -187,6 +187,7 @@ class ConfigData {
             'houseNumberAddition' => 'houseNumberAddition',
             'postalCode' => 'postalCode',
             'city' => 'city',
+            'paymentMethod' => 'paymentMethod',
         ],
         'toppings' => [
             'id' => 'toppingID',

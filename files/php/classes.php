@@ -12,6 +12,20 @@ class ConfigData {
     public static string $userAPIAccessToken = 'SuperSecretWachtwoordDieNooitIemandZalRaden123';
 
     # ==== Arrays ====
+    # == Back button redirects ==
+    public static array $backButtonRedirects = [
+        'cart' => 'menu',
+        'customizeDish' => 'menu',
+        'addMenuItem' => 'menu',
+        'editMenuItem' => 'menu',
+        'addTopping' => 'toppings',
+        'editTopping' => 'toppings',
+        'employeeAccount' => 'menu',
+        'menu' => 'index',
+        'toppings' => 'toppings',
+        'orders' => 'orders',
+        'account' => 'menu',
+    ];
     # == Database variables ==
     # Mime types
     public static array $mimeTypes = [

@@ -146,6 +146,11 @@ class Functions {
     }
 
     public static function addAddressToDB($currentPage, $arrPushedUserData): void {
+        // ======== Declaring Variables ========
+        # GET
+        $returnTo = $_GET['returnTo'] ?? '';
+
+        // ======== Start of Program ========
         $arrAPIReturn = Functions::sendFormToAPI(Functions::pathToURL(Functions::dynamicPathFromIndex().'files/php/api/userAPI.php').'/addAddress', ConfigData::$userAPIAccessToken, $arrPushedUserData);
 
         if ($arrAPIReturn[0] != 200) {
@@ -156,8 +161,13 @@ class Functions {
             // Making the header message
             $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is toegevoegd!</div>";
 
-            // Redirecting to the account page
-            header("Location: ./userSettings.php?page=addresses");
+            // Redirect
+            if (!empty($returnTo)) {
+                header("Location: ".Functions::dynamicPathFromIndex()."files/php/pages/$returnTo");
+            }
+            else {
+                header("Location: ./userSettings.php?page=addresses");
+            }
         }
     }
     public static function deleteAddressFromDB($arrPushedUserData): void {
@@ -189,7 +199,6 @@ class Functions {
             header("Location: ./userSettings.php?page=addresses");
         }
     }
-
 
     # ==== PHP ====
     public static function moveFileToFolder($file, $folder): void {
@@ -269,11 +278,11 @@ class Functions {
     # ==== HTML ====
     # Shopping cart
     public static function makeCartItems(): string {
+        // ======== Declaring Variables ========
+        $returnString = "";
+
         // ==== Start of Program ===
-        if (!isset($_SESSION['cart']) or empty($_SESSION['cart'])) {
-            return "";
-        }
-        else {
+        if (isset($_SESSION['cart']) or !empty($_SESSION['cart'])) {
             # Making the shopping cart
             foreach ($_SESSION['cart'] as $cartItemIndex => $cartItem) {
                 // ==== Declaring Variables ====
@@ -282,9 +291,9 @@ class Functions {
                 $strDishID = $cartItem['dishID'];
 
                 # SQL
-                $queryGetDishMedia = "SELECT * FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['dishID']." = ?";
-                $queryGetDishSizeData = "SELECT * FROM ".ConfigData::$dbTables['dishSizes']." WHERE ".ConfigData::$dbKeys['dishSizes']['id']." = ?";
-                $queryGetDishSauceData = "SELECT * FROM ".ConfigData::$dbTables['dishSauces']." WHERE ".ConfigData::$dbKeys['dishSauces']['id']." = ?";
+                $queryGetDishMedia = "SELECT * FROM " . ConfigData::$dbTables['media'] . " WHERE " . ConfigData::$dbKeys['media']['dishID'] . " = ?";
+                $queryGetDishSizeData = "SELECT * FROM " . ConfigData::$dbTables['dishSizes'] . " WHERE " . ConfigData::$dbKeys['dishSizes']['id'] . " = ?";
+                $queryGetDishSauceData = "SELECT * FROM " . ConfigData::$dbTables['dishSauces'] . " WHERE " . ConfigData::$dbKeys['dishSauces']['id'] . " = ?";
 
                 # == Arrays ==
                 $arrDishMedia = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishMedia, [$strDishID]);
@@ -297,74 +306,77 @@ class Functions {
                 foreach ($cartItem['toppings'] as $toppingID => $toppingAmount) {
                     // ==== Declaring Variables ====
                     # == Arrays ==
-                    $arrToppingData = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM ".ConfigData::$dbTables['toppings']." WHERE ".ConfigData::$dbKeys['toppings']['id']." = ?", [$toppingID]);
+                    $arrToppingData = PizzariaSopranosDB::pdoSqlReturnArray("SELECT * FROM " . ConfigData::$dbTables['toppings'] . " WHERE " . ConfigData::$dbKeys['toppings']['id'] . " = ?", [$toppingID]);
 
                     # == Strings ==
                     $strToppingName = $arrToppingData[0][ConfigData::$dbKeys['toppings']['name']];
                     $strToppingPrice = $arrToppingData[0][ConfigData::$dbKeys['toppings']['price']];
 
                     // ==== Start of Program ===
-                    $htmlToppings .= "<p><i>x$toppingAmount</i> $strToppingName - €".($toppingAmount * $strToppingPrice)."</p>";
+                    $htmlToppings .= "<p><i>x$toppingAmount</i> $strToppingName - €" . ($toppingAmount * $strToppingPrice) . "</p>";
                 }
 
                 // ==== Start of Loop ===
-                return "
-            <div class='row'>
-                <div class='col-12'>
-                    <div class='card mb-3'>
-                        <div class='card-body'>
-                            <h5 class='card-title text-center'>".$cartItem['name']."</h5>
-                            <hr/>
-                            <div class='container-fluid p-0'>
-                                <div class='row mb-3'>
-                                    <div class='col-6'>
-                                        <!-- Size -->
-                                        <p class='card-text'><strong>Grootte:</strong> ".$arrSizeData[ConfigData::$dbKeys['dishSizes']['name']]."</p>
+                $returnString .= "
+                <div class='row'>
+                    <div class='col-12'>
+                        <div class='card mb-3'>
+                            <div class='card-body'>
+                                <h5 class='card-title text-center'>" . $cartItem['name'] . "</h5>
+                                <hr/>
+                                <div class='container-fluid p-0'>
+                                    <div class='row mb-3'>
+                                        <div class='col-6'>
+                                            <!-- Size -->
+                                            <p class='card-text'><strong>Grootte:</strong> " . $arrSizeData[ConfigData::$dbKeys['dishSizes']['name']] . "</p>
+                                        </div>
+                                        <div class='col-6'>
+                                            <!-- Sauce -->
+                                            <p class='card-text text-right'><strong>Saus:</strong> " . $arrSauceData[ConfigData::$dbKeys['dishSauces']['name']] . "</p>
+                                        </div>
                                     </div>
-                                    <div class='col-6'>
-                                        <!-- Sauce -->
-                                        <p class='card-text text-right'><strong>Saus:</strong> ".$arrSauceData[ConfigData::$dbKeys['dishSauces']['name']]."</p>
+                                    <div class='row mb-2'>
+                                        <!-- Toppings -->
+                                        <div class='col-12'>
+                                            <p><strong>Toppings:</strong></p>
+                                            $htmlToppings
+                                        </div>
                                     </div>
-                                </div>
-                                <div class='row mb-2'>
-                                    <!-- Toppings -->
-                                    <div class='col-12'>
-                                        <p><strong>Toppings:</strong></p>
-                                        $htmlToppings
+                                    <div class='row mb-2'>
+                                        <!-- Price -->
+                                        <div class='col-12'>
+                                            <p class='card-text text-right'><strong>Prijs:</strong> €" . $cartItem['dishTotal'] . "</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class='row mb-2'>
-                                    <!-- Price -->
-                                    <div class='col-12'>
-                                        <p class='card-text text-right'><strong>Prijs:</strong> €".$cartItem['dishTotal']."</p>
-                                    </div>
-                                </div>
-                            </div> <hr/>
-                            
-                            <!-- Edit & Remove buttons -->
-                            <div class='container-fluid'>
-                                <div class='row'>
-                                    <div class='col-6'>
-                                        <a href='./menu.php?page=".ConfigData::$mainMenuPages['customizedish']."&dishID=$strDishID&cartItemIndex=$cartItemIndex' class='btn btn-primary w-100'>
-                                            Aanpassen
-                                        </a>
-                                    </div>
-                                    <div class='col-6'>
-                                        <form method='POST' action='./menu.php'>
-                                            <input type='hidden' name='removeCartItem' value='$cartItemIndex'>
-                                            <input type='submit' class='btn btn-danger w-100' value='Verwijderen'>
-                                        </form>
+                                </div> <hr/>
+                                
+                                <!-- Edit & Remove buttons -->
+                                <div class='container-fluid'>
+                                    <div class='row'>
+                                        <div class='col-6'>
+                                            <a href='./menu.php?page=" . ConfigData::$mainMenuPages['customizedish'] . "&dishID=$strDishID&cartItemIndex=$cartItemIndex' class='btn btn-primary w-100'>
+                                                Aanpassen
+                                            </a>
+                                        </div>
+                                        <div class='col-6'>
+                                            <form method='POST' action='./menu.php'>
+                                                <input type='hidden' name='removeCartItem' value='$cartItemIndex'>
+                                                <input type='submit' class='btn btn-danger w-100' value='Verwijderen'>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            ";
+                ";
             }
         }
+
+        return $returnString;
     }
+
     # Global
     public static function htmlNumberPad($strIdInput): string {
         // ======== Declaring Variables ========
@@ -413,6 +425,8 @@ class Functions {
         # Sessions
         ob_start();
         session_start();
+
+        # ==== Session ====
 
         # ==== HTML ====
         # Non changing HTML
@@ -496,6 +510,12 @@ class Functions {
                         <div class='d-flex justify-content-center justify-content-md-start mt-3'>
                             $accountButtons
                         </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-12'>
+                        <!-- Return button -->
+                        <a onclick='window.history.back()' class='text-decoration-none'><h4 class='text-muted mt-3'>< Terug</h4></a>
                     </div>
                 </div>
             </div>

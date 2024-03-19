@@ -478,6 +478,7 @@ if (!empty($uri) && !empty($method)) {
 
                     unset($_POST['userID']);
                     $strTableName = array_key_first($_POST);
+                    $strTableName2 = $strTableName == ConfigData::$dbTables['billingAddresses'] ? ConfigData::$dbTables['addresses'] : ConfigData::$dbTables['billingAddresses'];
 
                     $strStreet = htmlspecialchars($_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['streetName']], ENT_QUOTES, 'UTF-8');
                     $strHouseNumber = htmlspecialchars($_POST[$strTableName][ConfigData::$dbKeys['billingAddresses']['houseNumber']], ENT_QUOTES, 'UTF-8');
@@ -488,6 +489,8 @@ if (!empty($uri) && !empty($method)) {
                     # SQL
                     $checkQuery = "SELECT * FROM $strTableName WHERE userID = ?";
                     $query = "INSERT INTO $strTableName (userID, streetName, houseNumber, houseNumberAddition, postalCode, city) VALUES (?, ?, ?, ?, ?, ?)";
+                    $queryCheckIfFAddressExists = "SELECT * FROM $strTableName2 WHERE userID = ?";
+                    $queryInsertFAddresIfNotExists = "INSERT INTO $strTableName2 (userID, streetName, houseNumber, houseNumberAddition, postalCode, city) VALUES (?, ?, ?, ?, ?, ?)";
 
                     # == Arrays ==
                     $arrPreparedValues = [$userID, $strStreet, $strHouseNumber, $strHouseNumberAddition, $strZipCode, $strCity];
@@ -508,6 +511,14 @@ if (!empty($uri) && !empty($method)) {
 
                         # Insert the address
                         PizzariaSopranosDB::pdoSqlReturnTrue($query, $arrPreparedValues);
+
+                        # Check if the user has a billing address
+                        $arrResult = PizzariaSopranosDB::pdoSqlReturnArray($queryCheckIfFAddressExists, [$userID]);
+                        # Insert the address if the user doesn't have a billing address
+                        if (count($arrResult) == 0) {
+                            PizzariaSopranosDB::pdoSqlReturnTrue($queryInsertFAddresIfNotExists, $arrPreparedValues);
+                        }
+
                         # Return API status
                         Functions::setHTTPResponseCode(200);
                         Functions::returnJson([

@@ -883,6 +883,11 @@ class Functions {
             # Strings
             $string = '';
 
+
+            //get data from the billingAddress
+            $query = "SELECT * FROM ".ConfigData::$dbTables['billingAddresses']." WHERE userID = ".$_SESSION['userID']."";
+            $billingAddress = PizzariaSopranosDB::pdoSqlReturnArray($query);
+
             // ======== Start of Program ========
             # Adding the start of the div
             $string .= "<div class='row p-0 pe-2 overflow-y-auto' style='height: 210px'>";
@@ -897,6 +902,29 @@ class Functions {
                 $strHouseNumberAddition = $arrAddress['houseNumberAddition'];
                 $strPostalCode = $arrAddress['postalCode'];
                 $strCity = $arrAddress['city'];
+
+                $addAsBillingAddressButton = "";
+                
+                //check if query wasnt empty
+                if(!empty($billingAddress)){
+                    // Check if the billing address is the same as the current address in the loop
+                    if ($billingAddress[0]['streetName'] == $strStreetName &&
+                    $billingAddress[0]['houseNumber'] == $strHouseNumber &&
+                    $billingAddress[0]['houseNumberAddition'] == $strHouseNumberAddition &&
+                    $billingAddress[0]['postalCode'] == $strPostalCode &&
+                    $billingAddress[0]['city'] == $strCity) {
+                    }else{
+                        $addAsBillingAddressButton .= "  
+                        <input type='submit' class='btn btn-sm btn-outline-warning mt-2' value='Factuuradres'>
+                        <input type='hidden' name='streetName' value='$strStreetName'>
+                        <input type='hidden' name='houseNumber' value='$strHouseNumber'>
+                        <input type='hidden' name='houseNumberAddition' value='$strHouseNumberAddition'>
+                        <input type='hidden' name='postalCode' value='$strPostalCode'>
+                        <input type='hidden' name='city' value='$strCity'>
+                        "; 
+                    }
+                }
+                
 
                 // ==== Start of Program ====
                 $string .= "
@@ -914,6 +942,10 @@ class Functions {
                                 <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=deleteBAddress'>
                                     <input type='hidden' name='idAddress' value='$intID'>
                                     <input type='submit' class='btn btn-sm btn-outline-danger mt-2' value='Verwijderen'>
+                                    
+                                </form>
+                                <form method='POST' action='".Functions::dynamicPathFromIndex()."files/php/pages/userSettings.php?page=updateFAddress'>
+                                    $addAsBillingAddressButton
                                 </form>
                             </div>
                         </div>

@@ -191,7 +191,6 @@ class Functions {
             header("Location: ./userSettings.php?page=addresses");
         }
         else {
-            var_dump($arrAPIReturn);
             // Making the header message
             $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Adres is gewijzigd!</div>";
 
@@ -426,13 +425,57 @@ class Functions {
         ob_start();
         session_start();
 
-        # ==== Session ====
+        # ==== Strings ====
+        # GET
+        $page = $_GET['page'] ?? '';
+
+        # Current uri
+        $phpFileName = basename($_SERVER['PHP_SELF']);
+
+        # ==== Arrays ====
+        # ConfigData
+        $backButtonArrayOrString = ConfigData::backButtonRedirects()[$phpFileName];
 
         # ==== HTML ====
         # Non changing HTML
         $headerMessage = '';
 
         # Dynamic HTML
+        $htmlBackButton = '';
+        if (!empty($page)) {
+            if (array_key_exists($page, $backButtonArrayOrString)) {
+                $backButtonPage = $backButtonArrayOrString[$page];
+                if (is_array($backButtonPage)) {
+                    $backButtonPage = 'index'; // default to 'index' if the value is an array
+                } elseif (strpos($backButtonPage, '/') !== false) {
+                    list($phpFileName, $backButtonPage) = explode('/', $backButtonPage);
+                    $phpFileName .= '.php'; // append .php extension
+                }
+            }
+            else {
+                $backButtonPage = 'index'; // default to 'index' if the page is not in the array
+            }
+        }
+        else {
+            $backButtonPage = is_string($backButtonArrayOrString) ? $backButtonArrayOrString : 'index';
+            if (strpos($backButtonPage, '/') !== false) {
+                list($phpFileName, $backButtonPage) = explode('/', $backButtonPage);
+                $phpFileName .= '.php'; // append .php extension
+            }
+        }
+
+if ($backButtonPage == 'index') {
+    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
+} else {
+    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}.php?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
+}
+
+if ($backButtonPage == 'index') {
+    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
+} else {
+    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
+}
+
         if (isset($_SESSION['headerMessage'])) {
             $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';
             $_SESSION['headerMessage'] = '';
@@ -515,7 +558,7 @@ class Functions {
                 <div class='row'>
                     <div class='col-12'>
                         <!-- Return button -->
-                        <a onclick='window.history.back()' class='text-decoration-none'><h4 class='text-muted mt-3'>< Terug</h4></a>
+                        $htmlBackButton
                     </div>
                 </div>
             </div>

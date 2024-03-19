@@ -442,15 +442,27 @@ class Functions {
 
         # Dynamic HTML
         $htmlBackButton = '';
-        if (!empty($page)) {
-            # If $backButtonArrayOrString is string
-            if (is_array($backButtonArrayOrString)) {
-                $backButtonPage = $backButtonArrayOrString[$page];
-                if (is_array($backButtonPage)) {
-                    $backButtonPage = 'index'; // default to 'index' if the value is an array
-                } elseif (strpos($backButtonPage, '/') !== false) {
-                    list($phpFileName, $backButtonPage) = explode('/', $backButtonPage);
-                    $phpFileName .= '.php'; // append .php extension
+        if ($phpFileName == 'index.php') {
+            $htmlBackButton = '';
+        }
+        else {
+            if (!empty($page)) {
+                # If $backButtonArrayOrString is string
+                if (is_array($backButtonArrayOrString)) {
+                    $backButtonPage = $backButtonArrayOrString[$page];
+                    if (is_array($backButtonPage)) {
+                        $backButtonPage = 'index'; // default to 'index' if the value is an array
+                    } elseif (strpos($backButtonPage, '/') !== false) {
+                        list($phpFileName, $backButtonPage) = explode('/', $backButtonPage);
+                        $phpFileName .= '.php'; // append .php extension
+                    }
+                }
+                else {
+                    $backButtonPage = is_string($backButtonArrayOrString) ? $backButtonArrayOrString : 'index';
+                    if (strpos($backButtonPage, '/') !== false) {
+                        list($phpFileName, $backButtonPage) = explode('/', $backButtonPage);
+                        $phpFileName .= '.php'; // append .php extension
+                    }
                 }
             }
             else {
@@ -460,26 +472,19 @@ class Functions {
                     $phpFileName .= '.php'; // append .php extension
                 }
             }
-        }
-        else {
-            $backButtonPage = is_string($backButtonArrayOrString) ? $backButtonArrayOrString : 'index';
-            if (strpos($backButtonPage, '/') !== false) {
-                list($phpFileName, $backButtonPage) = explode('/', $backButtonPage);
-                $phpFileName .= '.php'; // append .php extension
+
+            if ($backButtonPage == 'index') {
+                $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
+            } else {
+                $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}.php?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
+            }
+
+            if ($backButtonPage == 'index') {
+                $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
+            } else {
+                $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
             }
         }
-
-if ($backButtonPage == 'index') {
-    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
-} else {
-    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}.php?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
-}
-
-if ($backButtonPage == 'index') {
-    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
-} else {
-    $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
-}
 
         if (isset($_SESSION['headerMessage'])) {
             $headerMessage = "<div class='container-sm'>{$_SESSION['headerMessage']}</div>" ?? '';

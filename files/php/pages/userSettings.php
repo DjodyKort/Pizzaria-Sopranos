@@ -145,9 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case 'deleteBAddress':
             // ==== Start of POST Request ====
             # Checking if the post isn't empty
-            if(isset($_POST['Verwijderen'])){
-
-            
             if (empty($_POST['idAddress'])) {
                 echo("Er is iets fout gegaan! Probeer het later opnieuw.");
                 $boolTrue = False;
@@ -164,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 // == Start of Program ==
                 Functions::deleteAddressFromDB($arrPushedUserData);
-            }
             }
             break;
         case 'updateFAddress':

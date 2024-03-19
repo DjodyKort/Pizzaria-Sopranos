@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             # Checking if all the fields are filled in
             if (empty($_POST['nameStreetName']) || empty($_POST['nameHouseNumber']) || empty($_POST['namePostalCode']) || empty($_POST['nameCity'])) {
                 echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+      
                 $boolTrue = False;
             }
 
@@ -144,6 +145,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case 'deleteBAddress':
             // ==== Start of POST Request ====
             # Checking if the post isn't empty
+            if(isset($_POST['Verwijderen'])){
+
+            
             if (empty($_POST['idAddress'])) {
                 echo("Er is iets fout gegaan! Probeer het later opnieuw.");
                 $boolTrue = False;
@@ -161,6 +165,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // == Start of Program ==
                 Functions::deleteAddressFromDB($arrPushedUserData);
             }
+            }
+            break;
+        case 'updateFAddress':
+                // Assuming you have a function updateBillingAddress that takes an address as parameter
+                // Replace 'Factuuradres' with the actual keys of the address fields in your form
+                $dataArray = [
+                    $_POST['streetName'], 
+                    $_POST['houseNumber'], 
+                    $_POST['houseNumberAddition'],  
+                    $_POST['postalCode'], 
+                    $_POST['city']
+                ];
+                //update facture address
+                $query = "UPDATE ".ConfigData::$dbTables['billingAddresses']." SET streetName = ?, houseNumber = ?, houseNumberAddition = ?, postalCode = ?, city = ? WHERE userID = ".$_SESSION['userID']."";
+                PizzariaSopranosDB::pdoSqlReturnTrue($query, $dataArray);
+                $_SESSION['headerMessage'] = "<div class='alert alert-success' role='alert'>Factuur address is gewijzigd!</div>";
+                header("Location: ./userSettings.php?page=addresses");
+
             break;
         case 'changeBAddress':
             // ==== Declaring Variables ====
@@ -205,6 +227,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             # Checking if all the fields are filled in
             if (empty($_POST['nameName']) || empty($_POST['nameEmail']) || empty($_POST['nameBirthDate']) || empty($_POST['namePhoneNumber'])) {
                 echo("Niet alle velden zijn ingevuld! Zorg ervoor dat alle velden zijn ingevuld.");
+                $_SESSION['name'] = $_POST['nameName'];
+                $_SESSION['email'] = $_POST['nameEmail'];
+                $_SESSION['birthDate'] = $_POST['nameBirthDate'];
+                $_SESSION['phoneNumber'] = $_POST['namePhoneNumber'];
                 $boolTrue = False;
             }
 
@@ -439,23 +465,42 @@ switch ($currentPage) {
 
         if ($userData[0] != 200) {
             Functions::echoByStatusCode($userData[0]);
-            var_dump($userData);
         }
         else {
+            // == Declaring Variables ==
+            $name = $_SESSION['name'];
+            $email = $userData[1]['data']['users'][0]['email'];
+            if(empty($email)){
+                $email = $_SESSION['email'];
+            }
+
+            $birthDate = $userData[1]['data']['users'][0]['birthDate'];
+            if(empty($birthDate)){
+                $birthDate = $_SESSION['birthDate'];
+            }
+
+            $phoneNumber = $userData[1]['data']['users'][0]['phoneNumber'];
+            if(empty($phoneNumber) && !empty($_SESSION['phoneNumber'])) {
+                $phoneNumber = $_SESSION['phoneNumber'];
+            }
+            
+
+
+
             $mainPage = "
                 <form method='POST' class='container'>
                     <label for='nameName'>Naam: </label><br/>
                     <input class='form-control' type='text' id='idName' name='nameName' placeholder='Naam' value='".$_SESSION['name']."'>
                     <br/>
                     <label for='nameEmail'>Email: </label><br/>
-                    <input class='form-control' type='email' id='idEmail' name='nameEmail' placeholder='Email' value='".$userData[1]['data']['users'][0]['email']."'>
+                    <input class='form-control' type='email' id='idEmail' name='nameEmail' placeholder='Email' value='$email'>
                     <br/>
                     <label for='nameBirthDate'>Geboortedatum: </label>
                     <br/>
-                    <input class='form-control' type='date' id='idBirthDate' name='nameBirthDate' placeholder='Geboortedatum' value='".$userData[1]['data']['users'][0]['birthDate']."'><br/>
+                    <input class='form-control' type='date' id='idBirthDate' name='nameBirthDate' placeholder='Geboortedatum' value='$birthDate'><br/>
                     <label for='namePhoneNumber'>Telefoonnummer: </label>
                     <br/>
-                    <input class='form-control' type='tel' pattern='[0-9]{10}' id='idPhoneNumber' name='namePhoneNumber' placeholder='Telefoonnummer' value='".$userData[1]['data']['users'][0]['phoneNumber']."'><br/>
+                    <input class='form-control' type='tel' pattern='[0-9]{10}' id='idPhoneNumber' name='namePhoneNumber' placeholder='Telefoonnummer' value='$phoneNumber'><br/>
                     <br/>
                     <input class='btn btn-outline-danger' type='submit' value='Wijzigen'>
                 <form>

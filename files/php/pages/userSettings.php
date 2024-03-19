@@ -4,7 +4,7 @@ require_once('../functions.php');
 require_once('../classes.php');
 
 // ============ Declaring Variables ============
-# Strings
+# ==== GET ====
 $currentPage = $_GET['page'] ?? '';
 
 // ============ Start of Program ============
@@ -481,3 +481,6 @@ echo("
     </div>
 </div>
 ");
+
+# Footer
+Functions::htmlFooter();

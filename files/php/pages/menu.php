@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $queryGetDishToppings = "SELECT * FROM ".ConfigData::$dbTables['toppings']." WHERE ".ConfigData::$dbKeys['toppings']['id']." IN (".implode(',', array_fill(0, count($arrToppings), '?')).")";
             $queryGetDishSizes = "SELECT * FROM ".ConfigData::$dbTables['dishSizes']." WHERE ".ConfigData::$dbKeys['dishSizes']['id']." = ?";
             $queryGetDishSauces = "SELECT * FROM ".ConfigData::$dbTables['dishSauces']." WHERE ".ConfigData::$dbKeys['dishSauces']['id']." = ?";
+            $queryGetDefaultToppings = "SELECT ".ConfigData::$dbKeys['defaultToppingRelations']['toppingID']." FROM ".ConfigData::$dbTables['defaultToppingRelations']." WHERE ".ConfigData::$dbKeys['defaultToppingRelations']['dishID']." = ?;";
 
             # == Arrays ==
             $arrayKeys = array_keys($arrToppings);
@@ -40,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $arrToppingsData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishToppings, $arrayKeys);
             $arrSizeData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSizes, [$size]);
             $arrSauceData = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDishSauces, [$sauce]);
+            $arrDefaultToppingsIds = PizzariaSopranosDB::pdoSqlReturnArray($queryGetDefaultToppings, [$dishID]); $arrDefaultToppingsIds = array_column($arrDefaultToppingsIds, ConfigData::$dbKeys['defaultToppingRelations']['toppingID']);
 
             // ==== Start of Program ====
             # Calculating the total price
@@ -52,14 +54,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $intTotalPrice += $arrSauceData[0][ConfigData::$dbKeys['dishSauces']['price']];
 
             # Adding the price of the toppings
-            foreach ($arrToppings as $topping) {
+            foreach ($arrToppings as $toppingID => $toppingAmount) {
                 // ==== Declaring Variables ====
                 # == Ints ==
-                $toppingAmount = $topping;
-                $toppingPrice = $arrToppingsData[array_search($topping, $arrayKeys)][ConfigData::$dbKeys['toppings']['price']];
+                $toppingPrice = $arrToppingsData[array_search($toppingID, $arrayKeys)][ConfigData::$dbKeys['toppings']['price']];
 
                 // ==== Start of Program ====
-                $intTotalPrice += $toppingAmount * $toppingPrice;
+                # Check if the topping is a default topping or not
+                if (in_array($toppingID, $arrDefaultToppingsIds)) {
+                    # If the topping amount is more than 1, add the price of extra toppings to the total
+                    if ($toppingAmount > 1) {
+                        $intTotalPrice += ($toppingAmount - 1) * $toppingPrice;
+                    }
+                } else {
+                    $intTotalPrice += $toppingAmount * $toppingPrice;
+                }
             }
 
             # Making the order and adding it to the cart
@@ -89,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // ==== Declaring Variables ====
             # == Strings ==
             # SQL
-
 
             // ==== Start of Program ===
             header("Location: ./order.php");

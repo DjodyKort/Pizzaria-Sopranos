@@ -53,7 +53,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
             }
             break;
         default:
-            echo($_POST['chosenAddress']);
             //check if chosenAddress is clicked
             $dateTime = date('Y-m-d H:i:s');
 
@@ -190,11 +189,9 @@ switch ($currentPage) {
             $mainPage .= "
             <div class='row'>
                 <div class='col-12 mb-3'>
-                    <a class='d-flex align-items-center text-decoration-none text-black' href='./userSettings.php?page=createBAddress' >
+                    <a class='d-flex align-items-center text-decoration-none text-black' href='./userSettings.php?page=createBAddress&returnTo=order.php' >
                         <!-- Round button with plus inside -->
-                        <button class='p-0 buttonNoOutline'>
-                            <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
-                        </button>
+                        <img height='35px' class='plus-button' src='".Functions::dynamicPathFromIndex()."files/images/plus-circle.svg' alt='Error: Plus button not found'>
                     
                         <!-- Text -->
                         <p class='m-0 ms-2'>

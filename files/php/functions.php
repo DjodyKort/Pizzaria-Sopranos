@@ -443,7 +443,8 @@ class Functions {
         # Dynamic HTML
         $htmlBackButton = '';
         if (!empty($page)) {
-            if (array_key_exists($page, $backButtonArrayOrString)) {
+            # If $backButtonArrayOrString is string
+            if (is_array($backButtonArrayOrString)) {
                 $backButtonPage = $backButtonArrayOrString[$page];
                 if (is_array($backButtonPage)) {
                     $backButtonPage = 'index'; // default to 'index' if the value is an array
@@ -453,7 +454,11 @@ class Functions {
                 }
             }
             else {
-                $backButtonPage = 'index'; // default to 'index' if the page is not in the array
+                $backButtonPage = is_string($backButtonArrayOrString) ? $backButtonArrayOrString : 'index';
+                if (strpos($backButtonPage, '/') !== false) {
+                    list($phpFileName, $backButtonPage) = explode('/', $backButtonPage);
+                    $phpFileName .= '.php'; // append .php extension
+                }
             }
         }
         else {

@@ -475,13 +475,15 @@ class Functions {
 
             if ($backButtonPage == 'index') {
                 $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
-            } else {
+            }
+            else {
                 $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}.php?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
             }
 
             if ($backButtonPage == 'index') {
                 $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
-            } else {
+            }
+            else {
                 $htmlBackButton = "<a href='".Functions::dynamicPathFromIndex()."files/php/pages/{$phpFileName}?page={$backButtonPage}' class='text-decoration-none'><h4 class='text-muted'>&lt; Terug</h4></a>";
             }
         }
@@ -565,8 +567,8 @@ class Functions {
                         </div>
                     </div>
                 </div>
-                <div class='row'>
-                    <div class='col-12'>
+                <div class='row justify-content-center'>
+                    <div class='col-8 center'>
                         <!-- Return button -->
                         $htmlBackButton
                     </div>

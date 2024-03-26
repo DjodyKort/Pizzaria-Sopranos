@@ -40,6 +40,7 @@ class ConfigData {
             ],
             'order.php' => 'menu/cart',
             'menu.php' => [
+                'menu' => 'index',
                 'customizeDish' => 'menu',
                 'cart' => 'menu',
             ],

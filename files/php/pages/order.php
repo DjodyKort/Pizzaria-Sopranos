@@ -66,7 +66,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                 $query = "INSERT INTO $tableOrders (userID, orderStatus, addressID, billingAddressID, isGuest, dateOrdered, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $arrPrepare = [$_SESSION['userID'], 0, $_POST['addressId'], $_POST['billingAddressId'], 0 , $dateTime, $totalPrice];
 
-                # Praepare
+                # Prepare
                 $lastRowID = PizzariaSopranosDB::pdoSqlReturnLastID($query, $arrPrepare);
 
                 # Put in session
@@ -77,7 +77,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                 $query = "INSERT INTO $tableOrders (orderStatus, isGuest, streetName, houseNumber, houseNumberAddition, postalCode, city, dateOrdered, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $arrPrepare = [0, 1, $_POST['nameStreetName'], $_POST['nameHouseNumber'], $_POST['nameHouseNumberAddition'], $_POST['namePostalCode'], $_POST['nameCity'], date('Y-m-d H:i'), $totalPrice];
 
-                # Praepare
+                # Prepare
                 $lastRowID = PizzariaSopranosDB::pdoSqlReturnLastID($query, $arrPrepare);
 
                 # Put in session
@@ -163,10 +163,17 @@ switch ($currentPage) {
         # HTML
         if (isset($_SESSION['loggedIn'])) {
             $result = PizzariaSopranosDB::pdoSqlReturnArray("SELECT addresses.*, billing.billingAddressID
-    FROM $tableAddresses addresses
-    LEFT JOIN billingAddresses billing ON addresses.userID = billing.userID
-    WHERE addresses.userID = {$_SESSION['userID']}"
+            FROM $tableAddresses addresses
+            LEFT JOIN billingAddresses billing ON addresses.userID = billing.userID
+            WHERE addresses.userID = {$_SESSION['userID']}"
             );
+
+            // Check if the billing address is empty
+
+            if (empty($result[0]['billingAddressID'])) {
+                header("Location: ./userSettings.php?page=createFAddress&returnTo=order.php");
+            }
+
             foreach ($result as $row) {
                 $mainPage .= "
                 <div class='row'>

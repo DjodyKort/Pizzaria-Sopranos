@@ -338,6 +338,9 @@ switch ($currentPage) {
         $queryGetAllDishes = "SELECT * FROM ".ConfigData::$dbTables['dishes'];
         $queryGetDishMedia = "SELECT * FROM ".ConfigData::$dbTables['media']." WHERE ".ConfigData::$dbKeys['media']['dishID']." = ?";
 
+        # == Bools ==
+        $openedRow = false;
+
         # == Arrays ==
         $arrAllDishes = PizzariaSopranosDB::pdoSqlReturnArray($queryGetAllDishes);
 
@@ -364,11 +367,13 @@ switch ($currentPage) {
                 }
             }
 
-            // ==== Start of Program ===
+            // ==== Start of Loop ===
             # Checking counter to check if new row is needed
             if ($index % 4 == 0) {
                 $mainPage .= "<div class='row'>";
+                $openedRow = true;
             }
+
             # Making the card
             $mainPage .= "
             <div class='col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12'>
@@ -404,8 +409,14 @@ switch ($currentPage) {
             # Checking counter to check if new row is needed
             if ($index % 4 == 3) {
                 $mainPage .= "</div>";
+                $openedRow = false;
             }
         }
+
+# Closing the row if it is still open
+if ($openedRow) {
+    $mainPage .= "</div>";
+}
         break;
 }
 

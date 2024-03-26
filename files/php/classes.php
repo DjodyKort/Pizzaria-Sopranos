@@ -13,19 +13,41 @@ class ConfigData {
 
     # ==== Arrays ====
     # == Back button redirects ==
-    public static array $backButtonRedirects = [
-        'cart' => 'menu',
-        'customizeDish' => 'menu',
-        'addMenuItem' => 'menu',
-        'editMenuItem' => 'menu',
-        'addTopping' => 'toppings',
-        'editTopping' => 'toppings',
-        'employeeAccount' => 'menu',
-        'menu' => 'index',
-        'toppings' => 'toppings',
-        'orders' => 'orders',
-        'account' => 'menu',
-    ];
+    public static function backButtonRedirects(): array {
+        return [
+            'employeeLogin.php' => 'index',
+            'employeePanel.php' => [
+                'orders' => 'index',
+                'menu' => 'index',
+                'toppings' => 'index',
+                'employeeAccount' => 'index',
+                self::$employeePanelPages['additem'] => self::$employeePanelPages['menu'],
+                self::$employeePanelPages['edititem'] => self::$employeePanelPages['menu'],
+                self::$employeePanelPages['addtopping'] => self::$employeePanelPages['toppings'],
+                self::$employeePanelPages['edittopping'] => self::$employeePanelPages['toppings'],
+
+            ],
+            'login.php' => 'index',
+            'register.php' => 'index',
+            'userSettings.php' => [
+                'account' => 'index',
+                'addresses' => 'index',
+                'orders' => 'index',
+                'createFAddress' => 'addresses',
+                'createBAddress' => 'addresses',
+                'changeFAddress' => 'addresses',
+                'changeBAddress' => 'addresses',
+            ],
+            'order.php' => 'menu/cart',
+            'menu.php' => [
+                'menu' => 'index',
+                'customizeDish' => 'menu',
+                'cart' => 'menu',
+            ],
+            'index.php' => ''
+        ];
+    }
+
     # == Database variables ==
     # Mime types
     public static array $mimeTypes = [

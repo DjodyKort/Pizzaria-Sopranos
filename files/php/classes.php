@@ -332,22 +332,14 @@ class ConfigData {
 }
 
 class PizzariaSopranosDB {
-    // ======== Declaring Variables ========
-    # ==== Database ====
-    # Strings
-    private static string $dbHost = 's244.webhostingserver.nl';
-    private static string $dbUser = 'deb142504_sopranos';
-    private static string $dbPass = 'DePJH7L3';
-    private static string $dbName = 'deb142504_sopranos';
-
     // ======== Functions ========
     private static function connectToDB(): PDO {
         // ==== Declaring Variables ====
-        $Hostname   = self::$dbHost;                   // Database servername
-        $DBname     = self::$dbName;                   // Database name
+        $Hostname   = $_ENV['DB_HOST'];                // Database host
+        $DBname     = $_ENV['DB_NAME'];                // Database name
         $port       = "3306";                          // Database port
-        $Username   = self::$dbUser;                   // Database username
-        $Password   = self::$dbPass;                   // Database user password
+        $Username   = $_ENV['DB_USER'];                // Database user
+        $Password   = $_ENV['DB_PASS'];                // Database password
 
         // ==== Start of Function ====
         $conn = new PDO("mysql:host=[$Hostname]; port=$port; dbname=$DBname", $Username, $Password); // Create the actual connection
